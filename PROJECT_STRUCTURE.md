@@ -32,12 +32,6 @@ woconapp/
 │   │   │   ├── Loading.vue    # 加载组件
 │   │   │   └── ErrorMessage.vue # 错误提示组件
 │   │   │
-│   │   ├── layout/             # 布局组件
-│   │   │   ├── BottomBar.vue  # 底部导航栏
-│   │   │   ├── Header.vue     # 头部导航
-│   │   │   ├── Footer.vue     # 页脚
-│   │   │   └── PageLayout.vue # 页面布局容器
-│   │   │
 │   │   ├── map/               # 地图组件 (woconOSM)
 │   │   │   ├── WoconMap.vue   # 主地图组件
 │   │   │   ├── MapMarker.vue  # 地图标记
@@ -110,11 +104,7 @@ woconapp/
 │   │   └── index.ts           # 路由定义
 │   │
 │   └── views/                 # 页面组件
-│       ├── Home.vue           # 首页（主页）
-│       ├── Search.vue         # 搜索页
-│       ├── Connections.vue    # 人脉页
-│       ├── Discover.vue       # 发现页
-│       ├── HomePage.vue       # 家页面
+│       ├── Home.vue           # 首页（左右布局，底部四选项卡：搜索/人脉/发现/家）
 │       ├── Login.vue          # 登录页
 │       ├── Signup.vue         # 注册页
 │       ├── Profile.vue        # 个人资料页
@@ -329,17 +319,15 @@ views/
 ## 🚀 路由结构规划
 
 ```
-/                           # 首页（主页，含搜索/人脉/发现/家四个子页面）
-/search                     # 搜索页（独立路由）
-/connections                # 人脉页（独立路由）
-/discover                    # 发现页（独立路由）
-/home                       # 家页面（独立路由）
-/login                      # 登录
-/signup                     # 注册
-/profile                    # 个人资料
-/map                        # 地图
-/settings                   # 设置
+/                           # 首页（需认证，左右布局，底部四选项卡）
+/login                      # 登录（游客专属）
+/signup                     # 注册（游客专属）
+/profile                    # 个人资料（需认证）
+/map                        # 地图（需认证）
+/create-trip                 # 创建行程（需认证）
+/settings                   # 设置（需认证）
 
+# 行程相关（待开发）
 /trips                      # 行程列表
 /trips/:id                  # 行程详情
 /trips/:id/map              # 行程地图
@@ -348,8 +336,10 @@ views/
 /trips/:id/route-planning   # 路线规划
 /trips/create               # 创建行程
 
+# 公共页面（待开发）
 /explore                    # 探索
 /trending                   # 热门
+/trip-search                # 行程搜索
 ```
 
 ---
@@ -471,6 +461,11 @@ chore: 构建/工具相关
 - ✅ 首页（Home.vue）集成四个子页面切换功能，带黑白简约 SVG 图标
 - ✅ 为所有非登录/注册页面添加侧边栏触发器
 - ✅ 路由配置更新，添加四个子页面路由
+- ✅ 创建认证系统（Pinia store + Supabase）
+- ✅ 添加路由守卫（未登录重定向到登录页）
+- ✅ 添加 OAuth 登录支持（GitHub、Google、Facebook、LinkedIn）
+- ✅ 优化路由结构，删除冗余的独立页面
+- ✅ 首页底部四选项卡（搜索/人脉/发现/家）集成到主页面
 
 ---
 
