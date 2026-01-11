@@ -88,8 +88,12 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isAuthenticated = authStore.isAuthenticated
 
+  // 首页访问 - 未登录重定向到登录页
+  if (to.path === '/' && !isAuthenticated) {
+    next({ name: 'login' })
+  }
   // 需要认证的页面
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  else if (to.meta.requiresAuth && !isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
   }
   // 游客专属页面（已登录用户不能访问）
