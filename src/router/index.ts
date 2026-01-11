@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import Home from '@/views/Home.vue'
 import Login from '@/views/Login.vue'
 import Profile from '@/views/Profile.vue'
@@ -22,54 +23,82 @@ const router = createRouter({
     {
       path: '/search',
       name: 'search',
-      component: Search
+      component: Search,
+      meta: { requiresAuth: true }
     },
     {
       path: '/connections',
       name: 'connections',
-      component: Connections
+      component: Connections,
+      meta: { requiresAuth: true }
     },
     {
       path: '/discover',
       name: 'discover',
-      component: Discover
+      component: Discover,
+      meta: { requiresAuth: true }
     },
     {
       path: '/home',
       name: 'homepage',
-      component: HomePage
+      component: HomePage,
+      meta: { requiresAuth: true }
     },
     {
       path: '/login',
       name: 'login',
-      component: Login
+      component: Login,
+      meta: { guestOnly: true }
     },
     {
       path: '/signup',
       name: 'signup',
-      component: Signup
+      component: Signup,
+      meta: { guestOnly: true }
     },
     {
       path: '/profile',
       name: 'profile',
-      component: Profile
+      component: Profile,
+      meta: { requiresAuth: true }
     },
     {
       path: '/map',
       name: 'map',
-      component: Map
+      component: Map,
+      meta: { requiresAuth: true }
     },
     {
       path: '/create-trip',
       name: 'create-trip',
-      component: CreateTrip
+      component: CreateTrip,
+      meta: { requiresAuth: true }
     },
     {
       path: '/settings',
       name: 'settings',
-      component: Settings
+      component: Settings,
+      meta: { requiresAuth: true }
     }
   ]
+})
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  const isAuthenticated = authStore.isAuthenticated
+
+  // 需要认证的页面
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next({ name: 'login', query: { redirect: to.fullPath } })
+  }
+  // 游客专属页面（已登录用户不能访问）
+  else if (to.meta.guestOnly && isAuthenticated) {
+    next({ name: 'home' })
+  }
+  else {
+    next()
+  }
 })
 
 export default router

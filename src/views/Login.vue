@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabase'
+
+const router = useRouter()
+const route = useRoute()
 
 const email = ref('')
 const message = ref('')
@@ -86,6 +90,9 @@ const loginWithEmail = async () => {
 const loginWithGitHub = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
+    options: {
+      redirectTo: window.location.origin + '/login/callback'
+    }
   })
 
   if (error) {
@@ -97,6 +104,9 @@ const loginWithGitHub = async () => {
 const loginWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
+    options: {
+      redirectTo: window.location.origin + '/login/callback'
+    }
   })
 
   if (error) {
@@ -108,6 +118,9 @@ const loginWithGoogle = async () => {
 const loginWithFacebook = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'facebook',
+    options: {
+      redirectTo: window.location.origin + '/login/callback'
+    }
   })
 
   if (error) {
@@ -119,6 +132,9 @@ const loginWithFacebook = async () => {
 const loginWithLinkedIn = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'linkedin',
+    options: {
+      redirectTo: window.location.origin + '/login/callback'
+    }
   })
 
   if (error) {
@@ -126,6 +142,14 @@ const loginWithLinkedIn = async () => {
     message.value = 'LinkedIn login failed. Please try again.'
   }
 }
+
+// 监听认证状态变化，登录后跳转
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    const redirect = route.query.redirect as string
+    router.push(redirect || '/')
+  }
+})
 </script>
 
 <template>
