@@ -7,6 +7,7 @@ import Map from '@/views/Map.vue'
 import Signup from '@/views/Signup.vue'
 import CreateTrip from '@/views/CreateTrip.vue'
 import Settings from '@/views/Settings.vue'
+import ApiTest from '@/views/ApiTest.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +57,13 @@ const router = createRouter({
       name: 'create-trip',
       component: CreateTrip,
       meta: { requiresAuth: true }
+    },
+    // API 测试页面
+    {
+      path: '/api-test',
+      name: 'api-test',
+      component: ApiTest,
+      meta: { requiresAuth: false }
     }
   ]
 })

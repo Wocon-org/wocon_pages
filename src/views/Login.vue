@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 
@@ -11,495 +11,629 @@ const message = ref('')
 const loading = ref(false)
 const emailError = ref('')
 const emailTimeout = ref<number | null>(null)
+const theme = ref<'dark' | 'light'>('dark')
+const showToast = ref(false)
+const toastMessage = ref('')
 
 const allowedDomains = [
-  'qq.com',
-  'gmail.com',
-  'outlook.com',
-  'hotmail.com',
-  'yahoo.com',
-  '163.com',
-  '126.com',
-  'sina.com',
-  'icloud.com',
-  'protonmail.com',
-  '163.net',
-  '263.net',
-  'yeah.net',
-  'foxmail.com',
-  'aliyun.com',
-  'tom.com',
-  'vip.qq.com',
-  'vip.sina.com',
-  'sohu.com',
+  'qq.com', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com',
+  '163.com', '126.com', 'sina.com', 'icloud.com', 'protonmail.com',
+  '163.net', '263.net', 'yeah.net', 'foxmail.com', 'aliyun.com',
+  'tom.com', 'vip.qq.com', 'vip.sina.com', 'sohu.com',
 ]
+
+const toast = (msg: string) => {
+  toastMessage.value = msg
+  showToast.value = true
+  setTimeout(() => showToast.value = false, 2200)
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('wocon_theme') as 'dark' | 'light' | null
+  if (saved) theme.value = saved
+})
+
+const toggleTheme = () => {
+  theme.value = theme.value === 'dark' ? 'light' : 'dark'
+  localStorage.setItem('wocon_theme', theme.value)
+}
 
 const validateEmail = (emailValue: string): string => {
   if (!emailValue) return ''
-
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(emailValue)) {
-    return 'Please enter a valid email address'
-  }
-
+  if (!emailRegex.test(emailValue)) return 'Please enter a valid email address'
   const domain = emailValue.split('@')[1]?.toLowerCase()
   if (domain && !allowedDomains.includes(domain)) {
     return `Please use: ${allowedDomains.slice(0, 6).join(', ')}...`
   }
-
   return ''
 }
 
 watch(email, (newVal) => {
-  // Clear previous timeout
-  if (emailTimeout.value) {
-    clearTimeout(emailTimeout.value)
-  }
-
-  // Debounce validation - only validate after user stops typing for 800ms
+  if (emailTimeout.value) clearTimeout(emailTimeout.value)
   emailTimeout.value = window.setTimeout(() => {
     emailError.value = validateEmail(newVal.trim())
   }, 800)
 })
 
-const isValidEmail = ref(false)
-
 watch(emailError, (newError) => {
   isValidEmail.value = email.value.length > 0 && newError === ''
 })
 
+const isValidEmail = ref(false)
+
+const clearInput = () => {
+  email.value = ''
+  emailError.value = ''
+  toast('Input cleared')
+}
+
 const loginWithEmail = async () => {
   if (!isValidEmail.value) return
-
   loading.value = true
-  message.value = ''
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email: email.value,
-  })
-
+  const { error } = await supabase.auth.signInWithOtp({ email: email.value })
   loading.value = false
-
   if (error) {
-    message.value = error.message
+    toast(error.message)
   } else {
-    message.value = 'Check your email for login link ✉️'
+    toast('Check your email for login link ✉️')
   }
 }
 
-const loginWithGitHub = async () => {
+const loginWithOAuth = async (provider: 'github' | 'google' | 'facebook' | 'linkedin') => {
   const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'github',
-    options: {
-      redirectTo: window.location.origin + '/login/callback'
-    }
+    provider,
+    options: { redirectTo: window.location.origin + '/login/callback' }
   })
-
   if (error) {
-    console.error('GitHub login error:', error)
-    message.value = 'GitHub login failed. Please try again.'
+    toast(`${provider} login failed. Please try again.`)
   }
 }
 
-const loginWithGoogle = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: window.location.origin + '/login/callback'
-    }
-  })
-
-  if (error) {
-    console.error('Google login error:', error)
-    message.value = 'Google login failed. Please try again.'
-  }
-}
-
-const loginWithFacebook = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'facebook',
-    options: {
-      redirectTo: window.location.origin + '/login/callback'
-    }
-  })
-
-  if (error) {
-    console.error('Facebook login error:', error)
-    message.value = 'Facebook login failed. Please try again.'
-  }
-}
-
-const loginWithLinkedIn = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'linkedin',
-    options: {
-      redirectTo: window.location.origin + '/login/callback'
-    }
-  })
-
-  if (error) {
-    console.error('LinkedIn login error:', error)
-    message.value = 'LinkedIn login failed. Please try again.'
-  }
-}
-
-// 监听认证状态变化，登录后跳转
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session) {
-    const redirect = route.query.redirect as string
-    router.push(redirect || '/')
+    router.push(route.query.redirect as string || '/')
   }
 })
 </script>
 
 <template>
-  <div class="login-container">
-    <div class="top-logo">
-      <router-link to="/">
-        <img src="/woconlogo.png" alt="wocon logo" class="page-logo" />
-      </router-link>
-    </div>
-    <div class="login-card">
-      <div class="login-header">
-        <h1>Welcome to wocon</h1>
-        <p>Sign in to continue</p>
-      </div>
+  <div :data-theme="theme" class="body">
+    <div class="blob a"></div>
+    <div class="blob b"></div>
+    <div class="blob c"></div>
 
-      <div class="login-form">
-        <div class="form-group">
-          <input
-            v-model="email"
-            type="email"
-            placeholder="Enter your email"
-            class="email-input"
-            :class="{ error: emailError }"
-            :disabled="loading"
-          />
-          <div v-if="emailError" class="error-message">{{ emailError }}</div>
-          <button
-            @click="loginWithEmail"
-            class="email-button"
-            :disabled="loading || !isValidEmail"
-          >
-            {{ loading ? 'Sending...' : 'Send Login Link' }}
-          </button>
-        </div>
+    <main class="wrap">
+      <section class="shell">
+        <aside class="card hero">
+          <div class="brand">
+            <div class="logo"></div>
+            <div>
+              <h1>wocon</h1>
+              <p>Modern workspace · Secure access</p>
+            </div>
+          </div>
 
-        <div class="divider">
-          <span>or continue with</span>
-        </div>
+          <div class="headline">Start Here to Meet Someone Surprising</div>
+          <div class="subhead">
+            Sign in to wocon to connect with professionals, share opportunities, and grow your network.
+          </div>
 
-        <div class="social-buttons">
-          <button @click="loginWithGitHub" class="social-button github">
-            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-            GitHub
-          </button>
-          <button @click="loginWithGoogle" class="social-button google">
-            <svg class="icon" viewBox="0 0 24 24">
-              <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Google
-          </button>
-          <button @click="loginWithFacebook" class="social-button facebook">
-            <svg class="icon" viewBox="0 0 24 24" fill="#1877f2">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-            Facebook
-          </button>
-          <button @click="loginWithLinkedIn" class="social-button linkedin">
-            <svg class="icon" viewBox="0 0 24 24" fill="#0077b5">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
-            LinkedIn
-          </button>
-        </div>
-      </div>
+          <div class="chips">
+            <div class="chip">Glassmorphism</div>
+            <div class="chip">Secure Auth</div>
+            <div class="chip">Dark/Light Theme</div>
+          </div>
 
-      <div
-        v-if="message"
-        class="message"
-        :class="{ error: message.includes('failed') || message.includes('error') }"
-      >
-        {{ message }}
-      </div>
+          <div class="stats">
+            <div class="stat"><b>99.9%</b><span>Uptime</span></div>
+            <div class="stat"><b>OAuth</b><span>Multi-provider</span></div>
+            <div class="stat"><b>SSO</b><span>Enterprise ready</span></div>
+          </div>
+        </aside>
 
-      <div class="login-footer">
-        <p>Don't have an account? <router-link to="/signup">Sign up</router-link></p>
-      </div>
-    </div>
+        <section class="card login">
+          <div class="topbar">
+            <div class="brand" style="margin:0;">
+              <img src="/woconlogo.png" alt="wocon" class="brand-logo" />
+              <div>
+                <h1 style="font-size:16px;margin:0;">wocon</h1>
+                <p style="margin:2px 0 0;">Sign in to your account</p>
+              </div>
+            </div>
+
+            <div class="mode" @click="toggleTheme">
+              <span class="dot"></span>
+              <span>{{ theme === 'dark' ? 'Dark' : 'Light' }}</span>
+            </div>
+          </div>
+
+          <h2 class="title">Welcome back</h2>
+          <p class="hint">Sign in with email. We'll send you a magic link to sign in instantly.</p>
+
+          <form @submit.prevent="loginWithEmail" autocomplete="on" novalidate>
+            <div class="field">
+              <label for="email">Email address</label>
+              <div class="input">
+                <input
+                  id="email"
+                  v-model="email"
+                  type="email"
+                  inputmode="email"
+                  placeholder="name@wocon.com"
+                  required
+                  :disabled="loading"
+                  :class="{ error: emailError }"
+                />
+                <button class="iconbtn" type="button" @click="clearInput" title="Clear">
+                  <svg class="svg" viewBox="0 0 24 24" fill="none">
+                    <path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div v-if="emailError" class="error-message">{{ emailError }}</div>
+            </div>
+
+            <button class="btn" type="submit" :disabled="loading || !isValidEmail">
+              {{ loading ? 'Sending...' : 'Send Magic Link' }}
+            </button>
+
+            <div class="divider">or continue with</div>
+
+            <div class="oauth">
+              <button type="button" @click="loginWithOAuth('github')">
+                <svg class="svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 .5a11.5 11.5 0 0 0-3.64 22.4c.58.1.8-.25.8-.56v-2.1c-3.26.71-3.95-1.4-3.95-1.4-.54-1.37-1.31-1.73-1.31-1.73-1.07-.73.08-.72.08-.72 1.18.08 1.81 1.22 1.81 1.22 1.06 1.8 2.78 1.28 3.46.98.11-.76.41-1.28.75-1.58-2.6-.3-5.34-1.3-5.34-5.8 0-1.28.46-2.33 1.22-3.15-.12-.3-.53-1.52.12-3.17 0 0 .99-.32 3.25 1.2a11.1 11.1 0 0 1 5.92 0c2.26-1.52 3.25-1.2 3.25-1.2.65 1.65.24 2.87.12 3.17.76.82 1.22 1.87 1.22 3.15 0 4.52-2.75 5.5-5.37 5.8.42.37.8 1.1.8 2.22v3.28c0 .31.22.67.8.56A11.5 11.5 0 0 0 12 .5Z"/>
+                </svg>
+                GitHub
+              </button>
+              <button type="button" @click="loginWithOAuth('google')">
+                <svg class="svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M21.6 12.27c0-.64-.06-1.25-.16-1.85H12v3.5h5.38a4.6 4.6 0 0 1-2 3.02v2.26h3.24c1.9-1.75 2.98-4.33 2.98-7.93Z" fill="currentColor" opacity=".9"/>
+                  <path d="M12 22c2.7 0 4.97-.9 6.62-2.44l-3.24-2.26c-.9.6-2.06.95-3.38.95-2.6 0-4.8-1.76-5.59-4.12H3.07v2.33A10 10 0 0 0 12 22Z" fill="currentColor" opacity=".75"/>
+                  <path d="M6.41 13.13A6.02 6.02 0 0 1 6.1 12c0-.39.06-.77.14-1.13V8.54H3.07A10 10 0 0 0 2 12c0 1.61.39 3.14 1.07 4.46l3.34-2.33Z" fill="currentColor" opacity=".65"/>
+                  <path d="M12 5.75c1.47 0 2.8.5 3.84 1.5l2.88-2.88C16.96 2.74 14.7 2 12 2A10 10 0 0 0 3.07 8.54l3.17 2.33C7.02 7.5 9.28 5.75 12 5.75Z" fill="currentColor" opacity=".8"/>
+                </svg>
+                Google
+              </button>
+              <button type="button" @click="loginWithOAuth('facebook')">
+                <svg class="svg" viewBox="0 0 24 24" fill="#1877f2">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+                Facebook
+              </button>
+              <button type="button" @click="loginWithOAuth('linkedin')">
+                <svg class="svg" viewBox="0 0 24 24" fill="#0077b5">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                LinkedIn
+              </button>
+            </div>
+          </form>
+
+          <div class="foot">
+            <span>Don't have an account? <router-link to="/signup">Sign up</router-link></span>
+          </div>
+        </section>
+      </section>
+
+      <div class="toast" :class="{ show: showToast }">{{ toastMessage }}</div>
+    </main>
   </div>
 </template>
 
 <style scoped>
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.body {
+  margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: radial-gradient(1200px 700px at 18% 18%, rgba(124,58,237,.35), transparent 55%),
+              radial-gradient(900px 600px at 88% 22%, rgba(34,211,238,.26), transparent 52%),
+              radial-gradient(1000px 700px at 72% 92%, rgba(52,211,153,.20), transparent 55%);
+  background-size: cover;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.top-logo {
+.body[data-theme="dark"] {
+  --bg0: #070A12;
+  --bg1: #0B1022;
+  --card: rgba(255,255,255,.08);
+  --card2: rgba(255,255,255,.12);
+  --stroke: rgba(255,255,255,.14);
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.68);
+  --shadow: 0 24px 70px rgba(0,0,0,.55);
+  --radius: 22px;
+  --accentA: #7C3AED;
+  --accentB: #22D3EE;
+  --accentC: #34D399;
+  --focus: rgba(34,211,238,.35);
+  background: radial-gradient(1200px 700px at 18% 18%, rgba(124,58,237,.35), transparent 55%),
+              radial-gradient(900px 600px at 88% 22%, rgba(34,211,238,.26), transparent 52%),
+              radial-gradient(1000px 700px at 72% 92%, rgba(52,211,153,.20), transparent 55%),
+              linear-gradient(160deg, var(--bg0), var(--bg1));
+}
+
+.body[data-theme="light"] {
+  --bg0: #F6F7FB;
+  --bg1: #EEF2FF;
+  --card: rgba(255,255,255,.72);
+  --card2: rgba(255,255,255,.86);
+  --stroke: rgba(10,20,40,.10);
+  --text: rgba(10,20,40,.92);
+  --muted: rgba(10,20,40,.62);
+  --shadow: 0 24px 70px rgba(17,24,39,.18);
+  --focus: rgba(124,58,237,.18);
+  background: radial-gradient(1200px 700px at 18% 18%, rgba(124,58,237,.20), transparent 55%),
+              radial-gradient(900px 600px at 88% 22%, rgba(34,211,238,.15), transparent 52%),
+              radial-gradient(1000px 700px at 72% 92%, rgba(52,211,153,.12), transparent 55%),
+              linear-gradient(160deg, var(--bg0), var(--bg1));
+}
+
+.body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  opacity: .25;
+  pointer-events: none;
+}
+
+.blob {
   position: absolute;
-  top: 24px;
-  left: 24px;
-  z-index: 10;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: .22;
+  animation: floaty 14s ease-in-out infinite;
+}
+.blob.a {
+  background: radial-gradient(circle at 30% 30%, var(--accentA), transparent 60%);
+  left: -120px;
+  top: -140px;
+}
+.blob.b {
+  background: radial-gradient(circle at 30% 30%, var(--accentB), transparent 60%);
+  right: -150px;
+  top: -80px;
+  animation-duration: 17s;
+}
+.blob.c {
+  background: radial-gradient(circle at 30% 30%, var(--accentC), transparent 60%);
+  left: 40%;
+  bottom: -220px;
+  animation-duration: 19s;
 }
 
-.top-logo a {
-  display: block;
+@keyframes floaty {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(20px,-22px) scale(1.04); }
 }
 
-.page-logo {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  transition: transform 0.3s ease;
-}
-
-.page-logo:hover {
-  transform: scale(1.05);
-}
-
-.login-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 255, 0.88) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 8px 16px rgba(0, 0, 0, 0.1);
-  padding: 40px;
+.wrap {
+  position: relative;
   width: 100%;
-  max-width: 480px;
-  animation: fadeIn 0.6s ease-out;
+  display: grid;
+  place-items: center;
+  padding: 28px 16px;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.shell {
+  width: min(1040px, 100%);
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 22px;
+  align-items: stretch;
 }
 
-.login-header {
-  text-align: center;
-  margin-bottom: 32px;
+@media (max-width: 920px) {
+  .shell { grid-template-columns: 1fr; }
+  .hero { display: none; }
 }
 
-.login-header h1 {
-  color: #333;
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
+.card {
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--card2), var(--card));
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  position: relative;
 }
 
-.login-header p {
-  color: #666;
-  font-size: 16px;
+.hero {
+  padding: 34px 34px 28px;
+  min-height: 560px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: radial-gradient(10px 10px at 30% 35%, rgba(255,255,255,.75), transparent 60%),
+              linear-gradient(135deg, var(--accentA), var(--accentB));
+  box-shadow: 0 14px 30px rgba(124,58,237,.25);
+  border: 1px solid rgba(255,255,255,.22);
+}
+.brand h1 {
   margin: 0;
+  font-size: 18px;
+  letter-spacing: .2px;
+}
+.brand p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
 }
 
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  object-fit: contain;
 }
 
-.form-group {
+.headline {
+  margin-top: 10px;
+  font-size: 34px;
+  line-height: 1.12;
+  letter-spacing: -0.6px;
+}
+.subhead {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 54ch;
+}
+
+.chips {
   display: flex;
-  flex-direction: column;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.chip {
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stats {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
+.stat {
+  padding: 14px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+}
+.stat b { display: block; font-size: 18px; }
+.stat span { color: var(--muted); font-size: 12px; }
 
-.email-input {
-  padding: 14px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  font-size: 16px;
-  transition: all 0.3s ease;
+.login {
+  padding: 28px 26px 22px;
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
 }
 
-.email-input:focus {
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.mode .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accentA), var(--accentB));
+  box-shadow: 0 10px 18px rgba(124,58,237,.25);
+}
+
+.title {
+  margin: 8px 0 6px;
+  font-size: 22px;
+  letter-spacing: -0.2px;
+}
+.hint {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.input {
+  position: relative;
+}
+input {
+  width: 100%;
+  padding: 12px 44px 12px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  font-size: 14px;
+  transition: box-shadow .2s ease, border-color .2s ease, transform .05s ease;
 }
-
-.email-input.error {
-  border-color: #f85149;
+input::placeholder { color: rgba(255,255,255,.45); }
+.body[data-theme="light"] input::placeholder { color: rgba(10,20,40,.38); }
+input:focus {
+  border-color: rgba(34,211,238,.35);
+  box-shadow: 0 0 0 4px var(--focus);
 }
-
-.email-input.error:focus {
-  box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.1);
+input:active { transform: translateY(1px); }
+input.error {
+  border-color: #FF4D6D;
 }
 
 .error-message {
-  color: #f85149;
-  font-size: 13px;
-  margin-top: -8px;
-  margin-bottom: 8px;
-  padding: 8px 12px;
-  background: rgba(248, 81, 73, 0.1);
-  border-radius: 8px;
-  border-left: 3px solid #f85149;
+  color: #FF4D6D;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
-.email-button {
-  padding: 14px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+.iconbtn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
   border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  color: var(--muted);
 }
+.iconbtn:hover { background: rgba(255,255,255,.10); color: var(--text); }
 
-.email-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+.btn {
+  margin-top: 16px;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  letter-spacing: .2px;
+  background: linear-gradient(135deg, var(--accentA), var(--accentB));
+  box-shadow: 0 18px 40px rgba(124,58,237,.22);
+  transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
 }
-
-.email-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow: 0 18px 50px rgba(34,211,238,.16);
 }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .divider {
+  margin: 16px 0 12px;
   display: flex;
   align-items: center;
-  text-align: center;
-  color: #999;
-  font-size: 14px;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
 }
-
-.divider::before,
-.divider::after {
-  content: '';
+.divider:before, .divider:after {
+  content: "";
+  height: 1px;
   flex: 1;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--stroke);
 }
 
-.divider span {
-  padding: 0 16px;
-}
-
-.social-buttons {
+.oauth {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
-
-.social-button {
-  padding: 14px 16px;
-  border: 2px solid #e0e0e0;
-  background: white;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
+.oauth button {
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  padding: 10px 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-}
-
-.social-button:hover {
-  border-color: #667eea;
-  background: #f8f9ff;
-  transform: translateY(-2px);
-}
-
-.social-button .icon {
-  width: 20px;
-  height: 20px;
-}
-
-.social-button.github:hover {
-  border-color: #333;
-  background: #f0f0f0;
-}
-
-.social-button.google:hover {
-  border-color: #4285f4;
-  background: #f0f8ff;
-}
-
-.social-button.facebook:hover {
-  border-color: #1877f2;
-  background: #f0f5ff;
-}
-
-.social-button.linkedin:hover {
-  border-color: #0077b5;
-  background: #f0f8ff;
-}
-
-.message {
-  margin-top: 20px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  text-align: center;
-  background: #d4edda;
-  color: #155724;
-}
-
-.message.error {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.login-footer {
-  margin-top: 32px;
-  text-align: center;
-}
-
-.login-footer p {
-  color: #666;
-  font-size: 14px;
-  margin: 0;
-}
-
-.login-footer a {
-  color: #667eea;
-  text-decoration: none;
+  gap: 10px;
   font-weight: 600;
-  transition: color 0.3s ease;
+  font-size: 13px;
+}
+.oauth button:hover { background: rgba(255,255,255,.10); }
+
+.foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.body[data-theme="light"] .foot { border-top-color: rgba(10,20,40,.08); }
+.foot a {
+  color: var(--text);
+  text-decoration: none;
+  opacity: .9;
+}
+.foot a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%) translateY(18px);
+  background: rgba(0,0,0,.55);
+  color: rgba(255,255,255,.95);
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+  font-size: 13px;
+  max-width: min(560px, calc(100% - 32px));
+  text-align: center;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
-.login-footer a:hover {
-  color: #764ba2;
-  text-decoration: underline;
-}
-
-@media (max-width: 640px) {
-  .login-card {
-    padding: 24px;
-  }
-
-  .login-header h1 {
-    font-size: 24px;
-  }
-
-  .social-buttons {
-    grid-template-columns: 1fr;
-  }
-}
+.svg { width: 18px; height: 18px; display: block; }
 </style>
