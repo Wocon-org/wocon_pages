@@ -182,7 +182,7 @@ const handleSubmit = (e: Event) => {
     </div>
   </div>
 
-  <Sidebar v-model="showSidebar" />
+  <Sidebar :showSidebar="showSidebar" @update:showSidebar="showSidebar = $event" />
 </template>
 
 <style scoped>

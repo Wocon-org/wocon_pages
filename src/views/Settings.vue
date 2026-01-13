@@ -30,7 +30,7 @@ const showSidebar = ref(false)
     </div>
   </div>
 
-  <Sidebar v-model="showSidebar" />
+  <Sidebar :showSidebar="showSidebar" @update:showSidebar="showSidebar = $event" />
 </template>
 
 <style scoped>
