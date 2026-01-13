@@ -14,6 +14,8 @@ const emailTimeout = ref<number | null>(null)
 const theme = ref<'dark' | 'light'>('dark')
 const showToast = ref(false)
 const toastMessage = ref('')
+const totalUsers = ref('0')
+const loadingUsers = ref(false)
 
 const allowedDomains = [
   'qq.com', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com',
@@ -27,6 +29,27 @@ const toast = (msg: string) => {
   showToast.value = true
   setTimeout(() => showToast.value = false, 2200)
 }
+
+const fetchUserCount = async () => {
+  try {
+    loadingUsers.value = true
+    const { count, error } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+
+    if (error) throw error
+    totalUsers.value = count?.toLocaleString() || '0'
+  } catch (error) {
+    console.error('Failed to fetch user count:', error)
+    totalUsers.value = 'error'
+  } finally {
+    loadingUsers.value = false
+  }
+}
+
+onMounted(() => {
+  fetchUserCount()
+})
 
 onMounted(() => {
   const saved = localStorage.getItem('wocon_theme') as 'dark' | 'light' | null
@@ -42,10 +65,6 @@ const validateEmail = (emailValue: string): string => {
   if (!emailValue) return ''
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(emailValue)) return 'Please enter a valid email address'
-  const domain = emailValue.split('@')[1]?.toLowerCase()
-  if (domain && !allowedDomains.includes(domain)) {
-    return `Please use: ${allowedDomains.slice(0, 6).join(', ')}...`
-  }
   return ''
 }
 
@@ -107,28 +126,24 @@ supabase.auth.onAuthStateChange((event, session) => {
       <section class="shell">
         <aside class="card hero">
           <div class="brand">
-            <div class="logo"></div>
+            <img src="/woconlogo.png" alt="wocon" class="hero-logo" />
             <div>
               <h1>wocon</h1>
               <p>Modern workspace · Secure access</p>
             </div>
           </div>
 
-          <div class="headline">Start Here to Meet Someone Surprising</div>
-          <div class="subhead">
-            Sign in to wocon to connect with professionals, share opportunities, and grow your network.
-          </div>
-
-          <div class="chips">
-            <div class="chip">Glassmorphism</div>
-            <div class="chip">Secure Auth</div>
-            <div class="chip">Dark/Light Theme</div>
-          </div>
-
-          <div class="stats">
-            <div class="stat"><b>99.9%</b><span>Uptime</span></div>
-            <div class="stat"><b>OAuth</b><span>Multi-provider</span></div>
-            <div class="stat"><b>SSO</b><span>Enterprise ready</span></div>
+          <div class="stats-section">
+            <div class="stat-item">
+              <div class="stat-number">{{ loadingUsers ? '...' : totalUsers }}</div>
+              <div class="stat-label">总注册人数</div>
+            </div>
+            <a href="https://github.com/Wocon-org/wocon_pages" target="_blank" class="github-link">
+              <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              GitHub
+            </a>
           </div>
         </aside>
 
@@ -359,6 +374,13 @@ supabase.auth.onAuthStateChange((event, session) => {
   gap: 12px;
   margin-bottom: 22px;
 }
+.hero-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  object-fit: contain;
+}
+
 .logo {
   width: 42px;
   height: 42px;
@@ -384,6 +406,59 @@ supabase.auth.onAuthStateChange((event, session) => {
   height: 36px;
   border-radius: 12px;
   object-fit: contain;
+}
+
+.stats-section {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 42px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accentA), var(--accentB));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.github-link:hover {
+  background: rgba(255,255,255,.10);
+  transform: translateY(-2px);
+  border-color: var(--accentB);
+}
+
+.github-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .headline {

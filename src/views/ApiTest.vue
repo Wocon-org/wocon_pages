@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import * as api from '@/lib/api'
+import { supabase } from '@/lib/supabase'
 
 const results = ref<Record<string, any>>({})
 const loading = ref(false)
@@ -137,6 +138,34 @@ async function testTripAPIs() {
   loading.value = false
 }
 
+async function testProfilesTable() {
+  loading.value = true
+  results.value = {}
+
+  // Test count profiles
+  try {
+    const { count, error } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+    results.value['profiles.count'] = error ? { error: error.message } : { count }
+  } catch (e: any) {
+    results.value['profiles.count'] = { error: e.message }
+  }
+
+  // Test fetch first 5 profiles
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .limit(5)
+    results.value['profiles.list'] = error ? { error: error.message } : { count: data?.length, first: data?.[0]?.username }
+  } catch (e: any) {
+    results.value['profiles.list'] = { error: e.message }
+  }
+
+  loading.value = false
+}
+
 function getStatusColor(result: any) {
   if (result.error) return '#ff4d6d'
   return '#34d399'
@@ -162,6 +191,9 @@ function getStatusColor(result: any) {
       </button>
       <button @click="testTripAPIs" :disabled="loading">
         测试旅行 API
+      </button>
+      <button @click="testProfilesTable" :disabled="loading">
+        测试 Profiles 表
       </button>
     </div>
 
