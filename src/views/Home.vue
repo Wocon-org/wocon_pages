@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import Sidebar from '@/components/common/Sidebar.vue'
+import WoconMap from '@/components/WoconMap.vue'
 
 const activeSection = ref(0)
 const showSidebar = ref(false)
@@ -52,7 +53,7 @@ const getIconSvg = (index: number) => {
 
     <div class="home-layout">
       <div class="home-left">
-        <!-- Left section -->
+        <WoconMap mode="global" />
         <div class="sidebar-trigger" @click="showSidebar = true"></div>
       </div>
 
@@ -102,7 +103,7 @@ const getIconSvg = (index: number) => {
   position: absolute;
   top: 24px;
   left: 24px;
-  z-index: 10;
+  z-index: 1000;
 }
 
 .page-logo {
@@ -118,8 +119,8 @@ const getIconSvg = (index: number) => {
 
 .home-left {
   background: #161b22;
-  padding: 80px 60px;
   position: relative;
+  overflow: hidden;
 }
 
 .home-right {

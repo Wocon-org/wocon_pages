@@ -17,7 +17,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: Home,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: false }
     },
     // 认证页面
     {

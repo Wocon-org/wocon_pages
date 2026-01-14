@@ -449,6 +449,13 @@ chore: 构建/工具相关
 
 ## 🔄 更新日志
 
+### 2026-01-13
+- ✅ 添加 wrangler.toml 配置 Cloudflare Pages 部署
+- ✅ 创建 GeoNames 数据导入脚本
+- 🔄 规划地图功能：
+  - **主页左侧地图**：显示全球用户公开标记（is_public=true 的 map_markers）
+  - **行程创建地图**：用户选择目的地后打开内嵌地图添加标记
+
 ### 2026-01-12
 - ✅ 修复登录页邮箱域名白名单限制，移除允许域名列表
 - ✅ Home.vue 布局更新：左侧集成 Leaflet 地图，右侧内容区域
@@ -474,4 +481,51 @@ chore: 构建/工具相关
 
 ---
 
-**最后更新**: 2026-01-12
+## 🗺️ 地图功能开发规划
+
+### 功能概览
+wocon 地图系统分为两种使用场景：
+
+1. **主页左侧地图**
+   - 显示所有用户的公开行程标记
+   - 全局视图，支持缩放、平移
+   - 点击标记显示行程详情弹窗
+
+2. **行程创建地图** (CreateTrip.vue)
+   - 用户选择目的地时打开
+   - 单个行程的标记编辑
+   - 支持添加多个标记点
+
+### 数据来源
+- **用户行程标记**：`map_markers` 表
+  ```sql
+  SELECT * FROM map_markers
+  WHERE trip_id IN (
+    SELECT id FROM trips
+    WHERE is_public = true
+  )
+  ```
+
+### 组件结构
+```
+components/map/
+├── WoconMap.vue          # 主地图容器（支持两种模式）
+├── MapMarker.vue         # 标记点组件
+├── MapRoute.vue          # 路线组件
+├── MapSearch.vue         # 搜索组件（集成 GeoNames）
+├── MapControl.vue        # 缩放/定位控件
+└── MarkerPopup.vue       # 标记弹窗
+```
+
+### 开发步骤
+1. ✅ 安装 Leaflet 依赖
+2. ⬜ 创建 WoconMap.vue 基础地图组件
+3. ⬜ 集成到 Home.vue 左侧
+4. ⬜ 导入 GeoNames 数据到 Supabase
+5. ⬜ 创建 MapSearch.vue 搜索组件
+6. ⬜ 实现标记点显示和点击交互
+7. ⬜ 行程创建页面的地图集成
+
+---
+
+**最后更新**: 2026-01-13
