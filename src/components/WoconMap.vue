@@ -29,6 +29,7 @@ const emit = defineEmits<{
 const mapContainer = ref<HTMLDivElement>()
 let map: L.Map | null = null
 let layers: L.Control.Layers | null = null
+let markersLayer: L.LayerGroup | null = null
 
 onMounted(() => {
   if (mapContainer.value) {
@@ -71,6 +72,8 @@ onMounted(() => {
     L.control.zoom({
       position: 'bottomright'
     }).addTo(map)
+
+    markersLayer = L.layerGroup().addTo(map)
   }
 })
 
@@ -78,6 +81,9 @@ onBeforeUnmount(() => {
   if (map) {
     map.remove()
     map = null
+  }
+  if (markersLayer) {
+    markersLayer = null
   }
 })
 </script>

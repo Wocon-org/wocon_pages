@@ -1,20 +1,37 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import Sidebar from '@/components/common/Sidebar.vue'
 import WoconMap from '@/components/WoconMap.vue'
 
+const router = useRouter()
 const activeSection = ref(0)
 const showSidebar = ref(false)
+const showCreateMenu = ref(false)
+const searchQuery = ref('')
+
+const toggleCreateMenu = () => {
+  showCreateMenu.value = !showCreateMenu.value
+}
+
+const handleCreateTrip = () => {
+  showCreateMenu.value = false
+  router.push('/create-trip')
+}
+
+const handleMenuClickOutside = () => {
+  showCreateMenu.value = false
+}
 
 const sliderStyle = computed(() => ({
   transform: `translateX(${activeSection.value * 100}%)`,
 }))
 
 const sections = [
-  { name: '搜索', placeholder: '搜索页面' },
-  { name: '人脉', placeholder: '人脉页面' },
-  { name: '发现', placeholder: '发现页面' },
-  { name: '家', placeholder: '家页面' }
+  { name: 'Search', placeholder: 'Search destinations or trip ID', activity: 'No activities currently' },
+  { name: 'Connections', placeholder: 'View friends', activity: null },
+  { name: 'Discover', placeholder: 'Discover page' },
+  { name: 'Home', placeholder: 'Home page' }
 ]
 
 const getIconSvg = (index: number) => {
@@ -46,12 +63,12 @@ const getIconSvg = (index: number) => {
 </script>
 
 <template>
-  <div class="homepage-container">
+  <div class="homepage-container" @click="handleMenuClickOutside">
     <div class="top-logo">
       <img src="/woconlogo.png" alt="wocon logo" class="page-logo" />
     </div>
 
-    <div class="home-layout">
+    <div class="home-layout" @click.stop>
       <div class="home-left">
         <WoconMap mode="global" />
         <div class="sidebar-trigger" @click="showSidebar = true"></div>
@@ -59,6 +76,13 @@ const getIconSvg = (index: number) => {
 
       <div class="home-right">
         <!-- Right section -->
+        <div class="topbar-left">
+          <div class="create-button" @click="toggleCreateMenu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
         <div class="topbar">
           <div class="topbar-item"></div>
           <div class="topbar-item"></div>
@@ -68,7 +92,17 @@ const getIconSvg = (index: number) => {
         <div class="content-container">
           <div class="content-slider" :style="sliderStyle">
             <div v-for="(section, index) in sections" :key="index" class="content-section">
-              <div class="content-placeholder">{{ section.placeholder }}</div>
+              <div v-if="index === 0" class="search-section">
+                <div class="search-input-wrapper">
+                  <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="11" cy="11" r="7" stroke="#8b949e" stroke-width="2"/>
+                    <path d="M16 16L21 21" stroke="#8b949e" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <input v-model="searchQuery" type="text" class="search-input" :placeholder="section.placeholder" />
+                </div>
+                <div v-if="searchQuery === ''" class="activity-placeholder">{{ section.activity }}</div>
+              </div>
+              <div v-else class="content-placeholder">{{ section.placeholder }}</div>
             </div>
           </div>
         </div>
@@ -89,6 +123,36 @@ const getIconSvg = (index: number) => {
     </div>
 
     <Sidebar :showSidebar="showSidebar" @update:showSidebar="showSidebar = $event" />
+
+    <Teleport to="body">
+      <div v-if="showCreateMenu" class="create-menu-overlay" @click="handleMenuClickOutside">
+        <div class="create-menu" @click.stop>
+          <div class="menu-item" @click="handleCreateTrip">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Create Trip</span>
+          </div>
+          <div class="menu-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="#8b949e" stroke-width="2"/>
+              <path d="M12 6V12L16 14" stroke="#8b949e" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Create Event</span>
+          </div>
+          <div class="menu-item">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 8L12 3L7 8" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 3V15" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Upload Content</span>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -127,6 +191,84 @@ const getIconSvg = (index: number) => {
   background: #0d1117;
   padding: 80px 60px;
   position: relative;
+}
+
+.topbar-left {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.create-button {
+  width: 40px;
+  height: 40px;
+  background: #238636;
+  border: 1px solid #2ea043;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  background: #2ea043;
+}
+
+.create-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+.create-menu {
+  position: fixed;
+  top: 92px;
+  left: calc(50vw + 24px);
+  background: rgba(33, 38, 45, 0.98);
+  backdrop-filter: blur(8px);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  min-width: 180px;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  color: #c9d1d9;
+  font-size: 14px;
+}
+
+.menu-item:hover {
+  background: #21262d;
+}
+
+.menu-item span {
+  flex: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .topbar {
@@ -177,6 +319,58 @@ const getIconSvg = (index: number) => {
   color: #8b949e;
   font-size: 48px;
   text-align: center;
+}
+
+.search-section {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 60px;
+  gap: 20px;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: border-color 0.2s ease;
+}
+
+.search-input-wrapper:focus-within {
+  border-color: #5865F2;
+}
+
+.search-icon {
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #c9d1d9;
+  font-size: 16px;
+}
+
+.search-input::placeholder {
+  color: #8b949e;
+}
+
+.activity-placeholder {
+  color: #8b949e;
+  font-size: 24px;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .bottom-bar {
