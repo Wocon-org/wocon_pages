@@ -449,6 +449,13 @@ chore: 构建/工具相关
 
 ## 🔄 更新日志
 
+### 2026-01-15
+- ✅ 创建管理员账户脚本（`create_admin_user.sql`）：用户名 zwz，密码 Ihatevex@123，无需邮箱验证
+- ✅ 启用邮箱验证功能：注册后需验证邮箱才能登录
+- ✅ Signup.vue 更新：移除手动创建 profile 逻辑，改为通过数据库触发器自动创建
+- ✅ api.ts signUp 函数更新：添加 emailRedirectTo 参数配置重定向
+- ✅ Login.vue 和 Signup.vue 重构为 GitHub 风格 UI
+
 ### 2026-01-14
 - ✅ 添加 wrangler.toml 配置 Cloudflare Pages 部署
 - ✅ 创建 GeoNames 数据导入脚本

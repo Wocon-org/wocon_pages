@@ -94,26 +94,23 @@ const signup = async () => {
   const { data, error } = await supabase.auth.signUp({
     email: email.value,
     password: password.value,
+    options: {
+      emailRedirectTo: `${window.location.origin}/login`,
+      data: { username: username.value },
+    },
   })
 
   loading.value = false
 
   if (error) {
     toast(error.message)
-  } else if (data.user) {
-    const { error: profileError } = await supabase.from('profiles').insert([{
-      id: data.user.id,
-      username: username.value,
-      score: 0,
-      avatar_url: null,
-    }])
-
-    if (profileError) {
-      toast('Account created, but profile setup failed')
-    } else {
-      toast('Account created! Check your email to verify ✉️')
-      setTimeout(() => router.push('/login'), 3000)
-    }
+  } else if (data.user && !data.session) {
+    // Email confirmation required
+    toast('Account created! Check your email to verify ✉️')
+    setTimeout(() => router.push('/login'), 3000)
+  } else if (data.user && data.session) {
+    // Auto-signed in (email confirmation disabled or already confirmed)
+    router.push('/')
   }
 }
 
