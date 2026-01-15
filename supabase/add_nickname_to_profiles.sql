@@ -21,12 +21,13 @@ WHERE nickname IS NULL;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, username, nickname, email)
+  INSERT INTO public.profiles (id, username, nickname, email, updated_at)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
     COALESCE(NEW.raw_user_meta_data->>'nickname', NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
-    NEW.email
+    NEW.email,
+    TIMEZONE('utc'::text, NOW())
   );
   RETURN NEW;
 END;
