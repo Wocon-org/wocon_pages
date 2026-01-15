@@ -1,10 +1,16 @@
 -- Complete fix for trigger error
 -- This updates the handle_updated_at function and recreates all triggers
 
--- Step 1: Drop the old function
+-- Step 1: Drop all dependent triggers first
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
+DROP TRIGGER IF EXISTS update_trips_updated_at ON public.trips;
+DROP TRIGGER IF EXISTS update_map_markers_updated_at ON public.map_markers;
+DROP TRIGGER IF EXISTS update_routes_updated_at ON public.routes;
+
+-- Step 2: Drop the old function
 DROP FUNCTION IF EXISTS public.handle_updated_at();
 
--- Step 2: Recreate the function with proper INSERT/UPDATE handling
+-- Step 3: Recreate the function with proper INSERT/UPDATE handling
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -17,32 +23,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Step 3: Recreate all triggers with UPDATE only
+-- Step 4: Recreate all triggers with UPDATE only
 -- Profiles trigger
-DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
 CREATE TRIGGER update_profiles_updated_at
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 -- Trips trigger
-DROP TRIGGER IF EXISTS update_trips_updated_at ON public.trips;
 CREATE TRIGGER update_trips_updated_at
   BEFORE UPDATE ON public.trips
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 -- Map markers trigger
-DROP TRIGGER IF EXISTS update_map_markers_updated_at ON public.map_markers;
 CREATE TRIGGER update_map_markers_updated_at
   BEFORE UPDATE ON public.map_markers
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 -- Routes trigger
-DROP TRIGGER IF EXISTS update_routes_updated_at ON public.routes;
 CREATE TRIGGER update_routes_updated_at
   BEFORE UPDATE ON public.routes
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
--- Step 4: Update the handle_new_user function
+-- Step 5: Update the handle_new_user function
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
