@@ -12,19 +12,19 @@ import ApiTest from '@/views/ApiTest.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // 首页 - 左右布局，底部四选项卡
-    {
-      path: '/',
-      name: 'home',
-      component: Home,
-      meta: { requiresAuth: false }
-    },
     // 认证页面
     {
       path: '/login',
       name: 'login',
       component: Login,
       meta: { guestOnly: true }
+    },
+    // 首页 - 左右布局，底部四选项卡
+    {
+      path: '/',
+      name: 'home',
+      component: Home,
+      meta: { requiresAuth: true }
     },
     {
       path: '/signup',

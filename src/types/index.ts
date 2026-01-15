@@ -5,6 +5,7 @@
 export interface Profile {
   id: string
   username: string
+  nickname: string | null
   email: string
   score: number
   avatar_url: string | null
@@ -93,6 +94,7 @@ export interface CreateRouteInput {
 
 export interface UpdateProfileInput {
   username?: string
+  nickname?: string
   bio?: string
   avatar_url?: string
 }

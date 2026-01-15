@@ -9,15 +9,18 @@ const route = useRoute()
 const email = ref('')
 const password = ref('')
 const username = ref('')
+const nickname = ref('')
 const loading = ref(false)
 const theme = ref<'dark' | 'light'>('dark')
 const showToast = ref(false)
 const toastMessage = ref('')
 const emailError = ref('')
 const usernameError = ref('')
+const nicknameError = ref('')
 const passwordError = ref('')
 const emailTimeout = ref<number | null>(null)
 const usernameTimeout = ref<number | null>(null)
+const nicknameTimeout = ref<number | null>(null)
 const passwordTimeout = ref<number | null>(null)
 
 const toast = (msg: string) => {
@@ -51,6 +54,13 @@ const validateUsername = (usernameValue: string): string => {
   return ''
 }
 
+const validateNickname = (nicknameValue: string): string => {
+  if (!nicknameValue) return 'Nickname is required'
+  if (nicknameValue.length < 2) return 'Nickname must be at least 2 characters'
+  if (nicknameValue.length > 50) return 'Nickname must be at most 50 characters'
+  return ''
+}
+
 const validatePassword = (passwordValue: string): string => {
   if (!passwordValue) return 'Password is required'
   if (passwordValue.length < 8) return 'Password must be at least 8 characters'
@@ -78,25 +88,34 @@ watch(password, (newVal) => {
   }, 800)
 })
 
+watch(nickname, (newVal) => {
+  if (nicknameTimeout.value) clearTimeout(nicknameTimeout.value)
+  nicknameTimeout.value = window.setTimeout(() => {
+    nicknameError.value = validateNickname(newVal.trim())
+  }, 800)
+})
+
 const isValidEmail = ref(false)
 const isValidUsername = ref(false)
+const isValidNickname = ref(false)
 const isValidPassword = ref(false)
 
-watch([emailError, usernameError, passwordError], () => {
+watch([emailError, usernameError, nicknameError, passwordError], () => {
   isValidEmail.value = email.value.length > 0 && emailError.value === ''
   isValidUsername.value = username.value.length > 0 && usernameError.value === ''
+  isValidNickname.value = nickname.value.length > 0 && nicknameError.value === ''
   isValidPassword.value = password.value.length > 0 && passwordError.value === ''
 })
 
 const signup = async () => {
-  if (!isValidEmail.value || !isValidUsername.value || !isValidPassword.value) return
+  if (!isValidEmail.value || !isValidUsername.value || !isValidNickname.value || !isValidPassword.value) return
   loading.value = true
   const { data, error } = await supabase.auth.signUp({
     email: email.value,
     password: password.value,
     options: {
       emailRedirectTo: `${window.location.origin}/login`,
-      data: { username: username.value },
+      data: { username: username.value, nickname: nickname.value },
     },
   })
 
@@ -190,6 +209,24 @@ supabase.auth.onAuthStateChange((event, session) => {
               />
               <div v-if="usernameError" class="error-text">{{ usernameError }}</div>
             </div>
+            <div class="helper-text">Username cannot be changed after registration</div>
+          </div>
+
+          <div class="form-group">
+            <label for="nickname">Nickname</label>
+            <div class="input-wrapper">
+              <input
+                id="nickname"
+                v-model="nickname"
+                type="text"
+                placeholder="John Doe"
+                required
+                :disabled="loading"
+                :class="{ error: nicknameError }"
+                autocomplete="nickname"
+              />
+              <div v-if="nicknameError" class="error-text">{{ nicknameError }}</div>
+            </div>
           </div>
 
           <div class="form-group">
@@ -209,7 +246,7 @@ supabase.auth.onAuthStateChange((event, session) => {
             </div>
           </div>
 
-          <button type="submit" class="submit-button" :disabled="loading || !isValidEmail || !isValidUsername || !isValidPassword">
+          <button type="submit" class="submit-button" :disabled="loading || !isValidEmail || !isValidUsername || !isValidNickname || !isValidPassword">
             {{ loading ? 'Creating Account...' : 'Create Account' }}
           </button>
         </form>
@@ -419,6 +456,12 @@ supabase.auth.onAuthStateChange((event, session) => {
   margin-top: 6px;
   font-size: 12px;
   color: var(--error);
+}
+
+.helper-text {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .submit-button {

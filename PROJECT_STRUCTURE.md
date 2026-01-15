@@ -154,49 +154,61 @@ woconapp/
 ## 📂 目录说明
 
 ### `/src/assets/`
+
 - 存放静态资源：图片、图标、字体等
 - 避免在组件中直接使用外部链接，优先使用本地资源
 
 ### `/src/components/`
+
 - Vue 可复用组件
 - 按功能分类：通用、布局、地图、行程、认证
 
 ### `/src/composables/`
+
 - Vue 3 Composition API 的组合式函数
 - 封装可复用的逻辑：认证、地图、行程等
 
 ### `/src/utils/`
+
 - 纯工具函数，不依赖 Vue
 - 验证、格式化、防抖等
 
 ### `/src/constants/`
+
 - 应用常量：邮箱域名白名单、地图默认配置等
 
 ### `/src/config/`
+
 - 配置文件，基于环境变量
 - 开发/生产环境切换
 
 ### `/src/styles/`
+
 - 全局样式和 CSS 变量
 - 统一设计系统：颜色、间距、字体
 
 ### `/src/stores/`
+
 - Pinia 状态管理
 - 按模块划分：auth、map、trip、user
 
 ### `/src/types/`
+
 - TypeScript 类型定义
 - 与数据库 schema 同步
 
 ### `/src/lib/`
+
 - 第三方库封装
 - Supabase 客户端和 API 函数
 
 ### `/src/router/`
+
 - Vue Router 配置
 - 路由守卫、懒加载
 
 ### `/src/views/`
+
 - 页面级组件
 - 对应路由路径
 
@@ -205,21 +217,26 @@ woconapp/
 ## 🗂️ 文件命名规范
 
 ### 组件文件
+
 - **PascalCase**: `TripCard.vue`, `WoconMap.vue`
 - 布局组件：`Header.vue`, `Footer.vue`
 - 功能组件：`MapMarker.vue`, `InviteForm.vue`
 
 ### 工具函数
+
 - **camelCase**: `validation.ts`, `format.ts`
 - 组合式函数：`useAuth.ts`, `useMap.ts`
 
 ### 常量文件
+
 - **camelCase**: `emailDomains.ts`, `mapConfig.ts`
 
 ### 样式文件
+
 - **kebab-case**: `main.css`, `variables.css`
 
 ### 类型文件
+
 - **PascalCase**: `index.ts` (统一导出)
 
 ---
@@ -264,6 +281,7 @@ views/
 ```
 
 **依赖规则**：
+
 - Views 可以使用 Components、Composables、Stores
 - Components 可以使用 Composables、Stores、Utils
 - Composables 可以使用 Stores、Utils、Lib
@@ -274,6 +292,7 @@ views/
 ## 🎨 样式组织
 
 ### CSS 变量 (`src/styles/variables.css`)
+
 ```css
 :root {
   /* Colors */
@@ -306,6 +325,7 @@ views/
 ```
 
 ### 全局样式 (`src/styles/main.css`)
+
 ```css
 @import './variables.css';
 @import './reset.css';
@@ -347,6 +367,7 @@ views/
 ## 📊 状态管理规划
 
 ### stores/modules/auth.ts
+
 ```typescript
 interface AuthState {
   user: User | null
@@ -356,6 +377,7 @@ interface AuthState {
 ```
 
 ### stores/modules/map.ts
+
 ```typescript
 interface MapState {
   markers: MapMarker[]
@@ -366,6 +388,7 @@ interface MapState {
 ```
 
 ### stores/modules/trip.ts
+
 ```typescript
 interface TripState {
   trips: Trip[]
@@ -375,6 +398,7 @@ interface TripState {
 ```
 
 ### stores/modules/user.ts
+
 ```typescript
 interface UserState {
   profile: Profile | null
@@ -405,12 +429,14 @@ __tests__/
 ## 📝 开发规范
 
 ### 1. 组件开发
+
 - 使用 Vue 3 Composition API (`<script setup>`)
 - 使用 TypeScript
 - 组件Props和Emits必须有类型定义
 - 样式使用 Scoped CSS
 
 ### 2. 文件导入顺序
+
 ```typescript
 // 1. Vue 相关
 import { ref, computed } from 'vue'
@@ -430,11 +456,13 @@ import './styles.css'
 ```
 
 ### 3. API 调用规范
+
 - 使用 `src/lib/api.ts` 中的函数
 - 统一错误处理
 - Loading 状态管理
 
 ### 4. Git 提交规范
+
 ```
 feat: 新功能
 fix: 修复bug
@@ -450,13 +478,9 @@ chore: 构建/工具相关
 ## 🔄 更新日志
 
 ### 2026-01-15
-- ✅ 创建管理员账户脚本（`create_admin_user.sql`）：用户名 zwz，密码 Ihatevex@123，无需邮箱验证
-- ✅ 启用邮箱验证功能：注册后需验证邮箱才能登录
-- ✅ Signup.vue 更新：移除手动创建 profile 逻辑，改为通过数据库触发器自动创建
-- ✅ api.ts signUp 函数更新：添加 emailRedirectTo 参数配置重定向
-- ✅ Login.vue 和 Signup.vue 重构为 GitHub 风格 UI
 
 ### 2026-01-14
+
 - ✅ 添加 wrangler.toml 配置 Cloudflare Pages 部署
 - ✅ 创建 GeoNames 数据导入脚本
 - ✅ 添加 trips 表 latitude/longitude 字段用于地图定位
@@ -468,6 +492,7 @@ chore: 构建/工具相关
   - **行程创建地图**：用户选择目的地后打开内嵌地图添加标记
 
 ### 2026-01-13
+
 - ✅ 添加 wrangler.toml 配置 Cloudflare Pages 部署
 - ✅ 创建 GeoNames 数据导入脚本
 - 🔄 规划地图功能：
@@ -475,11 +500,13 @@ chore: 构建/工具相关
   - **行程创建地图**：用户选择目的地后打开内嵌地图添加标记
 
 ### 2026-01-12
+
 - ✅ 修复登录页邮箱域名白名单限制，移除允许域名列表
 - ✅ Home.vue 布局更新：左侧集成 Leaflet 地图，右侧内容区域
 - ✅ 规划 Homepage：左侧地图（Leaflet）+ 右侧四选项卡（搜索/人脉/发现/家）
 
 ### 2026-01-10
+
 - ✅ 创建完整目录结构
 - ✅ 添加项目结构文档
 - ✅ 规划模块划分和命名规范
@@ -502,6 +529,7 @@ chore: 构建/工具相关
 ## 🗺️ 地图功能开发规划
 
 ### 功能概览
+
 wocon 地图系统分为两种使用场景：
 
 1. **主页左侧地图**
@@ -515,6 +543,7 @@ wocon 地图系统分为两种使用场景：
    - 支持添加多个标记点
 
 ### 数据来源
+
 - **用户行程标记**：`map_markers` 表
   ```sql
   SELECT * FROM map_markers
@@ -525,6 +554,7 @@ wocon 地图系统分为两种使用场景：
   ```
 
 ### 组件结构
+
 ```
 components/map/
 ├── WoconMap.vue          # 主地图容器（支持两种模式）
@@ -536,6 +566,7 @@ components/map/
 ```
 
 ### 开发步骤
+
 1. ✅ 安装 Leaflet 依赖
 2. ⬜ 创建 WoconMap.vue 基础地图组件
 3. ⬜ 集成到 Home.vue 左侧
