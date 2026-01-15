@@ -128,3 +128,6 @@ LIMIT 5;
 -- Success!
 -- ============================================
 -- If you see the verification results above, everything is working correctly!
+-- ✓ Triggers are working (only on UPDATE operations)
+-- ✓ Nickname column exists in profiles table
+-- ✓ handle_new_user trigger supports nickname
