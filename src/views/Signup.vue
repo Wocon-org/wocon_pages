@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabase'
+import GraffitiWall from '@/components/GraffitiWall.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -152,6 +153,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 <template>
   <div :data-theme="theme" class="signup-container">
+    <GraffitiWall />
     <div class="signup-card">
       <div class="card-header">
         <div class="brand">
@@ -338,6 +340,9 @@ supabase.auth.onAuthStateChange((event, session) => {
   border-radius: 6px;
   box-shadow: 0 8px 24px var(--shadow);
   overflow: hidden;
+  backdrop-filter: blur(10px);
+  z-index: 1;
+  position: relative;
 }
 
 .card-header {
