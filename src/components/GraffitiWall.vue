@@ -34,6 +34,24 @@ const phrases = [
 ]
 
 class Doodle {
+  x: number
+  y: number
+  text: string
+  language: string
+  size: number
+  rotation: number
+  opacity: number
+  color: string
+  speedX: number
+  speedY: number
+  wobble: number
+  wobbleSpeed: number
+  time: number
+  pulse: number
+  pulseSpeed: number
+  maxSpeed: number
+  hover: boolean
+
   constructor(x: number, y: number, text: string, language: string, size: number = 1) {
     this.x = x
     this.y = y
