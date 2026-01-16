@@ -75,17 +75,31 @@ const getIconSvg = (index: number) => {
       </div>
 
       <div class="home-right">
-        <!-- Right section -->
-        <div class="topbar-left">
+        <!-- Top bar with circular buttons -->
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <div class="circular-button settings-button" @click="router.push('/settings')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="top-bar-right">
+            <div class="circular-button profile-button" @click="router.push('/profile')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="create-menu-wrapper">
           <div class="create-button" @click="toggleCreateMenu">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-        </div>
-        <div class="topbar">
-          <div class="topbar-item"></div>
-          <div class="topbar-item"></div>
         </div>
 
         <!-- Content sections -->
@@ -193,12 +207,54 @@ const getIconSvg = (index: number) => {
   position: relative;
 }
 
-.topbar-left {
+.top-bar {
   position: absolute;
   top: 24px;
   left: 24px;
+  right: 24px;
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+}
+
+.top-bar-left {
+  display: flex;
+  gap: 16px;
+}
+
+.top-bar-right {
+  display: flex;
+  gap: 16px;
+}
+
+.circular-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(22, 27, 34, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8b949e;
+  transition: all 0.2s ease;
+}
+
+.circular-button:hover {
+  background: rgba(33, 38, 45, 0.9);
+  color: #c9d1d9;
+  transform: scale(1.05);
+}
+
+.circular-button:active {
+  transform: scale(0.95);
+}
+
+.circular-button svg {
+  flex-shrink: 0;
 }
 
 .create-button {
@@ -229,9 +285,10 @@ const getIconSvg = (index: number) => {
 }
 
 .create-menu {
-  position: fixed;
-  top: 92px;
-  left: calc(50vw + 24px);
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
   background: rgba(33, 38, 45, 0.98);
   backdrop-filter: blur(8px);
   border: 1px solid #30363d;
@@ -239,6 +296,7 @@ const getIconSvg = (index: number) => {
   min-width: 180px;
   overflow: hidden;
   animation: fadeIn 0.15s ease;
+  z-index: 102;
 }
 
 .menu-item {
@@ -271,18 +329,13 @@ const getIconSvg = (index: number) => {
   }
 }
 
-.topbar {
+.create-menu-wrapper {
   position: absolute;
   top: 24px;
-  right: 24px;
-  display: flex;
-  background: #21262d;
-  border: 1px solid #30363d;
-  border-radius: 12px;
-  overflow: hidden;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 101;
 }
-
-.topbar-item {
   width: 100px;
   height: 40px;
   cursor: pointer;

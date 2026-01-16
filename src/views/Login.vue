@@ -7,11 +7,11 @@ import GraffitiWall from '@/components/GraffitiWall.vue'
 const router = useRouter()
 const route = useRoute()
 
-const email = ref('')
-const message = ref('')
+const emailOrUsername = ref('')
+const password = ref('')
 const loading = ref(false)
-const emailError = ref('')
-const emailTimeout = ref<number | null>(null)
+const inputError = ref('')
+const passwordError = ref('')
 const theme = ref<'dark' | 'light'>('dark')
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -32,41 +32,82 @@ const toggleTheme = () => {
   localStorage.setItem('wocon_theme', theme.value)
 }
 
-const validateEmail = (emailValue: string): string => {
-  if (!emailValue) return ''
+const validateInput = (value: string): string => {
+  if (!value) return ''
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(emailValue)) return 'Please enter a valid email address'
+  if (!emailRegex.test(value) && value.includes('@')) {
+    return 'Please enter a valid email address'
+  }
   return ''
 }
 
-watch(email, (newVal) => {
-  if (emailTimeout.value) clearTimeout(emailTimeout.value)
-  emailTimeout.value = window.setTimeout(() => {
-    emailError.value = validateEmail(newVal.trim())
-  }, 800)
+watch(emailOrUsername, (newVal) => {
+  inputError.value = validateInput(newVal.trim())
 })
 
-const isValidEmail = ref(false)
-
-watch(emailError, (newError) => {
-  isValidEmail.value = email.value.length > 0 && newError === ''
-})
+const isValidInput = () => {
+  return emailOrUsername.value.length > 0 && password.value.length >= 6
+}
 
 const clearInput = () => {
-  email.value = ''
-  emailError.value = ''
+  emailOrUsername.value = ''
+  password.value = ''
+  inputError.value = ''
   toast('Input cleared')
 }
 
-const loginWithEmail = async () => {
-  if (!isValidEmail.value) return
+const loginWithPassword = async () => {
+  if (!isValidInput()) {
+    if (password.value.length < 6) {
+      toast('Password must be at least 6 characters')
+    }
+    return
+  }
+
   loading.value = true
-  const { error } = await supabase.auth.signInWithOtp({ email: email.value })
-  loading.value = false
-  if (error) {
-    toast(error.message)
-  } else {
-    toast('Check your email for login link ✉️')
+
+  // Check if input is email or username
+  const isEmail = emailOrUsername.value.includes('@')
+
+  try {
+    let error
+    if (isEmail) {
+      // Login with email
+      const result = await supabase.auth.signInWithPassword({
+        email: emailOrUsername.value,
+        password: password.value
+      })
+      error = result.error
+    } else {
+      // Login with username - need to get email from profiles table
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('username', emailOrUsername.value)
+        .single()
+
+      if (profileError || !profile) {
+        toast('User not found')
+        loading.value = false
+        return
+      }
+
+      const result = await supabase.auth.signInWithPassword({
+        email: profile.email,
+        password: password.value
+      })
+      error = result.error
+    }
+
+    loading.value = false
+    if (error) {
+      toast(error.message)
+    } else {
+      toast('Login successful! ✅')
+    }
+  } catch (err) {
+    loading.value = false
+    toast('Login failed. Please try again.')
   }
 }
 
@@ -111,38 +152,41 @@ supabase.auth.onAuthStateChange((event, session) => {
         <h2 class="title">Sign in</h2>
         <p class="subtitle">Welcome back! Please enter your details.</p>
 
-        <form @submit.prevent="loginWithEmail" autocomplete="on" novalidate>
+        <form @submit.prevent="loginWithPassword" autocomplete="on" novalidate>
           <div class="form-group">
-            <label for="email">Email address</label>
+            <label for="emailOrUsername">Email or Username</label>
             <div class="input-wrapper">
               <input
-                id="email"
-                v-model="email"
-                type="email"
-                inputmode="email"
-                placeholder="name@wocon.com"
+                id="emailOrUsername"
+                v-model="emailOrUsername"
+                type="text"
+                placeholder="name@wocon.com or username"
                 required
                 :disabled="loading"
-                :class="{ error: emailError }"
-                autocomplete="email"
+                :class="{ error: inputError }"
+                autocomplete="username"
               />
-              <button
-                v-if="email"
-                type="button"
-                class="clear-button"
-                @click="clearInput"
-                aria-label="Clear input"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
             </div>
-            <div v-if="emailError" class="error-text">{{ emailError }}</div>
+            <div v-if="inputError" class="error-text">{{ inputError }}</div>
           </div>
 
-          <button type="submit" class="submit-button" :disabled="loading || !isValidEmail">
-            {{ loading ? 'Sending...' : 'Send Magic Link' }}
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <input
+                id="password"
+                v-model="password"
+                type="password"
+                placeholder="Enter your password"
+                required
+                :disabled="loading"
+                autocomplete="current-password"
+              />
+            </div>
+          </div>
+
+          <button type="submit" class="submit-button" :disabled="loading">
+            {{ loading ? 'Signing in...' : 'Sign in' }}
           </button>
         </form>
 
