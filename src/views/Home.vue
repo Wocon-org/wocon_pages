@@ -335,16 +335,12 @@ const getIconSvg = (index: number) => {
   left: 50%;
   transform: translateX(-50%);
   z-index: 101;
-}
   width: 100px;
   height: 40px;
   cursor: pointer;
-  border-right: 1px solid #30363d;
 }
 
-.topbar-item:last-child {
-  border-right: none;
-}
+.content-container {
 
 .content-container {
   width: 100%;
