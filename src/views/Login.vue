@@ -553,6 +553,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   transition: opacity 0.22s ease, transform 0.22s ease;
   max-width: 400px;
   text-align: center;
+  z-index: 9999;
 }
 
 .toast.show {
