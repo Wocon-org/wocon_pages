@@ -227,7 +227,7 @@ supabase.auth.onAuthStateChange((event, session) => {
       </div>
 
       <div class="contact-link">
-        <a href="mailto:contact@wocon.com" class="contact-text">Contact Us</a>
+        <router-link to="/contact" class="contact-text">Contact Us</router-link>
       </div>
     </div>
 

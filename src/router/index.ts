@@ -7,6 +7,7 @@ import Map from '@/views/Map.vue'
 import Signup from '@/views/Signup.vue'
 import CreateTrip from '@/views/CreateTrip.vue'
 import Settings from '@/views/Settings.vue'
+import Contact from '@/views/Contact.vue'
 import ApiTest from '@/views/ApiTest.vue'
 
 const router = createRouter({
@@ -31,6 +32,12 @@ const router = createRouter({
       name: 'signup',
       component: Signup,
       meta: { guestOnly: true }
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: Contact,
+      meta: { requiresAuth: false }
     },
     // 用户页面
     {
