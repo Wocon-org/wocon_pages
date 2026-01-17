@@ -48,7 +48,7 @@ const validateEmail = (emailValue: string): string => {
 }
 
 const validateUsername = (usernameValue: string): string => {
-  if (!usernameValue) return 'Username is required'
+  if (!usernameValue) return ''
   if (usernameValue.length < 3) return 'Username must be at least 3 characters'
   if (usernameValue.length > 39) return 'Username must be at most 39 characters'
   if (!/^[a-zA-Z0-9_-]+$/.test(usernameValue)) return 'Username can only contain letters, numbers, underscores, and hyphens'
@@ -56,14 +56,14 @@ const validateUsername = (usernameValue: string): string => {
 }
 
 const validateNickname = (nicknameValue: string): string => {
-  if (!nicknameValue) return 'Nickname is required'
+  if (!nicknameValue) return ''
   if (nicknameValue.length < 2) return 'Nickname must be at least 2 characters'
   if (nicknameValue.length > 50) return 'Nickname must be at most 50 characters'
   return ''
 }
 
 const validatePassword = (passwordValue: string): string => {
-  if (!passwordValue) return 'Password is required'
+  if (!passwordValue) return ''
   if (passwordValue.length < 8) return 'Password must be at least 8 characters'
   return ''
 }

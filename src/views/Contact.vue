@@ -90,6 +90,16 @@ const toggleTheme = () => {
         <div class="team-section">
           <h3 class="section-title">Development Team</h3>
           <p class="team-desc">We are a passionate team dedicated to building the best travel experience for you.</p>
+
+          <div class="team-members">
+            <div class="team-member">
+              <img src="/wocon_ceo.jpg" alt="CEO" class="member-avatar" />
+              <div class="member-info">
+                <h4 class="member-name">Ceaser Zhao</h4>
+                <p class="member-role">Founder & CEO</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -306,11 +316,60 @@ const toggleTheme = () => {
 }
 
 .team-desc {
-  margin: 0;
+  margin: 0 0 20px;
   font-size: 14px;
   color: var(--text-secondary);
   text-align: center;
   line-height: 1.5;
+}
+
+.team-members {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.team-member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg-primary);
+  transition: transform 0.2s ease;
+}
+
+.team-member:hover {
+  transform: translateX(4px);
+}
+
+.member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.member-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.member-role {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
 .card-footer {

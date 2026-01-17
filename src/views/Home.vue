@@ -341,8 +341,6 @@ const getIconSvg = (index: number) => {
 }
 
 .content-container {
-
-.content-container {
   width: 100%;
   height: calc(100% - 180px);
   overflow: hidden;
