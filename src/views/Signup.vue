@@ -286,6 +286,10 @@ supabase.auth.onAuthStateChange((event, session) => {
         <span>Already have an account? </span>
         <router-link to="/login" class="login-link">Sign in</router-link>
       </div>
+
+      <div class="contact-link">
+        <a href="mailto:contact@wocon.com" class="contact-text">Contact Us</a>
+      </div>
     </div>
 
     <div class="toast" :class="{ show: showToast }">{{ toastMessage }}</div>
@@ -553,6 +557,24 @@ supabase.auth.onAuthStateChange((event, session) => {
 }
 
 .login-link:hover {
+  text-decoration: underline;
+}
+
+.contact-link {
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.contact-text {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.15s ease;
+}
+
+.contact-text:hover {
+  color: var(--text-primary);
   text-decoration: underline;
 }
 
