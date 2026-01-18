@@ -1,9 +1,20 @@
 // ============================================// Trip API Methods// ============================================import { supabase } from '@/lib/supabase';import type { ApiResponse } from '@/lib/api-client';
-import type {
-  Trip,
-  CreateTripInput,
-  UpdateProfileInput
-} from '@/types';
+import type { Trip, CreateTripInput } from '@/types'
+
+// Trip参与者类型
+export interface TripParticipantWithProfile {
+  id: string
+  trip_id: string
+  user_id: string
+  status: 'pending' | 'accepted' | 'declined'
+  joined_at: string
+  created_at: string
+  profiles: {
+    id: string
+    username: string
+    avatar_url: string | null
+  }
+}
 
 export async function getTrips(filters?: {
   type?: 'private' | 'recruiting'
@@ -28,7 +39,7 @@ export async function getTrips(filters?: {
   }
 
   const { data, error } = await query
-  return { data, error };
+  return { data, error }
 }
 
 export async function getTripById(tripId: string): Promise<ApiResponse<Trip>> {
@@ -37,7 +48,7 @@ export async function getTripById(tripId: string): Promise<ApiResponse<Trip>> {
     .select('*')
     .eq('id', tripId)
     .single()
-  return { data, error };
+  return { data, error }
 }
 
 export async function getTripsByOwner(ownerId: string): Promise<ApiResponse<Trip[]>> {
@@ -46,12 +57,13 @@ export async function getTripsByOwner(ownerId: string): Promise<ApiResponse<Trip
     .select('*')
     .eq('owner_id', ownerId)
     .order('created_at', { ascending: false })
-  return { data, error };
+  return { data, error }
 }
 
 export async function createTrip(input: CreateTripInput): Promise<ApiResponse<Trip>> {
-  const user = (await supabase.auth.getUser()).data?.user;
-  if (!user) return { data: null, error: new Error('User not authenticated') };
+  const user = (await supabase.auth.getUser()).data?.user
+  if (!user)
+    return { data: null, error: { message: 'User not authenticated', code: 'UNAUTHENTICATED' } }
 
   const { data, error } = await supabase
     .from('trips')
@@ -61,31 +73,32 @@ export async function createTrip(input: CreateTripInput): Promise<ApiResponse<Tr
     })
     .select()
     .single()
-  return { data, error };
+  return { data, error }
 }
 
-export async function updateTrip(tripId: string, updates: Partial<Trip>): Promise<ApiResponse<Trip>> {
+export async function updateTrip(
+  tripId: string,
+  updates: Partial<Trip>,
+): Promise<ApiResponse<Trip>> {
   const { data, error } = await supabase
     .from('trips')
     .update(updates)
     .eq('id', tripId)
     .select()
     .single()
-  return { data, error };
+  return { data, error }
 }
 
-export async function deleteTrip(tripId: string): Promise<ApiResponse<any>> {
-  const { error } = await supabase
-    .from('trips')
-    .delete()
-    .eq('id', tripId)
-  return { data: null, error };
+export async function deleteTrip(tripId: string): Promise<ApiResponse<null>> {
+  const { error } = await supabase.from('trips').delete().eq('id', tripId)
+  return { data: null, error }
 }
 
 // Trip Participants
 export async function joinTrip(tripId: string): Promise<ApiResponse<any>> {
-  const user = (await supabase.auth.getUser()).data?.user;
-  if (!user) return { data: null, error: new Error('User not authenticated') };
+  const user = (await supabase.auth.getUser()).data?.user
+  if (!user)
+    return { data: null, error: { message: 'User not authenticated', code: 'UNAUTHENTICATED' } }
 
   const { data, error } = await supabase
     .from('trip_participants')
@@ -96,7 +109,7 @@ export async function joinTrip(tripId: string): Promise<ApiResponse<any>> {
     })
     .select()
     .single()
-  return { data, error };
+  return { data, error }
 }
 
 export async function acceptParticipant(participantId: string): Promise<ApiResponse<any>> {
@@ -106,7 +119,7 @@ export async function acceptParticipant(participantId: string): Promise<ApiRespo
     .eq('id', participantId)
     .select()
     .single()
-  return { data, error };
+  return { data, error }
 }
 
 export async function declineParticipant(participantId: string): Promise<ApiResponse<any>> {
@@ -116,33 +129,38 @@ export async function declineParticipant(participantId: string): Promise<ApiResp
     .eq('id', participantId)
     .select()
     .single()
-  return { data, error };
+  return { data, error }
 }
 
-export async function leaveTrip(tripId: string): Promise<ApiResponse<any>> {
-  const user = (await supabase.auth.getUser()).data?.user;
-  if (!user) return { data: null, error: new Error('User not authenticated') };
+export async function leaveTrip(tripId: string): Promise<ApiResponse<null>> {
+  const user = (await supabase.auth.getUser()).data?.user
+  if (!user)
+    return { data: null, error: { message: 'User not authenticated', code: 'UNAUTHENTICATED' } }
 
   const { error } = await supabase
     .from('trip_participants')
     .delete()
     .eq('trip_id', tripId)
     .eq('user_id', user.id)
-  return { data: null, error };
+  return { data: null, error }
 }
 
-export async function getTripParticipants(tripId: string): Promise<ApiResponse<any[]>> {
+export async function getTripParticipants(
+  tripId: string,
+): Promise<ApiResponse<TripParticipantWithProfile[]>> {
   const { data, error } = await supabase
     .from('trip_participants')
-    .select(`
+    .select(
+      `
       *,
       profiles:user_id (
         id,
         username,
         avatar_url
       )
-    `)
+    `,
+    )
     .eq('trip_id', tripId)
     .order('joined_at', { ascending: true })
-  return { data, error };
+  return { data, error }
 }

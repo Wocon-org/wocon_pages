@@ -5,41 +5,41 @@ import type { User } from '@supabase/supabase-js';
 import { getCurrentUser, signOut } from './api';
 
 export const useAuthStore = defineStore('auth', () => {
-  // 状态
+  // State
   const user = ref<User | null>(null);
   const loading = ref(true);
   const profile = ref<any>(null);
 
-  // 计算属性
+  // Computed properties
   const isAuthenticated = computed(() => !!user.value);
 
-  // 初始化认证状态
+  // Initialize auth state
   const initAuth = async () => {
     loading.value = true;
 
     try {
-      // 获取当前会话
+      // Get current session
       const { data: { session } } = await supabase.auth.getSession();
       user.value = session?.user ?? null;
 
-      // 如果用户已登录，获取用户资料
+      // If user is logged in, fetch user profile
       if (user.value) {
         await fetchProfile(user.value.id);
       }
     } catch (error) {
-      console.error('初始化认证状态失败:', error);
+      console.error('Failed to initialize auth state:', error);
     } finally {
       loading.value = false;
     }
 
-    // 监听认证状态变化
+    // Listen for auth state changes
     supabase.auth.onAuthStateChange((event, session) => {
       user.value = session?.user ?? null;
       loading.value = false;
     });
   };
 
-  // 获取用户资料
+  // Fetch user profile
   const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -52,28 +52,28 @@ export const useAuthStore = defineStore('auth', () => {
         profile.value = data;
       }
     } catch (error) {
-      console.error('获取用户资料失败:', error);
+      console.error('Failed to fetch user profile:', error);
     }
   };
 
-  // 登出
+  // Sign out
   const handleSignOut = async () => {
     try {
       await signOut();
       user.value = null;
       profile.value = null;
     } catch (error) {
-      console.error('登出失败:', error);
+      console.error('Failed to sign out:', error);
     }
   };
 
   return {
-    // 状态
+    // State
     user,
     loading,
     profile,
     isAuthenticated,
-    // 方法
+    // Methods
     initAuth,
     signOut: handleSignOut,
     fetchProfile

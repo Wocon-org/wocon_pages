@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import SidebarItem from '@/modules/common/components/SidebarItem.vue'
 
 const router = useRouter()
 
@@ -21,6 +22,10 @@ const goToRandomPage = () => {
 const goToSettings = () => {
   router.push('/settings')
 }
+
+const goToContact = () => {
+  router.push('/contact')
+}
 </script>
 
 <template>
@@ -28,9 +33,9 @@ const goToSettings = () => {
   <div class="sidebar" :class="{ show: props.showSidebar }">
     <div class="sidebar-content">
         <div class="sidebar-items">
-        <div class="sidebar-item" @click="goToRandomPage">Homepage</div>
-        <div class="sidebar-item" @click="goToSettings">Settings</div>
-        <div class="sidebar-item">Contact Us</div>
+        <SidebarItem label="Homepage" @click="goToRandomPage" />
+        <SidebarItem label="Settings" @click="goToSettings" />
+        <SidebarItem label="Contact Us" @click="goToContact" />
       </div>
     </div>
     <div class="sidebar-cancel" @click="emit('update:showSidebar', false)">Cancel</div>
@@ -63,18 +68,6 @@ const goToSettings = () => {
 
 .sidebar-items {
   flex: 1;
-}
-
-.sidebar-item {
-  padding: 16px 20px;
-  border-bottom: 1px solid #30363d;
-  color: #c9d1d9;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.sidebar-item:hover {
-  background: #21262d;
 }
 
 .sidebar-cancel {
