@@ -475,7 +475,210 @@ chore: 构建/工具相关
 
 ---
 
+## 🗃️ 数据库表结构
+
+### 表格关系图
+
+```
+profiles (用户表)
+├── trips (1:N) - 用户创建的行程
+├── trip_participants (1:N) - 用户参与的行程
+└── map_markers (1:N) - 用户创建的地图标记
+
+trips (行程表)
+├── map_markers (1:N) - 行程的地图标记
+├── routes (1:N) - 行程的路线
+└── trip_participants (1:N) - 行程参与者
+
+geonames_locations (地理位置表)
+└── geonames_places (1:1) - 通过 geoname_id 关联
+```
+
+### 表格详情
+
+#### 1. `profiles` - 用户资料表
+
+| 字段 | 类型 | 说明 | 约束 |
+|------|------|------|------|
+| id | UUID | 用户唯一标识 | PRIMARY KEY, FK → auth.users(id) |
+| username | TEXT | 用户名 | UNIQUE, NOT NULL |
+| nickname | TEXT | 昵称 | 可为空 |
+| email | TEXT | 邮箱 | - |
+| avatar_url | TEXT | 头像URL | - |
+| score | INTEGER | 用户积分 | DEFAULT 0 |
+| bio | TEXT | 个人简介 | - |
+| created_at | TIMESTAMP | 创建时间 | DEFAULT NOW() |
+| updated_at | TIMESTAMP | 更新时间 | DEFAULT NOW() |
+
+---
+
+#### 2. `trips` - 行程表
+
+| 字段 | 类型 | 说明 | 约束 |
+|------|------|------|------|
+| id | UUID | 行程唯一标识 | PRIMARY KEY |
+| name | TEXT | 行程名称 | NOT NULL |
+| description | TEXT | 行程描述 | - |
+| type | TEXT | 行程类型 | CHECK: 'private' or 'recruiting' |
+| max_participants | INTEGER | 最大参与人数 | DEFAULT 2 |
+| is_public | BOOLEAN | 是否公开 | DEFAULT false |
+| cover_image_url | TEXT | 封面图片URL | - |
+| owner_id | UUID | 行程所有者 | FK → profiles(id) |
+| latitude | DECIMAL | 纬度 | - |
+| longitude | DECIMAL | 经度 | - |
+| created_at | TIMESTAMP | 创建时间 | DEFAULT NOW() |
+| updated_at | TIMESTAMP | 更新时间 | DEFAULT NOW() |
+
+---
+
+#### 3. `trip_participants` - 行程参与者表
+
+| 字段 | 类型 | 说明 | 约束 |
+|------|------|------|------|
+| id | UUID | 参与记录唯一标识 | PRIMARY KEY |
+| trip_id | UUID | 关联行程 | FK → trips(id) |
+| user_id | UUID | 用户ID | FK → profiles(id) |
+| status | TEXT | 参与状态 | CHECK: 'pending', 'accepted', 'declined' |
+| joined_at | TIMESTAMP | 加入时间 | DEFAULT NOW() |
+| created_at | TIMESTAMP | 创建时间 | DEFAULT NOW() |
+
+---
+
+#### 4. `map_markers` - 地图标记表
+
+| 字段 | 类型 | 说明 | 约束 |
+|------|------|------|------|
+| id | UUID | 标记唯一标识 | PRIMARY KEY |
+| trip_id | UUID | 关联行程 | FK → trips(id) |
+| lat | DECIMAL | 纬度 | NOT NULL |
+| lng | DECIMAL | 经度 | NOT NULL |
+| title | TEXT | 标题 | - |
+| description | TEXT | 描述 | - |
+| category | TEXT | 类别 | - |
+| order_index | INTEGER | 顺序索引 | - |
+| created_by | UUID | 创建者 | FK → profiles(id) |
+| created_at | TIMESTAMP | 创建时间 | DEFAULT NOW() |
+| updated_at | TIMESTAMP | 更新时间 | DEFAULT NOW() |
+
+---
+
+#### 5. `routes` - 路线表
+
+| 字段 | 类型 | 说明 | 约束 |
+|------|------|------|------|
+| id | UUID | 路线唯一标识 | PRIMARY KEY |
+| trip_id | UUID | 关联行程 | FK → trips(id) |
+| name | TEXT | 路线名称 | - |
+| description | TEXT | 路线描述 | - |
+| coordinates | JSON | 路线坐标 | - |
+| distance | DECIMAL | 距离 | - |
+| duration | INTEGER | 持续时间（秒） | - |
+| color | TEXT | 路线颜色 | - |
+| order_index | INTEGER | 顺序索引 | - |
+| created_by | UUID | 创建者 | - |
+| created_at | TIMESTAMP | 创建时间 | DEFAULT NOW() |
+| updated_at | TIMESTAMP | 更新时间 | DEFAULT NOW() |
+
+---
+
+#### 6. `geonames_locations` - GeoNames 地理位置表
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| geoname_id | INTEGER | GeoNames 唯一标识符 |
+| name | TEXT | 地名 |
+| ascii_name | TEXT | ASCII 格式地名 |
+| alternate_names | TEXT | 其他名称 |
+| latitude | DECIMAL | 纬度 |
+| longitude | DECIMAL | 经度 |
+| feature_class | TEXT | 特征类别 |
+| feature_code | TEXT | 特征代码 |
+| country_code | TEXT | 国家代码（2字母） |
+| admin1_code | TEXT | 一级行政区划代码 |
+| admin2_code | TEXT | 二级行政区划代码 |
+| admin3_code | TEXT | 三级行政区划代码 |
+| admin4_code | TEXT | 四级行政区划代码 |
+| population | INTEGER | 人口 |
+| elevation | INTEGER | 海拔（米） |
+| timezone_id | TEXT | 时区 |
+| modification_date | DATE | 修改日期 |
+| geom | GEOMETRY | 地理几何对象（PostGIS） |
+
+---
+
+#### 7. `geonames_places` - GeoNames 地点表
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| geoname_id | INTEGER | GeoNames 唯一标识符，关联 geonames_locations.geoname_id |
+| name | TEXT | 地名 |
+| ascii_name | TEXT | ASCII 格式地名 |
+| alternate_names | TEXT | 其他名称 |
+| latitude | DECIMAL | 纬度 |
+| longitude | DECIMAL | 经度 |
+| feature_class | TEXT | 特征类别 |
+| feature_code | TEXT | 特征代码 |
+| country_code | TEXT | 国家代码 |
+| admin1_code | TEXT | 一级行政区划代码 |
+| admin2_code | TEXT | 二级行政区划代码 |
+| admin3_code | TEXT | 三级行政区划代码 |
+| admin4_code | TEXT | 四级行政区划代码 |
+| population | INTEGER | 人口 |
+| elevation | INTEGER | 海拔 |
+| timezone_id | TEXT | 时区 |
+| modification_date | DATE | 修改日期 |
+
+---
+
+#### 8. `spatial_ref_sys` - 空间参考系统表
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| srid | INTEGER | 空间参考系统标识符 |
+| auth_name | TEXT | 权威名称 |
+| auth_srid | INTEGER | 权威 SRID |
+| srtext | TEXT | 空间参考系统文本描述（WKT） |
+| proj4text | TEXT | 空间投影字符串（PROJ.4） |
+
+---
+
+### 数据库触发器
+
+#### `on_auth_user_created`
+
+**功能**: 当新用户在 Supabase Auth 中注册时，自动在 `profiles` 表中创建对应的记录。
+
+**触发时机**: `auth.users` 表插入新记录后
+
+```sql
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, username, nickname, email, updated_at)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'nickname', NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    NEW.email,
+    TIMEZONE('utc'::text, NOW())
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+```
+
+---
+
 ## 🔄 更新日志
+
+### 2026-01-18
+- ✅ 添加数据库表结构详细文档（profiles, trips, trip_participants, map_markers, routes, geonames_locations, geonames_places, spatial_ref_sys）
+- ✅ 添加表格关系图和字段说明
+- ✅ 添加数据库触发器说明（on_auth_user_created）
 
 ### 2026-01-15
 - ✅ 注册页面添加用户名和昵称字段（用户名不可更改，昵称可更改）

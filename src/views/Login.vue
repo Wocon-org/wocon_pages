@@ -87,7 +87,7 @@ const loginWithPassword = async () => {
         .single()
 
       if (profileError || !profile) {
-        toast('User not found')
+        toast('User not found. Please check your username or verify your email.')
         loading.value = false
         return
       }
@@ -101,7 +101,11 @@ const loginWithPassword = async () => {
 
     loading.value = false
     if (error) {
-      toast(error.message)
+      if (error.message.includes('Email not confirmed')) {
+        toast('Please verify your email first. Check your inbox for the verification link.')
+      } else {
+        toast(error.message)
+      }
     } else {
       toast('Login successful! ✅')
     }
