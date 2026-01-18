@@ -34,13 +34,7 @@ export default defineConfig({
       }
     },
     // 压缩配置
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    },
+    minify: 'esbuild',
     // 启用gzip压缩
     cssCodeSplit: true,
     // 生成sourcemap

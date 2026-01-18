@@ -1,4 +1,6 @@
-// ============================================// Map API Methods// ============================================import { supabase } from '@/lib/supabase';import type { ApiResponse } from '@/lib/api-client';
+// ============================================// Map API Methods// ============================================
+import { supabase } from '@/lib/supabase';
+import type { ApiResponse } from '@/lib/api-client';
 import type {
   MapMarker,
   Route,
@@ -17,7 +19,7 @@ export async function getMarkersByTrip(tripId: string): Promise<ApiResponse<MapM
 
 export async function createMarker(input: CreateMarkerInput): Promise<ApiResponse<MapMarker>> {
   const user = (await supabase.auth.getUser()).data?.user;
-  if (!user) return { data: null, error: new Error('User not authenticated') };
+  if (!user) return { data: null, error: { message: 'User not authenticated', code: 'UNAUTHENTICATED' } };
 
   const { data, error } = await supabase
     .from('map_markers')
@@ -60,7 +62,7 @@ export async function getRoutesByTrip(tripId: string): Promise<ApiResponse<Route
 
 export async function createRoute(input: CreateRouteInput): Promise<ApiResponse<Route>> {
   const user = (await supabase.auth.getUser()).data?.user;
-  if (!user) return { data: null, error: new Error('User not authenticated') };
+  if (!user) return { data: null, error: { message: 'User not authenticated', code: 'UNAUTHENTICATED' } };
 
   const { data, error } = await supabase
     .from('routes')

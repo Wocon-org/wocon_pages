@@ -1,6 +1,7 @@
-// ============================================// Map Store// ============================================import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import type { MapMarker, Route } from '@/types';
+// ============================================// Map Store// ============================================
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import type { MapMarker, Route } from '@/types'
 import {
   getMarkersByTrip,
   createMarker,
@@ -9,155 +10,155 @@ import {
   getRoutesByTrip,
   createRoute,
   updateRoute,
-  deleteRoute
-} from './api';
+  deleteRoute,
+} from './api'
 
 export const useMapStore = defineStore('map', () => {
-  // 状态
-  const markers = ref<MapMarker[]>([]);
-  const routes = ref<Route[]>([]);
-  const loading = ref(false);
+  // State
+  const markers = ref<MapMarker[]>([])
+  const routes = ref<Route[]>([])
+  const loading = ref(false)
 
-  // 获取旅行标记
+  // Fetch markers by trip
   const fetchMarkersByTrip = async (tripId: string) => {
-    loading.value = true;
+    loading.value = true
     try {
-      const { data, error } = await getMarkersByTrip(tripId);
+      const { data, error } = await getMarkersByTrip(tripId)
       if (data) {
-        markers.value = data;
+        markers.value = data
       }
     } catch (error) {
-      console.error('获取地图标记失败:', error);
+      console.error('Failed to fetch map markers:', error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  // 创建标记
+  // Create marker
   const handleCreateMarker = async (markerData: any) => {
-    loading.value = true;
+    loading.value = true
     try {
-      const { data, error } = await createMarker(markerData);
+      const { data, error } = await createMarker(markerData)
       if (data) {
-        markers.value.push(data);
-        return data;
+        markers.value.push(data)
+        return data
       }
     } catch (error) {
-      console.error('创建地图标记失败:', error);
+      console.error('Failed to create map marker:', error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  // 更新标记
+  // Update marker
   const handleUpdateMarker = async (markerId: string, updates: Partial<MapMarker>) => {
-    loading.value = true;
+    loading.value = true
     try {
-      const { data, error } = await updateMarker(markerId, updates);
+      const { data, error } = await updateMarker(markerId, updates)
       if (data) {
-        const index = markers.value.findIndex(marker => marker.id === markerId);
+        const index = markers.value.findIndex((marker) => marker.id === markerId)
         if (index !== -1) {
-          markers.value[index] = data;
+          markers.value[index] = data
         }
       }
     } catch (error) {
-      console.error('更新地图标记失败:', error);
+      console.error('Failed to update map marker:', error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  // 删除标记
+  // Delete marker
   const handleDeleteMarker = async (markerId: string) => {
-    loading.value = true;
+    loading.value = true
     try {
-      const { error } = await deleteMarker(markerId);
+      const { error } = await deleteMarker(markerId)
       if (!error) {
-        markers.value = markers.value.filter(marker => marker.id !== markerId);
+        markers.value = markers.value.filter((marker) => marker.id !== markerId)
       }
     } catch (error) {
-      console.error('删除地图标记失败:', error);
+      console.error('Failed to delete map marker:', error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  // 获取旅行路线
+  // Fetch routes by trip
   const fetchRoutesByTrip = async (tripId: string) => {
-    loading.value = true;
+    loading.value = true
     try {
-      const { data, error } = await getRoutesByTrip(tripId);
+      const { data, error } = await getRoutesByTrip(tripId)
       if (data) {
-        routes.value = data;
+        routes.value = data
       }
     } catch (error) {
-      console.error('获取路线失败:', error);
+      console.error('Failed to fetch routes:', error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  // 创建路线
+  // Create route
   const handleCreateRoute = async (routeData: any) => {
-    loading.value = true;
+    loading.value = true
     try {
-      const { data, error } = await createRoute(routeData);
+      const { data, error } = await createRoute(routeData)
       if (data) {
-        routes.value.push(data);
-        return data;
+        routes.value.push(data)
+        return data
       }
     } catch (error) {
-      console.error('创建路线失败:', error);
+      console.error('Failed to create route:', error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  // 更新路线
+  // Update route
   const handleUpdateRoute = async (routeId: string, updates: Partial<Route>) => {
-    loading.value = true;
+    loading.value = true
     try {
-      const { data, error } = await updateRoute(routeId, updates);
+      const { data, error } = await updateRoute(routeId, updates)
       if (data) {
-        const index = routes.value.findIndex(route => route.id === routeId);
+        const index = routes.value.findIndex((route) => route.id === routeId)
         if (index !== -1) {
-          routes.value[index] = data;
+          routes.value[index] = data
         }
       }
     } catch (error) {
-      console.error('更新路线失败:', error);
+      console.error('Failed to update route:', error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  // 删除路线
+  // Delete route
   const handleDeleteRoute = async (routeId: string) => {
-    loading.value = true;
+    loading.value = true
     try {
-      const { error } = await deleteRoute(routeId);
+      const { error } = await deleteRoute(routeId)
       if (!error) {
-        routes.value = routes.value.filter(route => route.id !== routeId);
+        routes.value = routes.value.filter((route) => route.id !== routeId)
       }
     } catch (error) {
-      console.error('删除路线失败:', error);
+      console.error('Failed to delete route:', error)
     } finally {
-      loading.value = false;
+      loading.value = false
     }
-  };
+  }
 
-  // 清空地图数据
+  // Clear map data
   const clearMapData = () => {
-    markers.value = [];
-    routes.value = [];
-  };
+    markers.value = []
+    routes.value = []
+  }
 
   return {
-    // 状态
+    // State
     markers,
     routes,
     loading,
-    // 方法
+    // Methods
     fetchMarkersByTrip,
     createMarker: handleCreateMarker,
     updateMarker: handleUpdateMarker,
@@ -166,6 +167,6 @@ export const useMapStore = defineStore('map', () => {
     createRoute: handleCreateRoute,
     updateRoute: handleUpdateRoute,
     deleteRoute: handleDeleteRoute,
-    clearMapData
-  };
-});
+    clearMapData,
+  }
+})

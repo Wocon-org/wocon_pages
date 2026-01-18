@@ -1,4 +1,6 @@
-// ============================================// Auth API Methods// ============================================import { supabase } from '@/lib/supabase';import type { ApiResponse } from '@/lib/api-client';
+// ============================================// Auth API Methods// ============================================
+import { supabase } from '@/lib/supabase';
+import type { ApiResponse } from '@/lib/api-client';
 
 export async function signUp(email: string, password: string, username: string): Promise<ApiResponse<any>> {
   const { data, error } = await supabase.auth.signUp({

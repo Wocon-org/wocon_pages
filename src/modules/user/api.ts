@@ -1,4 +1,6 @@
-// ============================================// User API Methods// ============================================import { supabase } from '@/lib/supabase';import type { ApiResponse } from '@/lib/api-client';
+// ============================================// User API Methods// ============================================
+import { supabase } from '@/lib/supabase';
+import type { ApiResponse } from '@/lib/api-client';
 import type {
   Profile,
   UpdateProfileInput
@@ -9,7 +11,7 @@ export async function getProfile(userId: string): Promise<ApiResponse<Profile>> 
     .from('profiles')
     .select('*')
     .eq('id', userId)
-    .single()
+    .single();
   return { data, error };
 }
 
@@ -19,7 +21,7 @@ export async function updateProfile(userId: string, updates: UpdateProfileInput)
     .update(updates)
     .eq('id', userId)
     .select()
-    .single()
+    .single();
   return { data, error };
 }
 
@@ -27,7 +29,8 @@ export async function updateAvatar(userId: string, avatarUrl: string): Promise<A
   return updateProfile(userId, { avatar_url: avatarUrl });
 }
 
-// Storage Methodsexport async function uploadAvatar(userId: string, file: File): Promise<ApiResponse<any>> {
+// Storage Methods
+export async function uploadAvatar(userId: string, file: File): Promise<ApiResponse<any>> {
   const fileExt = file.name.split('.').pop();
   const fileName = `${userId}/${Date.now()}.${fileExt}`;
 

@@ -11,7 +11,7 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 
-// 初始化认证状态
+// Initialize auth state
 const authStore = useAuthStore()
 authStore.initAuth()
 

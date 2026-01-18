@@ -175,25 +175,25 @@ function getStatusColor(result: any) {
 <template>
   <div class="container">
     <div class="header">
-      <h1>API 测试面板</h1>
-      <p>测试 Supabase API 连接和功能</p>
+      <h1>API Test Panel</h1>
+      <p>Test Supabase API connection and functionality</p>
     </div>
 
     <div class="controls">
       <button @click="testAllAPIs" :disabled="loading">
-        测试基础 API
+        Test Basic APIs
       </button>
       <button @click="testAuthAPIs" :disabled="loading">
-        测试认证 API
+        Test Auth APIs
       </button>
       <button @click="testProfileAPIs" :disabled="loading">
-        测试资料 API
+        Test Profile APIs
       </button>
       <button @click="testTripAPIs" :disabled="loading">
-        测试旅行 API
+        Test Trip APIs
       </button>
       <button @click="testProfilesTable" :disabled="loading">
-        测试 Profiles 表
+        Test Profiles Table
       </button>
     </div>
 
@@ -204,7 +204,7 @@ function getStatusColor(result: any) {
 
     <div class="results" v-if="Object.keys(results).length > 0">
       <div class="result-group">
-        <h2>测试结果</h2>
+        <h2>Test Results</h2>
         <div class="result-list">
           <div
             v-for="(result, apiName) in results"
@@ -226,7 +226,7 @@ function getStatusColor(result: any) {
 
     <div class="loading" v-if="loading">
       <div class="spinner"></div>
-      <p>测试中...</p>
+      <p>Testing...</p>
     </div>
   </div>
 </template>

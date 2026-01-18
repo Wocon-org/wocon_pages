@@ -15,14 +15,14 @@ import ApiTest from '@/views/ApiTest.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // 认证页面
+    // Authentication pages
     {
       path: '/login',
       name: 'login',
       component: Login,
       meta: { guestOnly: true }
     },
-    // 首页 - 左右布局，底部四选项卡
+    // Home page - Left-right layout, bottom four tabs
     {
       path: '/',
       name: 'home',
@@ -47,7 +47,7 @@ const router = createRouter({
       component: Feedback,
       meta: { requiresAuth: false }
     },
-    // 用户页面
+    // User pages
     {
       path: '/profile',
       name: 'profile',
@@ -66,7 +66,7 @@ const router = createRouter({
       component: ChangePassword,
       meta: { requiresAuth: true }
     },
-    // 行程相关
+    // Trip related
     {
       path: '/map',
       name: 'map',
@@ -79,7 +79,7 @@ const router = createRouter({
       component: CreateTrip,
       meta: { requiresAuth: true }
     },
-    // API 测试页面
+    // API test page
     {
       path: '/api-test',
       name: 'api-test',
@@ -89,25 +89,25 @@ const router = createRouter({
   ]
 })
 
-// 路由守卫
+// Route guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isAuthenticated = authStore.isAuthenticated
 
-  // 本地开发模式：禁用认证
+  // Local development mode: Disable authentication
   const devMode = import.meta.env.DEV
 
   if (devMode) {
-    // 开发模式下跳过所有认证检查
+    // Skip all authentication checks in development mode
     next()
     return
   }
 
-  // 需要认证的页面
+  // Pages that require authentication
   if (to.meta.requiresAuth && !isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
   }
-  // 游客专属页面（已登录用户不能访问）
+  // Guest-only pages (logged-in users cannot access)
   else if (to.meta.guestOnly && isAuthenticated) {
     next({ name: 'home' })
   }

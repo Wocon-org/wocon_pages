@@ -1,7 +1,8 @@
-// ============================================// Trip Store// ============================================import { defineStore } from 'pinia';
+// ============================================// Trip Store// ============================================
+import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Trip, CreateTripInput } from '@/types'
-import { TripParticipantWithProfile } from './api'
+import type { TripParticipantWithProfile } from './api'
 import {
   getTrips,
   getTripById,
@@ -13,18 +14,18 @@ import {
 } from './api'
 
 export const useTripStore = defineStore('trip', () => {
-  // 状态
+  // State
   const trips = ref<Trip[]>([])
   const currentTrip = ref<Trip | null>(null)
   const loading = ref(false)
   const participants = ref<TripParticipantWithProfile[]>([])
 
-  // 计算属性
+  // Computed properties
   const privateTrips = computed(() => trips.value.filter((trip) => trip.type === 'private'))
   const recruitingTrips = computed(() => trips.value.filter((trip) => trip.type === 'recruiting'))
   const publicTrips = computed(() => trips.value.filter((trip) => trip.is_public))
 
-  // 获取所有旅行
+  // Fetch all trips
   const fetchTrips = async (filters?: {
     type?: 'private' | 'recruiting'
     is_public?: boolean
@@ -37,30 +38,30 @@ export const useTripStore = defineStore('trip', () => {
         trips.value = data
       }
     } catch (error) {
-      console.error('获取旅行列表失败:', error)
+      console.error('Failed to fetch trip list:', error)
     } finally {
       loading.value = false
     }
   }
 
-  // 获取单个旅行详情
+  // Fetch single trip details
   const fetchTripById = async (tripId: string) => {
     loading.value = true
     try {
       const { data, error } = await getTripById(tripId)
       if (data) {
         currentTrip.value = data
-        // 获取旅行参与者
+        // Fetch trip participants
         await fetchTripParticipants(tripId)
       }
     } catch (error) {
-      console.error('获取旅行详情失败:', error)
+      console.error('Failed to fetch trip details:', error)
     } finally {
       loading.value = false
     }
   }
 
-  // 创建旅行
+  // Create trip
   const handleCreateTrip = async (tripData: CreateTripInput) => {
     loading.value = true
     try {
@@ -70,72 +71,72 @@ export const useTripStore = defineStore('trip', () => {
         return data
       }
     } catch (error) {
-      console.error('创建旅行失败:', error)
+      console.error('Failed to create trip:', error)
     } finally {
       loading.value = false
     }
   }
 
-  // 更新旅行
+  // Update trip
   const handleUpdateTrip = async (tripId: string, updates: Partial<Trip>) => {
     loading.value = true
     try {
       const { data, error } = await updateTrip(tripId, updates)
       if (data) {
-        // 更新当前旅行
+        // Update current trip
         if (currentTrip.value && currentTrip.value.id === tripId) {
           currentTrip.value = data
         }
-        // 更新旅行列表中的对应项
+        // Update corresponding trip in list
         const index = trips.value.findIndex((trip) => trip.id === tripId)
         if (index !== -1) {
           trips.value[index] = data
         }
       }
     } catch (error) {
-      console.error('更新旅行失败:', error)
+      console.error('Failed to update trip:', error)
     } finally {
       loading.value = false
     }
   }
 
-  // 删除旅行
+  // Delete trip
   const handleDeleteTrip = async (tripId: string) => {
     loading.value = true
     try {
       const { error } = await deleteTrip(tripId)
       if (!error) {
-        // 移除当前旅行
+        // Remove current trip
         if (currentTrip.value && currentTrip.value.id === tripId) {
           currentTrip.value = null
         }
-        // 从旅行列表中移除
+        // Remove from trip list
         trips.value = trips.value.filter((trip) => trip.id !== tripId)
       }
     } catch (error) {
-      console.error('删除旅行失败:', error)
+      console.error('Failed to delete trip:', error)
     } finally {
       loading.value = false
     }
   }
 
-  // 加入旅行
+  // Join trip
   const handleJoinTrip = async (tripId: string) => {
     loading.value = true
     try {
       const { data, error } = await joinTrip(tripId)
       if (data) {
-        // 刷新旅行参与者
+        // Refresh trip participants
         await fetchTripParticipants(tripId)
       }
     } catch (error) {
-      console.error('加入旅行失败:', error)
+      console.error('Failed to join trip:', error)
     } finally {
       loading.value = false
     }
   }
 
-  // 获取旅行参与者
+  // Fetch trip participants
   const fetchTripParticipants = async (tripId: string) => {
     try {
       const { data, error } = await getTripParticipants(tripId)
@@ -143,27 +144,27 @@ export const useTripStore = defineStore('trip', () => {
         participants.value = data
       }
     } catch (error) {
-      console.error('获取旅行参与者失败:', error)
+      console.error('Failed to fetch trip participants:', error)
     }
   }
 
-  // 重置当前旅行
+  // Reset current trip
   const resetCurrentTrip = () => {
     currentTrip.value = null
     participants.value = []
   }
 
   return {
-    // 状态
+    // State
     trips,
     currentTrip,
     loading,
     participants,
-    // 计算属性
+    // Computed properties
     privateTrips,
     recruitingTrips,
     publicTrips,
-    // 方法
+    // Methods
     fetchTrips,
     fetchTripById,
     createTrip: handleCreateTrip,
