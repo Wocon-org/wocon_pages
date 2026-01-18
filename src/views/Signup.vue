@@ -101,11 +101,11 @@ const isValidUsername = ref(false)
 const isValidNickname = ref(false)
 const isValidPassword = ref(false)
 
-watch([emailError, usernameError, nicknameError, passwordError], () => {
-  isValidEmail.value = email.value.length > 0 && emailError.value === ''
-  isValidUsername.value = username.value.length > 0 && usernameError.value === ''
-  isValidNickname.value = nickname.value.length > 0 && nicknameError.value === ''
-  isValidPassword.value = password.value.length > 0 && passwordError.value === ''
+watch([email, username, nickname, password], ([newEmail, newUsername, newNickname, newPassword]) => {
+  isValidEmail.value = newEmail.trim().length > 0 && validateEmail(newEmail.trim()) === ''
+  isValidUsername.value = newUsername.trim().length > 0 && validateUsername(newUsername.trim()) === ''
+  isValidNickname.value = newNickname.trim().length > 0 && validateNickname(newNickname.trim()) === ''
+  isValidPassword.value = newPassword.length > 0 && validatePassword(newPassword) === ''
 })
 
 const signup = async () => {
