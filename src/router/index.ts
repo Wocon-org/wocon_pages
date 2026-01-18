@@ -7,6 +7,8 @@ import Map from '@/views/Map.vue'
 import Signup from '@/views/Signup.vue'
 import CreateTrip from '@/views/CreateTrip.vue'
 import Settings from '@/views/Settings.vue'
+import ChangePassword from '@/views/ChangePassword.vue'
+import Feedback from '@/views/Feedback.vue'
 import Contact from '@/views/Contact.vue'
 import ApiTest from '@/views/ApiTest.vue'
 
@@ -39,6 +41,12 @@ const router = createRouter({
       component: Contact,
       meta: { requiresAuth: false }
     },
+    {
+      path: '/feedback',
+      name: 'feedback',
+      component: Feedback,
+      meta: { requiresAuth: false }
+    },
     // 用户页面
     {
       path: '/profile',
@@ -50,6 +58,12 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: Settings,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/settings/change-password',
+      name: 'change-password',
+      component: ChangePassword,
       meta: { requiresAuth: true }
     },
     // 行程相关
@@ -79,6 +93,15 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isAuthenticated = authStore.isAuthenticated
+
+  // 本地开发模式：禁用认证
+  const devMode = import.meta.env.DEV
+
+  if (devMode) {
+    // 开发模式下跳过所有认证检查
+    next()
+    return
+  }
 
   // 需要认证的页面
   if (to.meta.requiresAuth && !isAuthenticated) {

@@ -60,9 +60,9 @@ const handleAvatarChange = (e: Event) => {
       toast('Please select an image file')
       return
     }
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast('Image size must be less than 2MB')
+    // Validate file size (max 1MB)
+    if (file.size > 1 * 1024 * 1024) {
+      toast('Image size must be less than 1MB')
       return
     }
     avatarFile.value = file

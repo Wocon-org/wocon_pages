@@ -9,14 +9,35 @@ const activeSection = ref(0)
 const showSidebar = ref(false)
 const showCreateMenu = ref(false)
 const searchQuery = ref('')
+const createMenuPosition = ref({ top: '0px', left: '0px' })
 
 const toggleCreateMenu = () => {
   showCreateMenu.value = !showCreateMenu.value
+  if (showCreateMenu.value) {
+    const button = document.querySelector('.create-button')
+    if (button) {
+      const rect = button.getBoundingClientRect()
+      createMenuPosition.value = {
+        top: `${rect.bottom + 8}px`,
+        left: `${rect.left}px`
+      }
+    }
+  }
 }
 
 const handleCreateTrip = () => {
   showCreateMenu.value = false
   router.push('/create-trip')
+}
+
+const goToSettings = () => {
+  console.log('Settings button clicked')
+  router.push('/settings')
+}
+
+const goToProfile = () => {
+  console.log('Profile button clicked')
+  router.push('/profile')
 }
 
 const handleMenuClickOutside = () => {
@@ -78,27 +99,56 @@ const getIconSvg = (index: number) => {
         <!-- Top bar with circular buttons -->
         <div class="top-bar">
           <div class="top-bar-left">
-            <div class="circular-button settings-button" @click="router.push('/settings')">
+            <div class="create-menu-wrapper">
+              <div class="create-button" @click="toggleCreateMenu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <Teleport to="body">
+                <div v-if="showCreateMenu" class="create-menu-overlay" @click="handleMenuClickOutside">
+                  <div class="create-menu" @click.stop>
+                    <div class="menu-item" @click="handleCreateTrip">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>Create Trip</span>
+                    </div>
+                    <div class="menu-item">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="#8b949e" stroke-width="2"/>
+                        <path d="M12 6V12L16 14" stroke="#8b949e" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      <span>Create Event</span>
+                    </div>
+                    <div class="menu-item">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.7893 3 19.5304 3 19V15" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 8L12 3L7 8" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 3V15" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>Upload Content</span>
+                    </div>
+                  </div>
+                </div>
+              </Teleport>
+            </div>
+          </div>
+          <div class="top-bar-right">
+            <div class="circular-button settings-button" @click="goToSettings">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
               </svg>
             </div>
-          </div>
-          <div class="top-bar-right">
-            <div class="circular-button profile-button" @click="router.push('/profile')">
+            <div class="circular-button profile-button" @click="goToProfile">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
               </svg>
             </div>
-          </div>
-        </div>
-        <div class="create-menu-wrapper">
-          <div class="create-button" @click="toggleCreateMenu">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            </svg>
           </div>
         </div>
 
@@ -137,36 +187,6 @@ const getIconSvg = (index: number) => {
     </div>
 
     <Sidebar :showSidebar="showSidebar" @update:showSidebar="showSidebar = $event" />
-
-    <Teleport to="body">
-      <div v-if="showCreateMenu" class="create-menu-overlay" @click="handleMenuClickOutside">
-        <div class="create-menu" @click.stop>
-          <div class="menu-item" @click="handleCreateTrip">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Create Trip</span>
-          </div>
-          <div class="menu-item">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="#8b949e" stroke-width="2"/>
-              <path d="M12 6V12L16 14" stroke="#8b949e" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <span>Create Event</span>
-          </div>
-          <div class="menu-item">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M17 8L12 3L7 8" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M12 3V15" stroke="#8b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Upload Content</span>
-          </div>
-        </div>
-      </div>
-    </Teleport>
   </div>
 </template>
 
@@ -220,12 +240,12 @@ const getIconSvg = (index: number) => {
 
 .top-bar-left {
   display: flex;
-  gap: 16px;
+  gap: 12px;
 }
 
 .top-bar-right {
   display: flex;
-  gap: 16px;
+  gap: 12px;
 }
 
 .circular-button {
@@ -270,6 +290,10 @@ const getIconSvg = (index: number) => {
   transition: all 0.2s ease;
 }
 
+.create-menu-wrapper {
+  position: relative;
+}
+
 .create-button:hover {
   background: #2ea043;
 }
@@ -285,10 +309,9 @@ const getIconSvg = (index: number) => {
 }
 
 .create-menu {
-  position: absolute;
-  top: 64px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
+  top: v-bind('createMenuPosition.top');
+  left: v-bind('createMenuPosition.left');
   background: rgba(33, 38, 45, 0.98);
   backdrop-filter: blur(8px);
   border: 1px solid #30363d;
@@ -327,17 +350,6 @@ const getIconSvg = (index: number) => {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.create-menu-wrapper {
-  position: absolute;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 101;
-  width: 100px;
-  height: 40px;
-  cursor: pointer;
 }
 
 .content-container {

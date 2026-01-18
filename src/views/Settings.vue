@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import Sidebar from '@/components/common/Sidebar.vue'
 
+const router = useRouter()
 const showSidebar = ref(false)
 
 type Language = 'en' | 'zh'
@@ -85,11 +87,11 @@ const changeLanguage = (newLang: Language) => {
 
     <!-- Language -->
     <div class="settings-section">
-      <div class="section-header">{{ lang.value.language }}</div>
+      <div class="section-header">{{ lang.language }}</div>
       <div class="section-content">
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.language }}</span>
+            <span class="item-label">{{ lang.language }}</span>
           </div>
           <select v-model="currentLanguage" @change="changeLanguage(currentLanguage)" class="language-selector">
             <option v-for="option in languageOptions" :key="option.value" :value="option.value">
@@ -102,12 +104,12 @@ const changeLanguage = (newLang: Language) => {
 
     <!-- Account Security -->
     <div class="settings-section">
-      <div class="section-header">{{ lang.value.accountSecurity }}</div>
+      <div class="section-header">{{ lang.accountSecurity }}</div>
       <div class="section-content">
-        <div class="settings-item">
+        <div class="settings-item" @click="router.push('/settings/change-password')">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.changePassword }}</span>
-            <span class="item-sublabel">{{ lang.value.changePasswordSub }}</span>
+            <span class="item-label">{{ lang.changePassword }}</span>
+            <span class="item-sublabel">{{ lang.changePasswordSub }}</span>
           </div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -115,8 +117,8 @@ const changeLanguage = (newLang: Language) => {
         </div>
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.loginDevices }}</span>
-            <span class="item-sublabel">{{ lang.value.loginDevicesSub }}</span>
+            <span class="item-label">{{ lang.loginDevices }}</span>
+            <span class="item-sublabel">{{ lang.loginDevicesSub }}</span>
           </div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -127,12 +129,12 @@ const changeLanguage = (newLang: Language) => {
 
     <!-- Notification Settings -->
     <div class="settings-section">
-      <div class="section-header">{{ lang.value.notificationSettings }}</div>
+      <div class="section-header">{{ lang.notificationSettings }}</div>
       <div class="section-content">
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.emailNotifications }}</span>
-            <span class="item-sublabel">{{ lang.value.emailNotificationsSub }}</span>
+            <span class="item-label">{{ lang.emailNotifications }}</span>
+            <span class="item-sublabel">{{ lang.emailNotificationsSub }}</span>
           </div>
           <div class="toggle-switch">
             <input type="checkbox" checked />
@@ -141,8 +143,8 @@ const changeLanguage = (newLang: Language) => {
         </div>
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.tripInvitations }}</span>
-            <span class="item-sublabel">{{ lang.value.tripInvitationsSub }}</span>
+            <span class="item-label">{{ lang.tripInvitations }}</span>
+            <span class="item-sublabel">{{ lang.tripInvitationsSub }}</span>
           </div>
           <div class="toggle-switch">
             <input type="checkbox" checked />
@@ -151,8 +153,8 @@ const changeLanguage = (newLang: Language) => {
         </div>
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.tripUpdates }}</span>
-            <span class="item-sublabel">{{ lang.value.tripUpdatesSub }}</span>
+            <span class="item-label">{{ lang.tripUpdates }}</span>
+            <span class="item-sublabel">{{ lang.tripUpdatesSub }}</span>
           </div>
           <div class="toggle-switch">
             <input type="checkbox" checked />
@@ -161,8 +163,8 @@ const changeLanguage = (newLang: Language) => {
         </div>
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.friendRequests }}</span>
-            <span class="item-sublabel">{{ lang.value.friendRequestsSub }}</span>
+            <span class="item-label">{{ lang.friendRequests }}</span>
+            <span class="item-sublabel">{{ lang.friendRequestsSub }}</span>
           </div>
           <div class="toggle-switch">
             <input type="checkbox" />
@@ -174,12 +176,12 @@ const changeLanguage = (newLang: Language) => {
 
     <!-- Privacy Settings -->
     <div class="settings-section">
-      <div class="section-header">{{ lang.value.privacySettings }}</div>
+      <div class="section-header">{{ lang.privacySettings }}</div>
       <div class="section-content">
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.accountVisibility }}</span>
-            <span class="item-sublabel">{{ lang.value.public }}</span>
+            <span class="item-label">{{ lang.accountVisibility }}</span>
+            <span class="item-sublabel">{{ lang.public }}</span>
           </div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -187,8 +189,8 @@ const changeLanguage = (newLang: Language) => {
         </div>
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.tripVisibility }}</span>
-            <span class="item-sublabel">{{ lang.value.friendsOnly }}</span>
+            <span class="item-label">{{ lang.tripVisibility }}</span>
+            <span class="item-sublabel">{{ lang.friendsOnly }}</span>
           </div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -196,8 +198,8 @@ const changeLanguage = (newLang: Language) => {
         </div>
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.profileVisibility }}</span>
-            <span class="item-sublabel">{{ lang.value.public }}</span>
+            <span class="item-label">{{ lang.profileVisibility }}</span>
+            <span class="item-sublabel">{{ lang.public }}</span>
           </div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -208,17 +210,17 @@ const changeLanguage = (newLang: Language) => {
 
     <!-- About -->
     <div class="settings-section">
-      <div class="section-header">{{ lang.value.about }}</div>
+      <div class="section-header">{{ lang.about }}</div>
       <div class="section-content">
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.version }}</span>
+            <span class="item-label">{{ lang.version }}</span>
             <span class="item-sublabel">1.0.0</span>
           </div>
         </div>
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.termsOfService }}</span>
+            <span class="item-label">{{ lang.termsOfService }}</span>
           </div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -226,15 +228,15 @@ const changeLanguage = (newLang: Language) => {
         </div>
         <div class="settings-item">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.privacyPolicy }}</span>
+            <span class="item-label">{{ lang.privacyPolicy }}</span>
           </div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <div class="settings-item">
+        <div class="settings-item" @click="router.push('/feedback')">
           <div class="item-info">
-            <span class="item-label">{{ lang.value.helpFeedback }}</span>
+            <span class="item-label">{{ lang.helpFeedback }}</span>
           </div>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -250,7 +252,7 @@ const changeLanguage = (newLang: Language) => {
 <style scoped>
 .settings-container {
   min-height: 100vh;
-  background: #000000;
+  background: #0d1117;
   padding: 80px 60px;
   position: relative;
 }
