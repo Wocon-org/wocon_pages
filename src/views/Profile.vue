@@ -17,6 +17,9 @@ const nicknameInput = ref('')
 const bioInput = ref('')
 const avatarFile = ref<File | null>(null)
 const avatarPreview = ref<string>('')
+const searchUsername = ref('')
+const searchingUser = ref(false)
+const foundUser = ref<any>(null)
 
 const toast = (msg: string) => {
   toastMessage.value = msg
@@ -45,6 +48,76 @@ const loadProfile = async () => {
     }
   }
   loading.value = false
+}
+
+const handleSearchUser = async () => {
+  const username = searchUsername.value.trim()
+  if (!username) {
+    foundUser.value = null
+    return
+  }
+
+  searchingUser.value = true
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, username, nickname, avatar_url')
+    .eq('username', username)
+    .single()
+
+  if (error || !data) {
+    foundUser.value = null
+    toast('User not found')
+  } else {
+    foundUser.value = data
+  }
+  searchingUser.value = false
+}
+
+const handleAddFriend = async () => {
+  if (!profile.value || !foundUser.value) return
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    toast('Please log in first')
+    return
+  }
+
+  if (foundUser.value.id === user.id) {
+    toast('You cannot add yourself as a friend')
+    return
+  }
+
+  try {
+    // Check if friendship already exists
+    const { data: existing } = await supabase
+      .from('friends')
+      .select('*')
+      .or(`and(user_id.eq.${user.id},friend_id.eq.${foundUser.value.id}),and(user_id.eq.${foundUser.value.id},friend_id.eq.${user.id})`)
+      .single()
+
+    if (existing) {
+      toast('Friend request already sent or already friends')
+      return
+    }
+
+    // Send friend request - ensure smaller ID is user_id to avoid duplicates
+    const userIds = [user.id, foundUser.value.id].sort()
+    const { error } = await supabase
+      .from('friends')
+      .insert({
+        user_id: userIds[0],
+        friend_id: userIds[1],
+        status: 'pending'
+      })
+
+    if (error) throw error
+    toast('Friend request sent!')
+    foundUser.value = null
+    searchUsername.value = ''
+  } catch (error: any) {
+    console.error('Error sending friend request:', error)
+    toast('Failed to send friend request')
+  }
 }
 
 const handleAvatarClick = () => {
@@ -253,6 +326,47 @@ const updateAvatar = async (userId: string, avatarUrl: string) => {
             >
               {{ saving ? 'Saving...' : 'Save Bio' }}
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Friend -->
+      <div class="settings-section">
+        <div class="section-header">Friends</div>
+        <div class="section-content">
+          <div class="friend-search">
+            <div class="search-wrapper">
+              <input
+                v-model="searchUsername"
+                type="text"
+                class="search-input"
+                placeholder="Search by username..."
+                @keyup.enter="handleSearchUser"
+              />
+              <button
+                v-if="searchUsername"
+                class="search-btn"
+                @click="handleSearchUser"
+                :disabled="searchingUser"
+              >
+                {{ searchingUser ? 'Searching...' : 'Search' }}
+              </button>
+            </div>
+            <div v-if="foundUser" class="found-user">
+              <div class="user-info">
+                <div class="user-avatar">
+                  <img v-if="foundUser.avatar_url" :src="foundUser.avatar_url" :alt="foundUser.username" />
+                  <div v-else class="avatar-placeholder">{{ foundUser.username.charAt(0).toUpperCase() }}</div>
+                </div>
+                <div class="user-details">
+                  <div class="user-name">{{ foundUser.nickname || foundUser.username }}</div>
+                  <div class="user-username">@{{ foundUser.username }}</div>
+                </div>
+              </div>
+              <button class="add-friend-btn" @click="handleAddFriend">
+                Add Friend
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -576,5 +690,131 @@ const updateAvatar = async (userId: string, avatarUrl: string) => {
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+.friend-search {
+  padding: 20px;
+}
+
+.search-wrapper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.search-input {
+  flex: 1;
+  background: #2c2c2e;
+  border: 1px solid #38383a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 15px;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #86868b;
+}
+
+.search-input:focus {
+  border-color: #0a84ff;
+}
+
+.search-btn {
+  padding: 10px 16px;
+  background: #0a84ff;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-btn:hover:not(:disabled) {
+  background: #0a7ae5;
+}
+
+.search-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.found-user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #2c2c2e;
+  border-radius: 8px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-avatar .avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a84ff, #5e5ce6);
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.user-username {
+  color: #86868b;
+  font-size: 13px;
+}
+
+.add-friend-btn {
+  padding: 8px 14px;
+  background: #0a84ff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.add-friend-btn:hover {
+  background: #0a7ae5;
 }
 </style>

@@ -6,6 +6,7 @@ import Profile from '@/views/Profile.vue'
 import Map from '@/views/Map.vue'
 import Signup from '@/views/Signup.vue'
 import CreateTrip from '@/views/CreateTrip.vue'
+import TripDetail from '@/views/TripDetail.vue'
 import Settings from '@/views/Settings.vue'
 import ChangePassword from '@/views/ChangePassword.vue'
 import Feedback from '@/views/Feedback.vue'
@@ -78,6 +79,12 @@ const router = createRouter({
       name: 'create-trip',
       component: CreateTrip,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/trip/:id',
+      name: 'trip-detail',
+      component: TripDetail,
+      meta: { requiresAuth: false }
     },
     // API test page
     {

@@ -69,35 +69,33 @@ const loginWithPassword = async () => {
   // Check if input is email or username
   const isEmail = emailOrUsername.value.includes('@')
 
-  try {
-    let error
-    if (isEmail) {
-      // Login with email
-      const result = await supabase.auth.signInWithPassword({
-        email: emailOrUsername.value,
-        password: password.value
-      })
-      error = result.error
-    } else {
-      // Login with username - need to get email from profiles table
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('username', emailOrUsername.value)
-        .single()
+      try {
+        let error
+        if (isEmail) {
+          // Login with email
+          const result = await supabase.auth.signInWithPassword({
+            email: emailOrUsername.value,
+            password: password.value
+          })
+          error = result.error
+        } else {
+          // Login with username - use RPC function to get email
+          const { data: profile, error: profileError } = await supabase.rpc('get_profile_by_username', {
+            username_param: emailOrUsername.value
+          })
 
-      if (profileError || !profile) {
-        toast('User not found. Please check your username or verify your email.')
-        loading.value = false
-        return
-      }
+          if (profileError || !profile || profile.length === 0) {
+            toast('User not found. Please check your username or verify your email.')
+            loading.value = false
+            return
+          }
 
-      const result = await supabase.auth.signInWithPassword({
-        email: profile.email,
-        password: password.value
-      })
-      error = result.error
-    }
+          const result = await supabase.auth.signInWithPassword({
+            email: profile[0].email,
+            password: password.value
+          })
+          error = result.error
+        }
 
     loading.value = false
     if (error) {

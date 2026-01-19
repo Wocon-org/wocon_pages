@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/lib/supabase'
 import Sidebar from '@/components/common/Sidebar.vue'
 
 const router = useRouter()
@@ -12,6 +13,25 @@ const description = ref('')
 const isPublic = ref(false)
 const invitedUsers = ref<string[]>([])
 const inviteInput = ref('')
+const loading = ref(false)
+const showToast = ref(false)
+const toastMessage = ref('')
+const userId = ref<string | null>(null)
+
+const toast = (msg: string) => {
+  toastMessage.value = msg
+  showToast.value = true
+  setTimeout(() => showToast.value = false, 3000)
+}
+
+onMounted(async () => {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) {
+    userId.value = user.id
+  } else {
+    router.push('/login')
+  }
+})
 
 const handleCancel = () => {
   router.back()
@@ -32,17 +52,74 @@ const handleRemoveInvite = (email: string) => {
   }
 }
 
-const handleSubmit = (e: Event) => {
+const handleSubmit = async (e: Event) => {
   e.preventDefault()
-  // TODO: Implement trip creation logic
-  console.log('Creating trip:', {
-    name: tripName.value,
-    type: tripType.value,
-    maxParticipants: maxParticipants.value,
-    description: description.value,
-    isPublic: isPublic.value,
-    invitedUsers: invitedUsers.value
-  })
+
+  if (!userId.value) {
+    toast('Please log in first')
+    return
+  }
+
+  if (!tripName.value.trim()) {
+    toast('Please enter a trip name')
+    return
+  }
+
+  loading.value = true
+
+  try {
+    // Create trip
+    const { data: trip, error: tripError } = await supabase
+      .from('trips')
+      .insert({
+        name: tripName.value.trim(),
+        type: tripType.value,
+        max_participants: maxParticipants.value,
+        description: description.value.trim() || null,
+        is_public: isPublic.value,
+        owner_id: userId.value
+      })
+      .select()
+      .single()
+
+    if (tripError) {
+      throw tripError
+    }
+
+    // Handle invited users
+    if (invitedUsers.value.length > 0) {
+      for (const email of invitedUsers.value) {
+        // Get user profile by email
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', email)
+          .single()
+
+        if (profile) {
+          // Add to trip participants
+          await supabase
+            .from('trip_participants')
+            .insert({
+              trip_id: trip.id,
+              user_id: profile.id,
+              status: 'pending'
+            })
+        }
+      }
+    }
+
+    toast('Trip created successfully!')
+    setTimeout(() => {
+      router.push(`/trip/${trip.id}`)
+    }, 1000)
+
+  } catch (error: any) {
+    console.error('Error creating trip:', error)
+    toast(error.message || 'Failed to create trip')
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -175,9 +252,20 @@ const handleSubmit = (e: Event) => {
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" @click="handleCancel">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create trip</button>
+          <button type="button" class="btn btn-secondary" @click="handleCancel" :disabled="loading">Cancel</button>
+          <button type="submit" class="btn btn-primary" :disabled="loading">
+            {{ loading ? 'Creating...' : 'Create trip' }}
+          </button>
         </div>
+
+      </form>
+    </div>
+
+    <div class="toast" :class="{ show: showToast }">{{ toastMessage }}</div>
+  </div>
+
+  <Sidebar :showSidebar="showSidebar" @update:showSidebar="showSidebar = $event" />
+</template>
       </form>
     </div>
   </div>
@@ -521,6 +609,31 @@ const handleSubmit = (e: Event) => {
 
 .btn-primary:hover {
   background: #2ea043;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #238636;
+  border: 1px solid #2ea043;
+  padding: 12px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  max-width: 400px;
+  text-align: center;
+  z-index: 9999;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 @media (max-width: 640px) {
