@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/lib/supabase'
 import Sidebar from '@/components/common/Sidebar.vue'
 import WoconMap from '@/components/WoconMap.vue'
 
@@ -10,6 +11,16 @@ const showSidebar = ref(false)
 const showCreateMenu = ref(false)
 const searchQuery = ref('')
 const createMenuPosition = ref({ top: '0px', left: '0px' })
+
+// Connections data
+const friends = ref<any[]>([])
+const friendRequests = ref<any[]>([])
+const searchResults = ref<any[]>([])
+const loading = ref(false)
+const currentUser = ref<any>(null)
+const connectionsSearchQuery = ref('')
+const connectionsSearchResults = ref<any[]>([])
+const sentRequests = ref<Set<string>>(new Set())
 
 const toggleCreateMenu = () => {
   showCreateMenu.value = !showCreateMenu.value
@@ -86,6 +97,193 @@ const getIconSvg = (index: number) => {
   ]
   return icons[index]
 }
+
+// Load connections data
+const loadConnections = async () => {
+  loading.value = true
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    // Load friends (accepted)
+    const { data: friendsData } = await supabase
+      .from('friends')
+      .select(`
+        id,
+        status,
+        friend_id!inner(id, username, nickname, avatar_url, bio)
+      `)
+      .or(`and(user_id.eq.${user.id},status.eq.accepted),and(friend_id.eq.${user.id},status.eq.accepted)`)
+
+    // Load friend requests (pending received)
+    const { data: requestsData } = await supabase
+      .from('friends')
+      .select(`
+        id,
+        status,
+        user_id!inner(id, username, nickname, avatar_url, bio)
+      `)
+      .eq('friend_id', user.id)
+      .eq('status', 'pending')
+
+    friends.value = friendsData?.map((f: any) => ({
+      id: f.friend_id.id,
+      username: f.friend_id.username,
+      nickname: f.friend_id.nickname,
+      avatar_url: f.friend_id.avatar_url,
+      bio: f.friend_id.bio
+    })) || []
+
+    friendRequests.value = requestsData?.map((f: any) => ({
+      id: f.user_id.id,
+      username: f.user_id.username,
+      nickname: f.user_id.nickname,
+      avatar_url: f.user_id.avatar_url,
+      bio: f.user_id.bio,
+      friendship_id: f.id
+    })) || []
+  } catch (error) {
+    console.error('Error loading connections:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Search users
+const searchUsers = async () => {
+  if (!searchQuery.value.trim()) {
+    searchResults.value = []
+    return
+  }
+
+  loading.value = true
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, username, nickname, avatar_url, bio')
+      .ilike('username', `%${searchQuery.value}%`)
+      .neq('id', user.id)
+      .limit(10)
+
+    searchResults.value = data || []
+  } catch (error) {
+    console.error('Error searching users:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Send friend request
+const sendFriendRequest = async (friendId: string) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { error } = await supabase
+      .from('friends')
+      .insert({
+        user_id: user.id,
+        friend_id: friendId,
+        status: 'pending'
+      })
+
+    if (!error) {
+      sentRequests.value.add(friendId)
+      connectionsSearchResults.value = connectionsSearchResults.value.filter(u => u.id !== friendId)
+      searchResults.value = searchResults.value.filter(u => u.id !== friendId)
+    }
+  } catch (error) {
+    console.error('Error sending friend request:', error)
+  }
+}
+
+// Check if request is already sent
+const isRequestSent = (userId: string) => {
+  return sentRequests.value.has(userId)
+}
+
+// Search users in Connections tab
+const searchConnectionsUsers = async () => {
+  if (!connectionsSearchQuery.value.trim()) {
+    connectionsSearchResults.value = []
+    return
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, username, nickname, avatar_url, bio')
+      .or(`username.ilike.%${connectionsSearchQuery.value}%,nickname.ilike.%${connectionsSearchQuery.value}%`)
+      .neq('id', user.id)
+      .limit(10)
+
+    connectionsSearchResults.value = data || []
+  } catch (error) {
+    console.error('Error searching users:', error)
+  }
+}
+
+// Accept friend request
+const acceptFriendRequest = async (requestId: string) => {
+  try {
+    const { error } = await supabase
+      .from('friends')
+      .update({ status: 'accepted' })
+      .eq('id', requestId)
+
+    if (!error) {
+      friendRequests.value = friendRequests.value.filter(r => r.friendship_id !== requestId)
+      await loadConnections()
+    }
+  } catch (error) {
+    console.error('Error accepting friend request:', error)
+  }
+}
+
+// Reject friend request
+const rejectFriendRequest = async (requestId: string) => {
+  try {
+    const { error } = await supabase
+      .from('friends')
+      .delete()
+      .eq('id', requestId)
+
+    if (!error) {
+      friendRequests.value = friendRequests.value.filter(r => r.friendship_id !== requestId)
+    }
+  } catch (error) {
+    console.error('Error rejecting friend request:', error)
+  }
+}
+
+// Watch search query
+import { watch } from 'vue'
+let searchTimeout: number | null = null
+let connectionsSearchTimeout: number | null = null
+watch(searchQuery, (newVal) => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = window.setTimeout(() => {
+    searchUsers()
+  }, 500)
+})
+
+watch(connectionsSearchQuery, (newVal) => {
+  if (connectionsSearchTimeout) clearTimeout(connectionsSearchTimeout)
+  connectionsSearchTimeout = window.setTimeout(() => {
+    searchConnectionsUsers()
+  }, 500)
+})
+
+// Load data on mount
+onMounted(() => {
+  loadConnections()
+})
 </script>
 
 <template>
@@ -144,7 +342,7 @@ const getIconSvg = (index: number) => {
           <div class="top-bar-right">
             <div class="circular-button settings-button" @click="goToSettings">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                <circle cx="12" cy="12" r="3"/>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1 1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
               </svg>
             </div>
@@ -161,6 +359,7 @@ const getIconSvg = (index: number) => {
         <div class="content-container">
           <div class="content-slider" :style="sliderStyle">
             <div v-for="(section, index) in sections" :key="index" class="content-section">
+              <!-- Search Tab -->
               <div v-if="index === 0" class="search-section">
                 <div class="search-input-wrapper">
                   <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -170,8 +369,96 @@ const getIconSvg = (index: number) => {
                   <input v-model="searchQuery" type="text" class="search-input" :placeholder="section.placeholder" />
                 </div>
                 <div v-if="searchQuery === ''" class="activity-placeholder">{{ section.activity }}</div>
+                <div v-else-if="loading" class="loading">Loading...</div>
+                <div v-else-if="searchResults.length > 0" class="search-results">
+                  <div v-for="user in searchResults" :key="user.id" class="search-result-item" @click="router.push(`/profile/${user.username}`)">
+                    <img :src="user.avatar_url || '/default-avatar.png'" class="result-avatar" />
+                    <div class="result-info">
+                      <div class="result-name">{{ user.nickname || user.username }}</div>
+                      <div class="result-username">@{{ user.username }}</div>
+                    </div>
+                    <button class="add-friend-btn" @click.stop="sendFriendRequest(user.id)">Add</button>
+                  </div>
+                </div>
+                <div v-else class="no-results">No users found</div>
               </div>
-              <div v-else class="content-placeholder">{{ section.placeholder }}</div>
+
+              <!-- Connections Tab -->
+              <div v-else-if="index === 1" class="connections-section">
+                <div class="connections-content">
+                  <!-- Search Users -->
+                  <div class="search-users-section">
+                    <div class="search-users-input-wrapper">
+                      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="7" stroke="#8b949e" stroke-width="2"/>
+                        <path d="M16 16L21 21" stroke="#8b949e" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      <input v-model="connectionsSearchQuery" type="text" class="search-users-input" placeholder="Search users to add friends..." />
+                    </div>
+                    <div v-if="connectionsSearchResults.length > 0" class="search-users-results">
+                      <div v-for="user in connectionsSearchResults" :key="user.id" class="search-users-result-item">
+                        <img :src="user.avatar_url || '/default-avatar.png'" class="search-result-avatar" />
+                        <div class="search-result-info" @click="router.push(`/profile/${user.username}`)">
+                          <div class="search-result-name">{{ user.nickname || user.username }}</div>
+                          <div class="search-result-username">@{{ user.username }}</div>
+                        </div>
+                        <button class="add-friend-btn-small" @click="sendFriendRequest(user.id)" :disabled="isRequestSent(user.id)">
+                          {{ isRequestSent(user.id) ? 'Sent' : 'Add' }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Friend Requests -->
+                  <div v-if="friendRequests.length > 0" class="requests-section">
+                    <div class="section-title">Friend Requests ({{ friendRequests.length }})</div>
+                    <div v-for="user in friendRequests" :key="user.id" class="request-item">
+                      <img :src="user.avatar_url || '/default-avatar.png'" class="request-avatar" />
+                      <div class="request-info">
+                        <div class="request-name">{{ user.nickname || user.username }}</div>
+                        <div class="request-username">@{{ user.username }}</div>
+                      </div>
+                      <div class="request-actions">
+                        <button class="accept-btn" @click="acceptFriendRequest(user.friendship_id)">✓</button>
+                        <button class="reject-btn" @click="rejectFriendRequest(user.friendship_id)">✕</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Friends List -->
+                  <div class="friends-section">
+                    <div class="section-title">Friends ({{ friends.length }})</div>
+                    <div v-if="loading" class="loading">Loading...</div>
+                    <div v-else-if="friends.length === 0" class="empty-state">
+                      <div class="empty-icon">👥</div>
+                      <div class="empty-text">No friends yet</div>
+                      <div class="empty-hint">Search for users to add friends</div>
+                    </div>
+                    <div v-else class="friends-list">
+                      <div v-for="user in friends" :key="user.id" class="friend-item" @click="router.push(`/profile/${user.username}`)">
+                        <img :src="user.avatar_url || '/default-avatar.png'" class="friend-avatar" />
+                        <div class="friend-info">
+                          <div class="friend-name">{{ user.nickname || user.username }}</div>
+                          <div class="friend-username">@{{ user.username }}</div>
+                          <div v-if="user.bio" class="friend-bio">{{ user.bio }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Discover Tab -->
+              <div v-else-if="index === 2" class="content-placeholder">
+                <div class="placeholder-icon">🌍</div>
+                <div>Discover Coming Soon</div>
+              </div>
+
+              <!-- Home Tab -->
+              <div v-else-if="index === 3" class="content-placeholder">
+                <div class="placeholder-icon">🏠</div>
+                <div>My Trips Coming Soon</div>
+              </div>
             </div>
           </div>
         </div>
@@ -435,6 +722,365 @@ const getIconSvg = (index: number) => {
   font-size: 24px;
   text-align: center;
   margin-top: 20px;
+}
+
+/* Search Results */
+.search-results {
+  width: 100%;
+  max-width: 500px;
+  max-height: calc(100% - 100px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 20px;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-result-item:hover {
+  background: #30363d;
+  border-color: #8b949e;
+}
+
+.result-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.result-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-name {
+  color: #c9d1d9;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.result-username {
+  color: #8b949e;
+  font-size: 12px;
+}
+
+.add-friend-btn {
+  padding: 6px 12px;
+  background: #238636;
+  border: 1px solid #2ea043;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-friend-btn:hover {
+  background: #2ea043;
+}
+
+.no-results {
+  color: #8b949e;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Connections Section */
+.connections-section {
+  width: 100%;
+  height: 100%;
+  padding: 20px 40px;
+  overflow-y: auto;
+}
+
+.connections-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Search Users Section */
+.search-users-section {
+  margin-bottom: 32px;
+}
+
+.search-users-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: border-color 0.2s ease;
+}
+
+.search-users-input-wrapper:focus-within {
+  border-color: #5865F2;
+}
+
+.search-users-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #c9d1d9;
+  font-size: 14px;
+}
+
+.search-users-input::placeholder {
+  color: #8b949e;
+}
+
+.search-users-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.search-users-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.search-users-result-item:hover {
+  background: #30363d;
+  border-color: #8b949e;
+}
+
+.search-result-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.search-result-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.search-result-name {
+  color: #c9d1d9;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.search-result-username {
+  color: #8b949e;
+  font-size: 12px;
+}
+
+.add-friend-btn-small {
+  padding: 6px 12px;
+  background: #238636;
+  border: 1px solid #2ea043;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+
+.add-friend-btn-small:hover:not(:disabled) {
+  background: #2ea043;
+}
+
+.add-friend-btn-small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.section-title {
+  color: #c9d1d9;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.requests-section {
+  margin-bottom: 32px;
+}
+
+.request-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.request-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.request-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.request-name {
+  color: #c9d1d9;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.request-username {
+  color: #8b949e;
+  font-size: 12px;
+}
+
+.request-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.accept-btn,
+.reject-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.accept-btn {
+  background: #238636;
+  color: white;
+}
+
+.accept-btn:hover {
+  background: #2ea043;
+}
+
+.reject-btn {
+  background: #da3633;
+  color: white;
+}
+
+.reject-btn:hover {
+  background: #f85149;
+}
+
+/* Friends List */
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.friend-item:hover {
+  background: #30363d;
+  border-color: #8b949e;
+}
+
+.friend-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.friend-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-name {
+  color: #c9d1d9;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.friend-username {
+  color: #8b949e;
+  font-size: 12px;
+}
+
+.friend-bio {
+  color: #6e7681;
+  font-size: 12px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-text {
+  color: #c9d1d9;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.empty-hint {
+  color: #8b949e;
+  font-size: 14px;
+}
+
+.placeholder-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.loading {
+  color: #8b949e;
+  font-size: 16px;
+  text-align: center;
+  padding: 40px;
 }
 
 .bottom-bar {

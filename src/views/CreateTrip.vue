@@ -266,12 +266,6 @@ const handleSubmit = async (e: Event) => {
 
   <Sidebar :showSidebar="showSidebar" @update:showSidebar="showSidebar = $event" />
 </template>
-      </form>
-    </div>
-  </div>
-
-  <Sidebar :showSidebar="showSidebar" @update:showSidebar="showSidebar = $event" />
-</template>
 
 <style scoped>
 .create-trip-container {
