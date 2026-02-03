@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { searchCities } from '@/lib/api'
 
 interface Props {
   show?: boolean
@@ -12,16 +12,6 @@ interface Emits {
   (e: 'selectResult', result: SearchResult): void
 }
 
-interface CityData {
-  geonameid: number
-  name: string
-  asciiname: string
-  latitude: number
-  longitude: number
-  country_code: string
-  population: number | null
-}
-
 interface SearchResult {
   id: string
   type: 'destination' | 'user' | 'trip'
@@ -30,6 +20,7 @@ interface SearchResult {
   lat: number
   lng: number
   image?: string
+  population?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -44,26 +35,12 @@ const showResults = ref(false)
 const isSearching = ref(false)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
-// 从Supabase搜索城市
-const searchCities = async (query: string): Promise<SearchResult[]> => {
+// 从API搜索城市
+const performSearch = async (query: string): Promise<SearchResult[]> => {
   try {
-    // 使用Supabase的RPC调用search_cities函数
-    const { data, error } = await supabase
-      .rpc('search_cities', { query })
-
-    if (error) throw error
-
-    // 转换为SearchResult格式
-    const cities = data as CityData[]
-
-    return cities.map(city => ({
-      id: `city-${city.geonameid}`,
-      type: 'destination' as const,
-      title: city.name,
-      subtitle: `${city.country_code} • Population: ${city.population?.toLocaleString() || 'N/A'}`,
-      lat: city.latitude,
-      lng: city.longitude
-    }))
+    // 使用API客户端（优先Worker，fallback到Supabase）
+    const results = await searchCities(query)
+    return results as SearchResult[]
   } catch (error) {
     console.error('Search failed:', error)
     return []
@@ -112,7 +89,7 @@ const handleSearch = async () => {
 
   // 防抖 300ms
   searchTimeout = setTimeout(async () => {
-    const results = await searchCities(query)
+    const results = await performSearch(query)
     searchResults.value = results
     isSearching.value = false
     showResults.value = true

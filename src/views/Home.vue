@@ -17,7 +17,6 @@ const router = useRouter()
 
 // 状态管理
 const activeTab = ref<TabType>('home')
-const isSearchVisible = ref(false)
 const selectedTrip = ref<any>(null)
 const showMoreMenu = ref(false)
 
@@ -37,14 +36,18 @@ const trips = ref<any[]>([
 
 // 处理 tab 切换
 const handleTabChange = (tab: TabType) => {
-  activeTab.value = tab
-
   // Search 特殊处理：切换显示/隐藏
   if (tab === 'search') {
-    isSearchVisible.value = !isSearchVisible.value
-    if (!isSearchVisible.value) {
+    if (activeTab.value === 'search') {
+      // 当前已经是search，则关闭
       activeTab.value = 'home'
+      showSearchBar.value = true
+    } else {
+      // 切换到search
+      activeTab.value = 'search'
     }
+  } else {
+    activeTab.value = tab
   }
 }
 
@@ -56,7 +59,6 @@ const handleMoreClick = () => {
 // 点击 Logo 返回首页
 const handleLogoClick = () => {
   activeTab.value = 'home'
-  isSearchVisible.value = false
   selectedTrip.value = null
 }
 

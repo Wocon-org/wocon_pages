@@ -1,5 +1,99 @@
 # woconapp 更新日志
 
+## 2026-02-01 - 史诗级大更新 v2.0
+
+### 🎨 全新UI设计 (仿Google Earth)
+- 左侧固定侧边栏 (80px宽度)
+- 组件化设计：每个功能都是独立面板
+- 可拖拽浮动面板 (Draggable组件)
+- 当前激活项图标填充黑色，其余灰色轮廓
+
+### 🚀 核心功能
+
+#### 1. 搜索系统
+- 集成 Cloudflare Workers API
+- 导入 GeoNames 城市数据库 (200K+ 城市)
+- 实时城市搜索 (防抖300ms)
+- 搜索结果地图跳转 (flyTo动画)
+- 支持 Supabase 和 Worker 双重架构
+
+#### 2. 组件系统
+- **Sidebar**: 导航侧栏 (Home/Connections/Search/Discover/More)
+- **SearchBar**: 可拖拽搜索面板
+- **ConnectionsPanel**: 联系人管理 (空状态，待接入数据)
+- **PluginPanel**: 插件管理
+- **Panel**: 通用面板容器
+- **Draggable**: 可拖拽组件包装器
+- **WorldMap**: 世界地图组件 (暗色/卫星图层切换)
+
+#### 3. TopBar 工具栏
+- 图层切换 (深色/卫星地图)
+- GitHub 链接
+- Download 按钮
+- Settings 页面导航
+- Profile 页面导航
+
+#### 4. Preloader 加载动画
+- 渐变文字 "Wocon"
+- 旋转加载图标
+- 页面加载/登录时显示
+
+### 🏗️ 技术架构
+
+#### Cloudflare Workers
+- `functions/search/`: 搜索API
+- `functions/shared/supabase.ts`: Supabase客户端封装
+- CORS支持
+- 错误处理和响应助手
+
+#### 数据库
+- `cities` 表: GeoNames城市数据
+- `search_cities` 函数: 城市搜索RPC
+- 5个索引优化查询性能
+- RLS权限配置
+
+#### 前端API客户端
+- `src/lib/api.ts`: 统一API调用
+- Worker优先，Supabase fallback机制
+- TypeScript类型支持
+
+### 📦 新增文件
+```
+functions/
+├── README.md
+├── search/index.ts
+└── shared/supabase.ts
+
+src/components/
+├── Preloader.vue
+├── Sidebar.vue
+├── TopBar.vue
+├── WorldMap.vue
+├── common/
+│   ├── Draggable.vue
+│   └── Panel.vue
+└── panels/
+    ├── ConnectionsPanel.vue
+    ├── PluginPanel.vue
+    └── SearchBar.vue
+
+src/lib/
+└── api.ts
+
+文档/
+├── GEONAMES_IMPORT_PLAN.md
+├── SEARCH_API_GUIDE.md
+├── SUPABASE_DATA_SCHEMA.md
+├── UPDATE_PLAN.md
+└── CLOUDFLARE_DEPLOYMENT.md
+```
+
+### 🔧 配置更新
+- `wrangler.toml`: Cloudflare Workers配置
+- 环境变量配置 (Supabase URL/Key)
+
+---
+
 ## 2025-01-24
 
 ### ✅ 已完成功能
