@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import TopBar from '@/components/TopBar.vue'
 import Sidebar from '@/components/Sidebar.vue'
@@ -7,6 +7,7 @@ import WorldMap from '@/components/WorldMap.vue'
 import PluginPanel from '@/components/panels/PluginPanel.vue'
 import ConnectionsPanel from '@/components/panels/ConnectionsPanel.vue'
 import SearchBar from '@/components/panels/SearchBar.vue'
+import DiscoverPanel from '@/components/panels/DiscoverPanel.vue'
 import Draggable from '@/components/common/Draggable.vue'
 import Panel from '@/components/common/Panel.vue'
 import Preloader from '@/components/Preloader.vue'
@@ -24,9 +25,27 @@ const showMoreMenu = ref(false)
 const showConnectionsPanel = ref(true)
 const showPluginPanel = ref(true)
 const showSearchBar = ref(true)
+const showDiscoverPanel = ref(true)
 
 // WorldMap 引用
 const worldMapRef = ref<InstanceType<typeof WorldMap>>()
+
+// 监听Discover事件
+const handleDiscoverPlace = (event: any) => {
+  const place = event.detail
+  console.log('Discovered place:', place)
+  if (worldMapRef.value && place.coordinates) {
+    worldMapRef.value.flyTo(place.coordinates.lat, place.coordinates.lng, 10)
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('discover-place', handleDiscoverPlace)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('discover-place', handleDiscoverPlace)
+})
 
 // 行程数据（示例）
 const trips = ref<any[]>([
@@ -90,6 +109,11 @@ const handleSearchClose = () => {
   activeTab.value = 'home'
 }
 
+const handleDiscoverClose = () => {
+  showDiscoverPanel.value = false
+  activeTab.value = 'home'
+}
+
 // 搜索结果选中处理
 const handleSearchResult = (result: any) => {
   console.log('Search result selected:', result)
@@ -148,8 +172,8 @@ const handleSearchResult = (result: any) => {
       </Panel>
     </Draggable>
 
-    <!-- TODO: 其他浮动面板 -->
-    <!-- DiscoverPanel, TripInfoModal, SearchBar, MoreMenu -->
+    <!-- DiscoverPanel（无需Panel包装，因为它是全屏显示的） -->
+    <DiscoverPanel v-if="activeTab === 'discover'" />
   </div>
 </template>
 

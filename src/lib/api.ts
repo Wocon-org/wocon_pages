@@ -1,8 +1,12 @@
 /**
- * API Client for Cloudflare Workers
+ * API Client for Cloudflare Workers and Supabase
+ * 当前优先使用Supabase直接调用（Worker部署完成后可切换）
  */
 
+import { supabase } from './supabase'
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+const USE_WORKER = false // 暂时禁用Worker，部署成功后改为 true
 
 interface CitySearchResult {
   id: string
@@ -31,27 +35,25 @@ export async function searchCities(query: string): Promise<CitySearchResult[]> {
     return []
   }
 
+  // 如果启用了Worker，尝试使用Worker API
+  if (USE_WORKER) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/search/cities?q=${encodeURIComponent(query)}`)
+
+      if (response.ok) {
+        const data: SearchResponse = await response.json()
+
+        if (data.success) {
+          return data.results
+        }
+      }
+    } catch (error) {
+      console.warn('Worker search failed, falling back to Supabase:', error)
+    }
+  }
+
+  // 直接调用Supabase
   try {
-    // 优先使用Cloudflare Worker API
-    const response = await fetch(`${API_BASE_URL}/search/cities?q=${encodeURIComponent(query)}`)
-
-    if (!response.ok) {
-      throw new Error(`Search failed: ${response.status}`)
-    }
-
-    const data: SearchResponse = await response.json()
-
-    if (data.success) {
-      return data.results
-    }
-
-    return []
-  } catch (error) {
-    console.error('Worker search error:', error)
-
-    // Fallback: 直接调用Supabase
-    console.log('Falling back to Supabase direct call')
-    const { supabase } = await import('./supabase')
     const { data, error: rpcError } = await supabase.rpc('search_cities', { query })
 
     if (rpcError) {
@@ -68,6 +70,9 @@ export async function searchCities(query: string): Promise<CitySearchResult[]> {
       lng: city.longitude,
       population: city.population
     }))
+  } catch (error) {
+    console.error('Search failed:', error)
+    return []
   }
 }
 
@@ -84,19 +89,64 @@ export async function searchTrips(query: string): Promise<any[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/search/trips?q=${encodeURIComponent(query)}`)
 
-    if (!response.ok) {
-      throw new Error(`Search failed: ${response.status}`)
+    if (response.ok) {
+      const data: SearchResponse = await response.json()
+
+      if (data.success) {
+        return data.results
+      }
     }
-
-    const data: SearchResponse = await response.json()
-
-    if (data.success) {
-      return data.results
-    }
-
-    return []
   } catch (error) {
     console.error('Trip search error:', error)
-    return []
   }
+
+  return []
+}
+
+/**
+ * 获取用户资料
+ */
+export async function getProfile(userId: string) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+  return { data, error }
+}
+
+/**
+ * 更新用户资料
+ */
+export async function updateProfile(userId: string, updates: any) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', userId)
+    .select()
+    .single()
+  return { data, error }
+}
+
+/**
+ * 上传头像
+ */
+export async function uploadAvatar(userId: string, file: File) {
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${userId}-${Date.now()}.${fileExt}`
+  const filePath = `avatars/${fileName}`
+
+  const { data, error } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, { upsert: true })
+
+  if (error) {
+    return { data: null, error }
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath)
+
+  return { data: { url: publicUrl }, error: null }
 }

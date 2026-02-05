@@ -8,13 +8,20 @@
 
 ```
 woconapp/
-├── functions/           # Cloudflare Workers 函数
+├── worker.ts           # Cloudflare Worker 主入口（单文件架构）
+├── functions/           # Worker 函数（保留用于未来扩展）
 │   ├── search/         # 搜索功能
 │   ├── trips/          # 行程管理
 │   └── shared/         # 共享工具
 ├── wrangler.toml      # Cloudflare 配置
 └── src/lib/api.ts     # 前端 API 客户端
 ```
+
+## 架构说明
+
+当前使用 **单文件Worker架构** (`worker.ts`)，所有路由集中在一个文件中，便于部署和管理。
+
+未来可扩展为多文件架构，使用 `functions/` 目录中的模块化代码。
 
 ## 部署步骤
 
@@ -32,15 +39,15 @@ wrangler login
 
 ### 3. 配置环境变量
 
-在 `wrangler.toml` 中配置：
+在 `wrangler.toml` 中已配置：
 
 ```toml
 [vars]
-SUPABASE_URL = "your-supabase-url"
-SUPABASE_ANON_KEY = "your-supabase-anon-key"
+SUPABASE_URL = "https://your-project.supabase.co"
+SUPABASE_ANON_KEY = "your-anon-key"
 ```
 
-或者使用 secrets（更安全）：
+或者使用 secrets（更安全，推荐用于生产环境）：
 
 ```bash
 wrangler secret put SUPABASE_URL
@@ -55,16 +62,19 @@ wrangler dev
 
 # 测试 API
 curl http://localhost:8787/api/search/cities?q=Tokyo
+
+# 测试健康检查
+curl http://localhost:8787/health
 ```
 
 ### 5. 部署到 Cloudflare
 
 ```bash
-# 部署所有函数
+# 部署 Worker
 wrangler deploy
 
-# 或部署特定函数
-wrangler deploy functions/search
+# 部署后你会得到一个 URL，例如：
+# https://woconworker.your-subdomain.workers.dev
 ```
 
 ## API 端点
