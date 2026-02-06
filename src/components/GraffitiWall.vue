@@ -79,7 +79,7 @@ class Doodle {
       '#00e6e6', '#00cccc', '#00b3b3', '#009999', '#008080',
       '#0ac8ff', '#1ee3ff', '#3af7c8', '#5effb5', '#7affa8'
     ]
-    return colors[Math.floor(Math.random() * colors.length)]
+    return colors[Math.floor(Math.random() * colors.length)] ?? '#ffffff'
   }
 
   update(canvasWidth: number, canvasHeight: number) {
@@ -169,11 +169,11 @@ const initDoodles = () => {
     const x = Math.random() * width
     const y = Math.random() * height
     const size = 0.7 + Math.random() * 1.3
-    doodles.push(new Doodle(x, y, phrase.text, phrase.language, size))
+    doodles.push(new Doodle(x, y, phrase!.text, phrase!.language, size))
   })
 
   for (let i = 0; i < 15; i++) {
-    const phrase = phrases[Math.floor(Math.random() * phrases.length)]
+    const phrase = phrases[Math.floor(Math.random() * phrases.length)] ?? phrases[0]
     const x = Math.random() * width
     const y = Math.random() * height
     const size = 0.7 + Math.random() * 1.3

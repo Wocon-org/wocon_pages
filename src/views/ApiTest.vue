@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import * as api from '@/lib/api'
+import { getCurrentUser, signUp, signInWithEmail, signInWithOAuth } from '@/modules/auth/api'
+import { getTrips, getTripById, createTrip, getTripsByOwner } from '@/modules/trip/api'
+import { getProfile, updateProfile } from '@/modules/user/api'
 import { supabase } from '@/lib/supabase'
 
 const results = ref<Record<string, any>>({})
@@ -17,15 +19,15 @@ async function testAllAPIs() {
 
   // 1. Test getCurrentUser
   try {
-    const { user, error } = await api.getCurrentUser()
-    results.value['getCurrentUser'] = error ? { error: error.message } : { user: user?.id }
+    const { data, error } = await getCurrentUser()
+    results.value['getCurrentUser'] = error ? { error: error.message } : { user: data?.user?.id }
   } catch (e: any) {
     results.value['getCurrentUser'] = { error: e.message }
   }
 
   // 2. Test getTrips
   try {
-    const { data, error } = await api.getTrips()
+    const { data, error } = await getTrips()
     results.value['getTrips'] = error ? { error: error.message } : { count: data?.length }
   } catch (e: any) {
     results.value['getTrips'] = { error: e.message }
@@ -33,7 +35,7 @@ async function testAllAPIs() {
 
   // 3. Test getTripById (will fail if no trips exist)
   try {
-    const { data, error } = await api.getTripById('test-id')
+    const { data, error } = await getTripById('test-id')
     results.value['getTripById'] = error ? { error: error.message } : { success: true }
   } catch (e: any) {
     results.value['getTripById'] = { error: e.message }
@@ -47,7 +49,7 @@ async function testAuthAPIs() {
 
   // Test signUp
   try {
-    const { data, error } = await api.signUp(testEmail.value, 'password123', `user${Date.now()}`)
+    const { data, error } = await signUp(testEmail.value, 'password123', `user${Date.now()}`)
     results.value['signUp'] = error ? { error: error.message } : { success: true }
   } catch (e: any) {
     results.value['signUp'] = { error: e.message }
@@ -55,7 +57,7 @@ async function testAuthAPIs() {
 
   // Test signInWithEmail
   try {
-    const { data, error } = await api.signInWithEmail(testEmail.value)
+    const { data, error } = await signInWithEmail(testEmail.value)
     results.value['signInWithEmail'] = error ? { error: error.message } : { success: true }
   } catch (e: any) {
     results.value['signInWithEmail'] = { error: e.message }
@@ -63,7 +65,7 @@ async function testAuthAPIs() {
 
   // Test signInWithOAuth
   try {
-    const { data, error } = await api.signInWithOAuth('github')
+    const { data, error } = await signInWithOAuth('github')
     results.value['signInWithOAuth'] = error ? { error: error.message } : { success: true }
   } catch (e: any) {
     results.value['signInWithOAuth'] = { error: e.message }
@@ -74,9 +76,9 @@ async function testProfileAPIs() {
   loading.value = true
   results.value = {}
 
-  const { user } = await api.getCurrentUser()
+  const { data: currentUser } = await getCurrentUser()
 
-  if (!user) {
+  if (!currentUser?.user) {
     results.value['Profile APIs'] = { error: 'User not authenticated' }
     loading.value = false
     return
@@ -84,15 +86,17 @@ async function testProfileAPIs() {
 
   // Test getProfile
   try {
-    const { data, error } = await api.getProfile(user.id)
-    results.value['getProfile'] = error ? { error: error.message } : { username: data?.username }
+    const userId = currentUser.user.id
+    const { data: profileData, error } = await getProfile(userId)
+    results.value['getProfile'] = error ? { error: error.message } : { username: profileData?.username }
   } catch (e: any) {
     results.value['getProfile'] = { error: e.message }
   }
 
   // Test updateProfile
   try {
-    const { data, error } = await api.updateProfile(user.id, { bio: 'Test bio' })
+    const userId = currentUser.user.id
+    const { data: updatedProfile, error } = await updateProfile(userId, { bio: 'Test bio' })
     results.value['updateProfile'] = error ? { error: error.message } : { success: true }
   } catch (e: any) {
     results.value['updateProfile'] = { error: e.message }
@@ -105,9 +109,9 @@ async function testTripAPIs() {
   loading.value = true
   results.value = {}
 
-  const { user } = await api.getCurrentUser()
+  const { data: currentUser2 } = await getCurrentUser()
 
-  if (!user) {
+  if (!currentUser2?.user) {
     results.value['Trip APIs'] = { error: 'User not authenticated' }
     loading.value = false
     return
@@ -115,7 +119,7 @@ async function testTripAPIs() {
 
   // Test createTrip
   try {
-    const { data, error } = await api.createTrip({
+    const { data, error } = await createTrip({
       name: `Test Trip ${Date.now()}`,
       description: 'Test description',
       type: 'private',
@@ -129,8 +133,9 @@ async function testTripAPIs() {
 
   // Test getTripsByOwner
   try {
-    const { data, error } = await api.getTripsByOwner(user.id)
-    results.value['getTripsByOwner'] = error ? { error: error.message } : { count: data?.length }
+    const userId = currentUser2.user.id
+    const { data: ownerTrips, error } = await getTripsByOwner(userId)
+    results.value['getTripsByOwner'] = error ? { error: error.message } : { count: ownerTrips?.length }
   } catch (e: any) {
     results.value['getTripsByOwner'] = { error: e.message }
   }

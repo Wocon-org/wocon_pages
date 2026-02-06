@@ -88,7 +88,7 @@ const getDescription = (countryCode: string, name: string): string => {
 
   const countryDescriptions = descriptions[countryCode]
   if (countryDescriptions) {
-    return countryDescriptions[Math.floor(Math.random() * countryDescriptions.length)]
+    return countryDescriptions[Math.floor(Math.random() * countryDescriptions.length)] ?? ''
   }
 
   const generalDescriptions = [
@@ -98,7 +98,7 @@ const getDescription = (countryCode: string, name: string): string => {
     'A destination that offers something for every traveler.'
   ]
 
-  return generalDescriptions[Math.floor(Math.random() * generalDescriptions.length)]
+  return generalDescriptions[Math.floor(Math.random() * generalDescriptions.length)] ?? ''
 }
 
 // 随机选择一个城市
@@ -121,7 +121,7 @@ const discoverPlace = async () => {
     // 模拟加载动画
     setTimeout(() => {
       const randomIndex = Math.floor(Math.random() * cities.length)
-      currentPlace.value = cities[randomIndex]
+      currentPlace.value = cities[randomIndex]!
       isDiscovering.value = false
 
       // 触发事件，让父组件移动地图

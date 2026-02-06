@@ -48,9 +48,6 @@ const initializeMap = () => {
     center: [20, 0],
     zoom: 2,
     zoomControl: true,
-    zoomControlOptions: {
-      position: 'bottomright'
-    },
     scrollWheelZoom: true,
     doubleClickZoom: true,
     attributionControl: false
@@ -70,7 +67,9 @@ const initializeMap = () => {
   })
 
   // 默认添加深色图层
-  darkLayer.addTo(map)
+  darkLayer!.addTo(map!)
+
+  L.control.zoom({ position: 'bottomright' }).addTo(map!)
 
   // 添加标记
   addMarkers()
@@ -134,7 +133,7 @@ const addMarkers = () => {
 
       const marker = L.marker([trip.lat, trip.lng], {
         icon: customIcon
-      }).addTo(map)
+      }).addTo(map!)
 
       marker.on('click', () => {
         emit('markerClick', trip.id)
@@ -148,8 +147,8 @@ const addMarkers = () => {
 const fitMapToMarkers = () => {
   if (!map || markers.length === 0) return
 
-  const group = new L.featureGroup(markers)
-  map.fitBounds(group.getBounds().pad(0.1))
+  const group = L.featureGroup(markers)
+  map!.fitBounds(group.getBounds().pad(0.1))
 }
 
 onMounted(() => {

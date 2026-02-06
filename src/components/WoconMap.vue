@@ -66,6 +66,8 @@ const loadPublicTrips = async () => {
       trips.forEach(trip => {
         if (trip.map_markers && trip.map_markers.length > 0) {
           trip.map_markers.forEach(marker => {
+            const ownerData: any = trip.owner as any
+            const ownerUsername = Array.isArray(ownerData) ? ownerData[0]?.username : ownerData?.username
             const markerIcon = L.divIcon({
               className: 'trip-marker',
               html: `
@@ -84,7 +86,7 @@ const loadPublicTrips = async () => {
             }).setContent(`
               <div class="trip-popup-content">
                 <h3>${trip.name}</h3>
-                <p>Owner: ${trip.owner?.username || 'Unknown'}</p>
+                <p>Owner: ${ownerUsername || 'Unknown'}</p>
                 <p>Type: ${trip.type === 'recruiting' ? 'Recruiting' : 'Private'}</p>
                 <button class="trip-popup-btn" onclick="window.dispatchEvent(new CustomEvent('trip-click', { detail: '${trip.id}' }))">
                   View Trip
@@ -98,7 +100,7 @@ const loadPublicTrips = async () => {
               emit('marker-click', trip.id)
             })
 
-            markersLayer.addLayer(leafletMarker)
+            markersLayer!.addLayer(leafletMarker)
           })
         }
       })

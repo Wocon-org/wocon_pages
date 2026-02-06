@@ -41,8 +41,9 @@ const handleMouseDown = (e: MouseEvent | TouchEvent) => {
 
   isDragging.value = true
 
-  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+  const tStart = 'touches' in e ? e.touches?.[0] : null
+  const clientX = tStart?.clientX ?? (e as MouseEvent).clientX
+  const clientY = tStart?.clientY ?? (e as MouseEvent).clientY
 
   dragOffset.value = {
     x: clientX - position.value.x,
@@ -62,8 +63,9 @@ const handleMouseMove = (e: MouseEvent | TouchEvent) => {
 
   e.preventDefault()
 
-  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+  const tMove = 'touches' in e ? e.touches?.[0] : null
+  const clientX = tMove?.clientX ?? (e as MouseEvent).clientX
+  const clientY = tMove?.clientY ?? (e as MouseEvent).clientY
 
   let newX = clientX - dragOffset.value.x
   let newY = clientY - dragOffset.value.y
