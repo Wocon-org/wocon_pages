@@ -43,4 +43,12 @@ export default defineConfigWithVueTs(
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
     }
   }
+  ,
+  {
+    name: 'node/scripts',
+    files: ['scripts/**/*.js'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
+    }
+  }
 )
