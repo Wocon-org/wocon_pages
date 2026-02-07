@@ -107,7 +107,7 @@ async function handleCitySearch(request: Request, env: Env): Promise<Response> {
   }
 }
 
-async function handleTripSearch(request: Request, env: Env): Promise<Response> {
+async function handleTripSearch(request: Request, _env: Env): Promise<Response> {
   const url = new URL(request.url)
   const query = url.searchParams.get('q') || ''
 
