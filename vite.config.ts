@@ -19,20 +19,6 @@ export default defineConfig({
   },
   // 打包优化配置
   build: {
-    // 代码分割配置
-    rollupOptions: {
-      output: {
-        // 路由级别的代码分割
-        manualChunks: {
-          // 将第三方依赖打包到单独的chunk
-          'vendor': ['vue', 'vue-router', 'pinia', 'leaflet', '@supabase/supabase-js'],
-          // 地图相关依赖单独打包
-          'map': ['leaflet'],
-          // 认证相关依赖单独打包
-          'auth': ['@supabase/supabase-js']
-        }
-      }
-    },
     // 压缩配置
     minify: 'esbuild',
     // 启用gzip压缩
