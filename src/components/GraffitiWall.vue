@@ -177,7 +177,7 @@ const initDoodles = () => {
     const x = Math.random() * width
     const y = Math.random() * height
     const size = 0.7 + Math.random() * 1.3
-    doodles.push(new Doodle(x, y, phrase.text, phrase.language, size))
+    doodles.push(new Doodle(x, y, phrase!.text, phrase!.language, size))
   }
 }
 
