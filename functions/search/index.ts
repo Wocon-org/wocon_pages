@@ -85,7 +85,7 @@ async function handleTripSearch(request: Request, env: Env): Promise<Response> {
   }
 
   try {
-    const supabase = createSupabaseClient(env)
+    createSupabaseClient(env)
 
     // TODO: 实现行程搜索
     // const results = await supabase.from('trips').select('*').ilike('name', `%${query}%`)

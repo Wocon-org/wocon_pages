@@ -23,7 +23,7 @@ export const useMapStore = defineStore('map', () => {
   const fetchMarkersByTrip = async (tripId: string) => {
     loading.value = true
     try {
-      const { data, error } = await getMarkersByTrip(tripId)
+      const { data } = await getMarkersByTrip(tripId)
       if (data) {
         markers.value = data
       }
@@ -38,7 +38,7 @@ export const useMapStore = defineStore('map', () => {
   const handleCreateMarker = async (markerData: any) => {
     loading.value = true
     try {
-      const { data, error } = await createMarker(markerData)
+      const { data } = await createMarker(markerData)
       if (data) {
         markers.value.push(data)
         return data
@@ -54,7 +54,7 @@ export const useMapStore = defineStore('map', () => {
   const handleUpdateMarker = async (markerId: string, updates: Partial<MapMarker>) => {
     loading.value = true
     try {
-      const { data, error } = await updateMarker(markerId, updates)
+      const { data } = await updateMarker(markerId, updates)
       if (data) {
         const index = markers.value.findIndex((marker) => marker.id === markerId)
         if (index !== -1) {
@@ -87,7 +87,7 @@ export const useMapStore = defineStore('map', () => {
   const fetchRoutesByTrip = async (tripId: string) => {
     loading.value = true
     try {
-      const { data, error } = await getRoutesByTrip(tripId)
+      const { data } = await getRoutesByTrip(tripId)
       if (data) {
         routes.value = data
       }
@@ -102,7 +102,7 @@ export const useMapStore = defineStore('map', () => {
   const handleCreateRoute = async (routeData: any) => {
     loading.value = true
     try {
-      const { data, error } = await createRoute(routeData)
+      const { data } = await createRoute(routeData)
       if (data) {
         routes.value.push(data)
         return data
@@ -118,7 +118,7 @@ export const useMapStore = defineStore('map', () => {
   const handleUpdateRoute = async (routeId: string, updates: Partial<Route>) => {
     loading.value = true
     try {
-      const { data, error } = await updateRoute(routeId, updates)
+      const { data } = await updateRoute(routeId, updates)
       if (data) {
         const index = routes.value.findIndex((route) => route.id === routeId)
         if (index !== -1) {
