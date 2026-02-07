@@ -136,7 +136,7 @@ export async function uploadAvatar(userId: string, file: File) {
   const fileName = `${userId}-${Date.now()}.${fileExt}`
   const filePath = `avatars/${fileName}`
 
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('avatars')
     .upload(filePath, file, { upsert: true })
 

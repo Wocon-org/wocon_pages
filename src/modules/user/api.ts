@@ -34,7 +34,7 @@ export async function uploadAvatar(userId: string, file: File): Promise<ApiRespo
   const fileExt = file.name.split('.').pop();
   const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('avatars')
     .upload(fileName, file);
 
@@ -51,7 +51,7 @@ export async function uploadTripCover(tripId: string, file: File): Promise<ApiRe
   const fileExt = file.name.split('.').pop();
   const fileName = `${tripId}/${Date.now()}.${fileExt}`;
 
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('trip-covers')
     .upload(fileName, file);
 
@@ -68,7 +68,7 @@ export async function uploadMarkerImage(markerId: string, file: File): Promise<A
   const fileExt = file.name.split('.').pop();
   const fileName = `${markerId}/${Date.now()}.${fileExt}`;
 
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('marker-images')
     .upload(fileName, file);
 

@@ -33,7 +33,7 @@ export const useTripStore = defineStore('trip', () => {
   }) => {
     loading.value = true
     try {
-      const { data, error } = await getTrips(filters)
+      const { data } = await getTrips(filters)
       if (data) {
         trips.value = data
       }
@@ -48,7 +48,7 @@ export const useTripStore = defineStore('trip', () => {
   const fetchTripById = async (tripId: string) => {
     loading.value = true
     try {
-      const { data, error } = await getTripById(tripId)
+      const { data } = await getTripById(tripId)
       if (data) {
         currentTrip.value = data
         // Fetch trip participants
@@ -65,7 +65,7 @@ export const useTripStore = defineStore('trip', () => {
   const handleCreateTrip = async (tripData: CreateTripInput) => {
     loading.value = true
     try {
-      const { data, error } = await createTrip(tripData)
+      const { data } = await createTrip(tripData)
       if (data) {
         trips.value.unshift(data)
         return data
@@ -81,7 +81,7 @@ export const useTripStore = defineStore('trip', () => {
   const handleUpdateTrip = async (tripId: string, updates: Partial<Trip>) => {
     loading.value = true
     try {
-      const { data, error } = await updateTrip(tripId, updates)
+      const { data } = await updateTrip(tripId, updates)
       if (data) {
         // Update current trip
         if (currentTrip.value && currentTrip.value.id === tripId) {
@@ -124,7 +124,7 @@ export const useTripStore = defineStore('trip', () => {
   const handleJoinTrip = async (tripId: string) => {
     loading.value = true
     try {
-      const { data, error } = await joinTrip(tripId)
+      const { data } = await joinTrip(tripId)
       if (data) {
         // Refresh trip participants
         await fetchTripParticipants(tripId)
@@ -139,7 +139,7 @@ export const useTripStore = defineStore('trip', () => {
   // Fetch trip participants
   const fetchTripParticipants = async (tripId: string) => {
     try {
-      const { data, error } = await getTripParticipants(tripId)
+      const { data } = await getTripParticipants(tripId)
       if (data) {
         participants.value = data
       }

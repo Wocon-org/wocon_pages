@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
-import { getCurrentUser, signOut } from './api'
+import { signOut } from './api'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Fetch user profile
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+      const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
 
       if (data) {
         profile.value = data
