@@ -11,7 +11,6 @@ const emailOrUsername = ref('')
 const password = ref('')
 const loading = ref(false)
 const inputError = ref('')
-const passwordError = ref('')
 const theme = ref<'dark' | 'light'>('dark')
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -47,13 +46,6 @@ watch(emailOrUsername, (newVal) => {
 
 const isValidInput = () => {
   return emailOrUsername.value.length > 0 && password.value.length >= 6
-}
-
-const clearInput = () => {
-  emailOrUsername.value = ''
-  password.value = ''
-  inputError.value = ''
-  toast('Input cleared')
 }
 
 const loginWithPassword = async () => {
@@ -107,7 +99,7 @@ const loginWithPassword = async () => {
     } else {
       toast('Login successful! ✅')
     }
-  } catch (err) {
+  } catch {
     loading.value = false
     toast('Login failed. Please try again.')
   }
