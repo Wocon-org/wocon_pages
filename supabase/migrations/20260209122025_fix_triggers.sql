@@ -8,8 +8,17 @@ DROP TRIGGER IF EXISTS update_trips_updated_at ON public.trips;
 DROP TRIGGER IF EXISTS update_map_markers_updated_at ON public.map_markers;
 DROP TRIGGER IF EXISTS update_routes_updated_at ON public.routes;
 
--- Step 2: Drop the general function
-DROP FUNCTION IF EXISTS public.handle_updated_at();
+-- Step 2: 安全重建通用函数（保留对现有触发器的兼容）
+CREATE OR REPLACE FUNCTION public.handle_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- 仅在 UPDATE 时更新，避免 INSERT 阶段触发依赖冲突
+  IF TG_OP = 'UPDATE' THEN
+    NEW.updated_at = TIMEZONE('utc'::text, NOW());
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Step 3: 为每个表创建独立的函数
 -- profiles 表的 updated_at 处理器
