@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import Sidebar from '@/components/common/Sidebar.vue'
 import WoconMap from '@/components/WoconMap.vue'
+import { useFeedback } from '@/composables/useFeedback'
 
 const router = useRouter()
 const showSidebar = ref(false)
@@ -14,17 +15,9 @@ const description = ref('')
 const isPublic = ref(false)
 const invitedUsers = ref<string[]>([])
 const inviteInput = ref('')
-const loading = ref(false)
-const showToast = ref(false)
-const toastMessage = ref('')
+const { loading, showToast, toastMessage, toast } = useFeedback()
 const userId = ref<string | null>(null)
 const createdMarkers = ref<Array<{ lat: number; lng: number }>>([])
-
-const toast = (msg: string) => {
-  toastMessage.value = msg
-  showToast.value = true
-  setTimeout(() => showToast.value = false, 3000)
-}
 
 onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
