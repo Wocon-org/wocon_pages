@@ -18,6 +18,7 @@ const loading = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 const userId = ref<string | null>(null)
+const createdMarkers = ref<Array<{ lat: number; lng: number }>>([])
 
 const toast = (msg: string) => {
   toastMessage.value = msg
@@ -39,18 +40,22 @@ const handleCancel = () => {
 }
 
 const handleAddInvite = () => {
-  const email = inviteInput.value.trim()
-  if (email && !invitedUsers.value.includes(email)) {
-    invitedUsers.value.push(email)
+  const identifier = inviteInput.value.trim()
+  if (identifier && !invitedUsers.value.includes(identifier)) {
+    invitedUsers.value.push(identifier)
     inviteInput.value = ''
   }
 }
 
-const handleRemoveInvite = (email: string) => {
-  const index = invitedUsers.value.indexOf(email)
+const handleRemoveInvite = (identifier: string) => {
+  const index = invitedUsers.value.indexOf(identifier)
   if (index > -1) {
     invitedUsers.value.splice(index, 1)
   }
+}
+
+const handleMarkerAdd = (lat: number, lng: number) => {
+  createdMarkers.value.push({ lat, lng })
 }
 
 const handleSubmit = async (e: Event) => {
@@ -63,6 +68,11 @@ const handleSubmit = async (e: Event) => {
 
   if (!tripName.value.trim()) {
     toast('Please enter a trip name')
+    return
+  }
+
+  if (isPublic.value && createdMarkers.value.length === 0) {
+    toast('Please add at least one location for a public trip')
     return
   }
 
@@ -87,32 +97,64 @@ const handleSubmit = async (e: Event) => {
       throw tripError
     }
 
-    // Handle invited users
+    // Handle invited users (email or username)
     if (invitedUsers.value.length > 0) {
-      for (const email of invitedUsers.value) {
-        // Get user profile by email
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', email)
-          .single()
+      for (const identifier of invitedUsers.value) {
+        let profileId: string | null = null
+        // Try by email
+        {
+          const { data: profileByEmail } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', identifier)
+            .maybeSingle()
+          if (profileByEmail?.id) {
+            profileId = profileByEmail.id
+          }
+        }
+        // Fallback by username
+        if (!profileId) {
+          const { data: profileByUsername } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('username', identifier)
+            .maybeSingle()
+          if (profileByUsername?.id) {
+            profileId = profileByUsername.id
+          }
+        }
 
-        if (profile) {
+        if (profileId) {
           // Add to trip participants
           await supabase
             .from('trip_participants')
             .insert({
               trip_id: trip.id,
-              user_id: profile.id,
+              user_id: profileId,
               status: 'pending'
             })
         }
       }
     }
 
+    // Insert created markers
+    if (createdMarkers.value.length > 0) {
+      const markersPayload = createdMarkers.value.map(m => ({
+        trip_id: trip.id,
+        lat: m.lat,
+        lng: m.lng
+      }))
+      const { error: markerError } = await supabase
+        .from('map_markers')
+        .insert(markersPayload)
+      if (markerError) {
+        console.error('Error inserting markers:', markerError)
+      }
+    }
+
     toast('Trip created successfully!')
     setTimeout(() => {
-      router.push(`/trip/${trip.id}`)
+      router.push(`/`)
     }, 1000)
 
   } catch (error: any) {
@@ -269,7 +311,12 @@ const handleSubmit = async (e: Event) => {
               <p class="preview-subtitle">Explore public trips on the map</p>
             </div>
             <div class="preview-map">
-              <WoconMap mode="global" @marker-click="(id) => router.push(`/trip/${id}`)" />
+              <WoconMap
+                mode="trip"
+                :readonly="false"
+                :markers="createdMarkers"
+                @marker-add="handleMarkerAdd"
+              />
             </div>
           </div>
         </div>

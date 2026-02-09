@@ -24,12 +24,14 @@ interface Props {
   mode?: 'global' | 'trip'
   tripId?: string
   readonly?: boolean
+  markers?: Array<{ lat: number; lng: number }>
 }
 
 const props = withDefaults(defineProps<Props>(), {
   mode: 'global',
   tripId: '',
-  readonly: false
+  readonly: false,
+  markers: () => []
 })
 
 const emit = defineEmits<{
@@ -41,6 +43,7 @@ const mapContainer = ref<HTMLDivElement>()
 let map: L.Map | null = null
 let layers: L.Control.Layers | null = null
 let markersLayer: L.LayerGroup | null = null
+let tempLayer: L.LayerGroup | null = null
 
 const loadPublicTrips = async () => {
   if (!map || !markersLayer) return
@@ -110,6 +113,27 @@ const loadPublicTrips = async () => {
   }
 }
 
+const renderTripMarkers = () => {
+  if (!map || !markersLayer) return
+  markersLayer.clearLayers()
+  if (props.mode !== 'trip') return
+
+  props.markers?.forEach(m => {
+    const markerIcon = L.divIcon({
+      className: 'trip-marker',
+      html: `
+        <div class="trip-marker-content">
+          <div class="trip-marker-icon">📍</div>
+        </div>
+      `,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    })
+    const leafletMarker = L.marker([m.lat, m.lng], { icon: markerIcon })
+    markersLayer!.addLayer(leafletMarker)
+  })
+}
+
 onMounted(() => {
   if (mapContainer.value) {
     map = L.map(mapContainer.value, {
@@ -153,10 +177,14 @@ onMounted(() => {
     }).addTo(map)
 
     markersLayer = L.layerGroup().addTo(map)
+    tempLayer = L.layerGroup().addTo(map)
 
     // Load public trips if in global mode
     if (props.mode === 'global') {
       loadPublicTrips()
+    }
+    if (props.mode === 'trip') {
+      renderTripMarkers()
     }
 
     // Listen for custom trip-click event
@@ -165,6 +193,24 @@ onMounted(() => {
         emit('marker-click', e.detail)
       }
     })
+
+    if (!props.readonly) {
+      map.on('click', (e: L.LeafletMouseEvent) => {
+        emit('marker-add', e.latlng.lat, e.latlng.lng)
+        const markerIcon = L.divIcon({
+          className: 'trip-marker',
+          html: `
+            <div class="trip-marker-content">
+              <div class="trip-marker-icon">➕</div>
+            </div>
+          `,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
+        })
+        const leafletMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: markerIcon })
+        tempLayer!.addLayer(leafletMarker)
+      })
+    }
   }
 })
 
@@ -172,7 +218,18 @@ watch(() => props.mode, (newMode) => {
   if (newMode === 'global' && map) {
     loadPublicTrips()
   }
+  if (newMode === 'trip' && map) {
+    renderTripMarkers()
+  }
 })
+
+watch(() => props.markers, () => {
+  if (props.mode === 'trip') {
+    // Clear temporary layer before re-render
+    tempLayer?.clearLayers()
+    renderTripMarkers()
+  }
+}, { deep: true })
 
 onBeforeUnmount(() => {
   if (map) {
@@ -181,6 +238,9 @@ onBeforeUnmount(() => {
   }
   if (markersLayer) {
     markersLayer = null
+  }
+  if (tempLayer) {
+    tempLayer = null
   }
 })
 </script>
