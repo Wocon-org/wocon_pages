@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { supabase } from '@/lib/supabase'
 import GraffitiWall from '@/components/GraffitiWall.vue'
 
 const theme = ref<'dark' | 'light'>('dark')
