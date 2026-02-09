@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 
 type TabType = 'home' | 'connections' | 'search' | 'discover' | 'plugins'
 
@@ -16,8 +14,6 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const router = useRouter()
-
 const handleTabClick = (tab: TabType) => {
   emit('tabChange', tab)
 }
@@ -26,9 +22,7 @@ const handleMoreClick = () => {
   emit('moreClick')
 }
 
-const handleLogoClick = () => {
-  emit('tabChange', 'home')
-}
+ 
 
 // SVG 图标
 const getHomeIcon = () => `

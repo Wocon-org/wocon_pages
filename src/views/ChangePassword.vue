@@ -85,7 +85,7 @@ const handleSubmit = async () => {
 
   try {
     // First verify current password by signing in
-    const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email: (await supabase.auth.getUser()).data.user?.email || '',
       password: currentPassword.value,
     })
