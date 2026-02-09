@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import Sidebar from '@/components/common/Sidebar.vue'
+import WoconMap from '@/components/WoconMap.vue'
 
 const router = useRouter()
 const showSidebar = ref(false)
@@ -138,7 +139,8 @@ const handleSubmit = async (e: Event) => {
         <p class="subtitle">Trips are the best way to organize your travel plans and collaborate with others</p>
       </div>
 
-      <form class="trip-form" @submit="handleSubmit">
+      <div class="content-grid">
+        <form class="trip-form form-panel" @submit="handleSubmit">
         <div class="form-section">
           <h3>Trip Name</h3>
           <input
@@ -258,7 +260,20 @@ const handleSubmit = async (e: Event) => {
           </button>
         </div>
 
-      </form>
+        </form>
+
+        <div class="preview-panel">
+          <div class="preview-card">
+            <div class="preview-header">
+              <h3>Preview</h3>
+              <p class="preview-subtitle">Explore public trips on the map</p>
+            </div>
+            <div class="preview-map">
+              <WoconMap mode="global" @marker-click="(id) => router.push(`/trip/${id}`)" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="toast" :class="{ show: showToast }">{{ toastMessage }}</div>
@@ -329,9 +344,53 @@ const handleSubmit = async (e: Event) => {
   background: #161b22;
   border: 1px solid #30363d;
   border-radius: 6px;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.form-panel {
+  display: block;
+}
+
+.preview-panel {
+  display: block;
+}
+
+.preview-card {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.preview-header {
+  padding: 16px;
+  border-bottom: 1px solid #30363d;
+}
+
+.preview-header h3 {
+  color: #c9d1d9;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+}
+
+.preview-subtitle {
+  color: #8b949e;
+  font-size: 12px;
+  margin: 0;
+}
+
+.preview-map {
+  height: 480px;
 }
 
 .header {
@@ -633,6 +692,10 @@ const handleSubmit = async (e: Event) => {
 @media (max-width: 640px) {
   .create-trip-card {
     padding: 20px 16px;
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
   }
 
   .form-actions {
