@@ -23,6 +23,12 @@ const router = createRouter({
       component: Login,
       meta: { guestOnly: true }
     },
+    {
+      path: '/login/callback',
+      name: 'login-callback',
+      component: Login,
+      meta: { guestOnly: true }
+    },
     // Home page - Left-right layout, bottom four tabs
     {
       path: '/',
