@@ -1,5 +1,19 @@
 # woconapp 更新日志
 
+## 2026-02-10 - Supabase 迁移修复 & OAuth 集成
+
+### 🛠 数据库 / Supabase
+- 新增 `00000000000000_cleanup_conflicts.sql` 迁移，在 `init_schema.sql` 之前清理重复的 RLS 策略和触发器，修复 `policy ... already exists` 报错
+- 更新 `20260209122025_fix_triggers.sql`，将 `handle_updated_at()` 改为 `CREATE OR REPLACE FUNCTION`，避免因依赖关系导致 `cannot drop function` 错误，并保持 `feedbacks` 等表的触发器可用
+- 使用 `supabase db push` 将本地 schema 同步到远程项目（`kpauppfsdtaoqolhmsbp`）
+
+### 🔐 认证 / OAuth
+- 为 GitHub OAuth 登录添加 `/login/callback` 路由，并在 `Login.vue` 中统一使用 `window.location.origin + '/login/callback'` 作为 `redirectTo`
+- 补充并验证 `docs/oauth.md` 中的回调地址和使用方式，确保开发环境与生产环境的配置一致
+
+### 🧰 开发体验
+- 验证 Supabase CLI 链接配置（通过 `supabase/.temp/project-ref`），记录 `db diff` / `db pull` 对 Docker 的依赖，并推荐优先使用 `db push` 同步 schema
+
 ## 2026-02-01 - 史诗级大更新 v2.0
 
 ### 🎨 全新UI设计 (仿Google Earth)
