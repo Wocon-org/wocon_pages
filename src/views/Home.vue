@@ -177,7 +177,7 @@ const handleSearchResult = (result: any) => {
     <!-- DiscoverPanel（无需Panel包装，因为它是全屏显示的） -->
     <DiscoverPanel v-if="activeTab === 'discover'" />
 
-    <!-- 右上角 Trip 信息卡（MD3风格） -->
+    <!-- 右上角 Trip 信息卡（升级视觉） -->
     <div v-if="selectedTrip" class="trip-info-card">
       <div class="trip-info-header">
         <div class="trip-title">
@@ -187,21 +187,26 @@ const handleSearchResult = (result: any) => {
           </span>
         </div>
         <button class="trip-info-close" @click="selectedTrip = null" aria-label="Close">
-          ✕
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
       <div class="trip-info-body">
-        <div class="trip-row">
-          <span class="label">Owner</span>
-          <span class="value">{{ selectedTrip.owner_username || selectedTrip.owner?.username || 'Unknown' }}</span>
+        <div class="info-row">
+          <div class="info-dot owner" />
+          <div class="info-label">Owner</div>
+          <div class="info-value">{{ selectedTrip.owner_username || selectedTrip.owner?.username || 'Unknown' }}</div>
         </div>
-        <div class="trip-row">
-          <span class="label">Public</span>
-          <span class="value">{{ selectedTrip.is_public ? 'Yes' : 'No' }}</span>
+        <div class="info-row">
+          <div class="info-dot public" />
+          <div class="info-label">Visibility</div>
+          <div class="info-value">{{ selectedTrip.is_public ? 'Public' : 'Only me' }}</div>
         </div>
       </div>
       <div class="trip-info-actions">
-        <button class="md3-btn md3-primary" @click="router.push(`/trip/${selectedTrip.id}`)">View Details</button>
+        <button class="action-btn" @click="router.push(`/trip/${selectedTrip.id}`)">View Details</button>
       </div>
     </div>
   </div>
@@ -223,12 +228,26 @@ const handleSearchResult = (result: any) => {
   top: 24px;
   right: 24px;
   width: 320px;
-  background: #121212;
-  border-radius: 16px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+  background: #161b22;
+  border-radius: 20px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.3);
   border: 1px solid #30363d;
   overflow: hidden;
   z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .trip-info-header {
@@ -236,7 +255,7 @@ const handleSearchResult = (result: any) => {
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: #1e1e1e;
+  background: #0d1117;
   border-bottom: 1px solid #30363d;
 }
 
@@ -248,77 +267,99 @@ const handleSearchResult = (result: any) => {
 
 .trip-name {
   color: #e6e6e6;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .trip-type {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
-}
-.type-recruiting {
-  background: rgba(103, 80, 164, 0.2);
-  color: #cbb8ff;
-  border: 1px solid rgba(103, 80, 164, 0.4);
+  background: linear-gradient(135deg, #8be9fd 0%, #bd93f9 100%);
+  color: #0d1117;
 }
 .type-private {
-  background: rgba(255, 255, 255, 0.08);
-  color: #e6e6e6;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #30363d;
+  color: #c9d1d9;
 }
 
 .trip-info-close {
   background: transparent;
   border: none;
-  color: #9aa0a6;
-  font-size: 16px;
+  color: #8b949e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: color 0.2s ease;
 }
-.trip-info-close:hover {
+.trip-info-close:hover,
+.trip-info-close:focus-visible {
   color: #e6e6e6;
 }
 
 .trip-info-body {
   padding: 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.trip-row {
-  display: contents;
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.label {
-  color: #9aa0a6;
-  font-size: 12px;
+
+.info-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
-.value {
+.info-dot.owner {
+  background: #8be9fd;
+}
+.info-dot.public {
+  background: #bd93f9;
+}
+
+.info-label {
+  flex: 1;
+  color: #8b949e;
+  font-size: 13px;
+}
+
+.info-value {
   color: #e6e6e6;
-  font-size: 12px;
-  justify-self: end;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .trip-info-actions {
   padding: 16px;
   display: flex;
-  justify-content: flex-end;
 }
-.md3-btn {
+
+.action-btn {
+  flex: 1;
   border: none;
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  background: linear-gradient(135deg, #8be9fd 0%, #bd93f9 100%);
+  color: #0d1117;
+  transition: all 0.2s ease;
 }
-.md3-primary {
-  background: #6750A4;
-  color: white;
-}
-.md3-primary:hover {
-  background: #7f67be;
+
+.action-btn:hover,
+.action-btn:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 233, 253, 0.25);
 }
 </style>
