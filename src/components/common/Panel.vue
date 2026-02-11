@@ -117,6 +117,20 @@ const handleClose = () => {
   border-radius: 3px;
 }
 
+/* 面板显隐过渡 */
+.panel-fade-enter-active,
+.panel-fade-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.panel-fade-enter-from {
+  opacity: 0;
+  transform: translateX(16px);
+}
+.panel-fade-leave-to {
+  opacity: 0;
+  transform: translateX(16px);
+}
+
 .panel-body::-webkit-scrollbar-thumb {
   background: #30363d;
   border-radius: 3px;
