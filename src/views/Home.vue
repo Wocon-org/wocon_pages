@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import TopBar from '@/components/TopBar.vue'
 import Sidebar from '@/components/Sidebar.vue'
-import WorldMap from '@/components/WorldMap.vue'
+import WoconMap from '@/components/WoconMap.vue'
 import PluginPanel from '@/components/panels/PluginPanel.vue'
 import ConnectionsPanel from '@/components/panels/ConnectionsPanel.vue'
 import SearchBar from '@/components/panels/SearchBar.vue'
@@ -29,30 +29,7 @@ const showSearchBar = ref(true)
 const showDiscoverPanel = ref(true)
 
 // WorldMap 引用
-const worldMapRef = ref<InstanceType<typeof WorldMap>>()
-
-// 监听Discover事件
-const handleDiscoverPlace = (event: any) => {
-  const place = event.detail
-  console.log('Discovered place:', place)
-  if (worldMapRef.value && place.coordinates) {
-    worldMapRef.value.flyTo(place.coordinates.lat, place.coordinates.lng, 10)
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('discover-place', handleDiscoverPlace)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('discover-place', handleDiscoverPlace)
-})
-
-// 行程数据（示例）
-const trips = ref<any[]>([
-  { id: '1', destination: 'Tenerife Sea', lat: 28.2916, lng: -16.6291 },
-  { id: '2', destination: 'Tokyo', lat: 35.6762, lng: 139.6503 }
-])
+const worldMapRef = ref<InstanceType<typeof WoconMap>>()
 
 // 处理 tab 切换
 const handleTabChange = (tab: TabType) => {
@@ -92,7 +69,7 @@ const handleMarkerClick = async (tripId: string) => {
 
 // 处理图层切换
 const handleSwitchLayer = (layer: 'dark' | 'satellite') => {
-  worldMapRef.value?.switchLayer(layer)
+  // worldMapRef.value?.switchLayer(layer)
 }
 
 // 面板关闭处理
@@ -121,7 +98,7 @@ const handleSearchResult = (result: any) => {
   console.log('Search result selected:', result)
   // 移动地图到结果位置
   if (result.lat && result.lng) {
-    worldMapRef.value?.flyTo(result.lat, result.lng, 10)
+    // worldMapRef.value?.flyTo(result.lat, result.lng, 10)
   }
 }
 </script>
@@ -135,7 +112,7 @@ const handleSearchResult = (result: any) => {
     <TopBar @switchLayer="handleSwitchLayer" />
 
     <!-- 世界地图背景 -->
-    <WorldMap ref="worldMapRef" :trips="trips" @markerClick="handleMarkerClick" />
+    <WoconMap ref="worldMapRef" mode="global" @marker-click="handleMarkerClick" />
 
     <!-- 左侧 Sidebar -->
     <Sidebar
