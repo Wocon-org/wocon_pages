@@ -226,36 +226,38 @@ const getTypeLabel = (type: string) => {
   position: relative;
   display: flex;
   align-items: center;
-  background: #f9fafb;
-  border-radius: 12px;
-  border: 2px solid #e5e7eb;
-  transition: all 0.2s ease;
+  background: var(--md3-surface);
+  border-radius: var(--md3-radius-large);
+  border: 2px solid var(--md3-surface-variant);
+  transition: all var(--md3-transition-short);
+  box-shadow: var(--md3-elevation-1);
 }
 
 .search-input-wrapper:focus-within {
-  border-color: #6750A4;
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
+  border-color: var(--md3-primary);
+  background: var(--md3-surface);
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1), var(--md3-elevation-2);
 }
 
 .search-icon {
   position: absolute;
   left: 14px;
   flex-shrink: 0;
+  color: var(--md3-on-surface-variant);
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 40px 12px 42px;
+  padding: var(--md3-space-3) 40px var(--md3-space-3) 42px;
   background: transparent;
   border: none;
   outline: none;
-  font-size: 14px;
-  color: #1f2937;
+  font-size: var(--md3-body-medium);
+  color: var(--md3-on-surface);
 }
 
 .search-input::placeholder {
-  color: #9ca3af;
+  color: var(--md3-on-surface-variant);
 }
 
 .clear-btn {
@@ -263,28 +265,30 @@ const getTypeLabel = (type: string) => {
   right: 8px;
   width: 24px;
   height: 24px;
-  background: #e5e7eb;
+  background: var(--md3-surface-variant);
   border: none;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--md3-transition-short);
   padding: 0;
+  color: var(--md3-on-surface-variant);
 }
 
 .clear-btn:hover {
-  background: #d1d5db;
+  background: var(--md3-surface-variant-light);
+  color: var(--md3-on-surface);
 }
 
 .search-results {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  background: var(--md3-surface);
+  border-radius: var(--md3-radius-large);
+  border: 1px solid var(--md3-surface-variant);
   max-height: 400px;
   overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--md3-elevation-3);
 }
 
 .search-loading {
@@ -293,14 +297,14 @@ const getTypeLabel = (type: string) => {
   justify-content: center;
   gap: 12px;
   padding: 32px;
-  color: #6b7280;
+  color: var(--md3-on-surface-variant);
 }
 
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid #e5e7eb;
-  border-top: 2px solid #6750A4;
+  border: 2px solid var(--md3-surface-variant);
+  border-top: 2px solid var(--md3-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -323,10 +327,12 @@ const getTypeLabel = (type: string) => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 14px;
+  padding: var(--md3-space-3);
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 1px solid #f3f4f6;
+  transition: all var(--md3-transition-short);
+  border-bottom: 1px solid var(--md3-surface-variant);
+  border-radius: var(--md3-radius-medium);
+  margin: 0 var(--md3-space-2);
 }
 
 .result-item:last-child {
@@ -334,7 +340,7 @@ const getTypeLabel = (type: string) => {
 }
 
 .result-item:hover {
-  background: #f9fafb;
+  background: var(--md3-surface-variant-light);
   transform: translateX(2px);
 }
 
@@ -348,39 +354,39 @@ const getTypeLabel = (type: string) => {
 }
 
 .result-title {
-  font-size: 14px;
+  font-size: var(--md3-body-medium);
   font-weight: 600;
-  color: #1f2937;
+  color: var(--md3-on-surface);
   margin-bottom: 2px;
 }
 
 .result-subtitle {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: var(--md3-body-small);
+  color: var(--md3-on-surface-variant);
 }
 
 .result-type {
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 6px;
+  font-size: var(--md3-label-small);
+  padding: var(--md3-space-1) var(--md3-space-2);
+  border-radius: var(--md3-radius-full);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .result-item:nth-child(1) .result-type {
-  background: #ede9fe;
-  color: #6750A4;
+  background: var(--md3-primary-container);
+  color: var(--md3-primary);
 }
 
 .result-item:nth-child(2) .result-type {
-  background: #d1fae5;
-  color: #10b981;
+  background: var(--md3-secondary-container);
+  color: var(--md3-secondary);
 }
 
 .result-item:nth-child(3) .result-type {
-  background: #fef3c7;
-  color: #f59e0b;
+  background: var(--md3-tertiary-container);
+  color: var(--md3-tertiary);
 }
 
 .no-results {
@@ -389,19 +395,19 @@ const getTypeLabel = (type: string) => {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  color: #9ca3af;
+  color: var(--md3-on-surface-variant);
 }
 
 .no-results p {
   margin: 12px 0 4px;
-  font-size: 14px;
+  font-size: var(--md3-body-medium);
   font-weight: 500;
-  color: #6b7280;
+  color: var(--md3-on-surface);
 }
 
 .no-results-hint {
-  font-size: 12px !important;
-  color: #9ca3af !important;
+  font-size: var(--md3-body-small) !important;
+  color: var(--md3-on-surface-variant) !important;
 }
 
 /* 滚动条样式 */
@@ -410,23 +416,23 @@ const getTypeLabel = (type: string) => {
 }
 
 .search-results::-webkit-scrollbar-track {
-  background: #f3f4f6;
+  background: var(--md3-surface-variant);
   border-radius: 3px;
 }
 
 .search-results::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: var(--md3-surface-variant-dark);
   border-radius: 3px;
 }
 
 .search-results::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--md3-on-surface-variant);
 }
 
 /* 结果区域过渡动画 */
 .results-enter-active,
 .results-leave-active {
-  transition: all 0.2s ease;
+  transition: all var(--md3-transition-medium);
 }
 
 .results-enter-from {

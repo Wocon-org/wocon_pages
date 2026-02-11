@@ -114,29 +114,31 @@ const handleAddConnection = () => {
 
 .add-btn {
   width: 100%;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #1e3a8a 0%, #10b981 100%);
+  padding: var(--md3-space-3) var(--md3-space-4);
+  background: var(--md3-primary);
   border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 14px;
+  border-radius: var(--md3-radius-large);
+  color: var(--md3-on-primary);
+  font-size: var(--md3-body-medium);
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  transition: all var(--md3-transition-short);
+  box-shadow: var(--md3-elevation-2);
 }
 
 .add-btn:hover {
+  background: var(--md3-primary-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  box-shadow: var(--md3-elevation-3);
 }
 
 .add-btn:active {
   transform: translateY(0);
+  box-shadow: var(--md3-elevation-1);
 }
 
 .connections-list {
@@ -149,17 +151,19 @@ const handleAddConnection = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  background: #f9fafb;
-  border-radius: 12px;
+  padding: var(--md3-space-3);
+  background: var(--md3-surface);
+  border-radius: var(--md3-radius-large);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--md3-transition-short);
   position: relative;
+  box-shadow: var(--md3-elevation-1);
 }
 
 .connection-item:hover {
-  background: #f3f4f6;
+  background: var(--md3-surface-variant-light);
   transform: translateX(2px);
+  box-shadow: var(--md3-elevation-2);
 }
 
 .connection-avatar {
@@ -170,14 +174,15 @@ const handleAddConnection = () => {
 .avatar-placeholder {
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, #1e3a8a 0%, #10b981 100%);
+  background: var(--md3-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--md3-on-primary);
   font-size: 18px;
   font-weight: 600;
+  box-shadow: var(--md3-elevation-1);
 }
 
 .status-indicator {
@@ -187,7 +192,8 @@ const handleAddConnection = () => {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--md3-surface);
+  box-shadow: var(--md3-elevation-1);
 }
 
 .connection-info {
@@ -196,15 +202,15 @@ const handleAddConnection = () => {
 }
 
 .connection-name {
-  font-size: 14px;
+  font-size: var(--md3-body-medium);
   font-weight: 600;
-  color: #1f2937;
+  color: var(--md3-on-surface);
   margin-bottom: 2px;
 }
 
 .connection-message {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: var(--md3-body-small);
+  color: var(--md3-on-surface-variant);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -213,31 +219,36 @@ const handleAddConnection = () => {
 .unread-badge {
   width: 20px;
   height: 20px;
-  background: #ef4444;
-  color: white;
+  background: var(--md3-error);
+  color: var(--md3-on-error);
   border-radius: 50%;
-  font-size: 12px;
+  font-size: var(--md3-label-small);
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: var(--md3-elevation-1);
 }
 
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: #9ca3af;
+  color: var(--md3-on-surface-variant);
+  background: var(--md3-surface);
+  border-radius: var(--md3-radius-large);
+  box-shadow: var(--md3-elevation-1);
 }
 
 .empty-state p {
   margin: 12px 0 4px;
-  font-size: 14px;
+  font-size: var(--md3-body-medium);
   font-weight: 500;
+  color: var(--md3-on-surface);
 }
 
 .empty-hint {
-  font-size: 12px !important;
-  color: #9ca3af !important;
+  font-size: var(--md3-body-small) !important;
+  color: var(--md3-on-surface-variant) !important;
 }
 </style>
