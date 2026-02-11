@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { searchCities } from '@/lib/api'
+import { searchEverything, getSearchSuggestions } from '@/lib/api'
 
 interface Props {
   show?: boolean
@@ -14,13 +14,18 @@ interface Emits {
 
 interface SearchResult {
   id: string
-  type: 'destination' | 'user' | 'trip'
+  type: 'destination' | 'trip'
   title: string
   subtitle: string
   lat: number
   lng: number
   image?: string
   population?: number
+  score?: number
+  start_date?: string
+  end_date?: string
+  author?: string
+  is_public?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -31,18 +36,35 @@ const emit = defineEmits<Emits>()
 
 const searchQuery = ref('')
 const searchResults = ref<SearchResult[]>([])
+const searchSuggestions = ref<string[]>([])
 const showResults = ref(false)
+const showSuggestions = ref(false)
 const isSearching = ref(false)
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
+let suggestionTimeout: ReturnType<typeof setTimeout> | null = null
 
-// 从API搜索城市
+// 从API搜索所有内容
 const performSearch = async (query: string): Promise<SearchResult[]> => {
   try {
-    // 使用API客户端（优先Worker，fallback到Supabase）
-    const results = await searchCities(query)
+    // 使用综合搜索API
+    const results = await searchEverything(query, {
+      limit: 10,
+      sortBy: 'relevance'
+    })
     return results as SearchResult[]
   } catch (error) {
     console.error('Search failed:', error)
+    return []
+  }
+}
+
+// 获取搜索建议
+const fetchSuggestions = async (query: string): Promise<string[]> => {
+  try {
+    const suggestions = await getSearchSuggestions(query)
+    return suggestions
+  } catch (error) {
+    console.error('Suggestions failed:', error)
     return []
   }
 }
@@ -54,11 +76,6 @@ const getTypeIcon = (type: string) => {
       return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6750A4" stroke-width="2">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
         <circle cx="12" cy="10" r="3"></circle>
-      </svg>`
-    case 'user':
-      return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-        <circle cx="12" cy="7" r="4"></circle>
-        <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path>
       </svg>`
     case 'trip':
       return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
@@ -76,7 +93,9 @@ const handleSearch = async () => {
 
   if (!query) {
     searchResults.value = []
+    searchSuggestions.value = []
     showResults.value = false
+    showSuggestions.value = false
     return
   }
 
@@ -93,8 +112,33 @@ const handleSearch = async () => {
     searchResults.value = results
     isSearching.value = false
     showResults.value = true
+    showSuggestions.value = false
     emit('search', query)
   }, 300)
+}
+
+// 建议处理 (带防抖)
+const handleSuggestions = async () => {
+  const query = searchQuery.value.trim()
+
+  if (!query || query.length < 1) {
+    searchSuggestions.value = []
+    showSuggestions.value = false
+    return
+  }
+
+  // 清除之前的定时器
+  if (suggestionTimeout) {
+    clearTimeout(suggestionTimeout)
+  }
+
+  // 防抖 200ms
+  suggestionTimeout = setTimeout(async () => {
+    const suggestions = await fetchSuggestions(query)
+    searchSuggestions.value = suggestions
+    showSuggestions.value = true
+    showResults.value = false
+  }, 200)
 }
 
 // 选择搜索结果
@@ -102,39 +146,76 @@ const handleSelectResult = (result: SearchResult) => {
   console.log('Selected result:', result)
   emit('selectResult', result)
   showResults.value = false
+  showSuggestions.value = false
   // 不立即清空,让用户看到选择的内容
+}
+
+// 选择搜索建议
+const handleSelectSuggestion = (suggestion: string) => {
+  searchQuery.value = suggestion
+  showSuggestions.value = false
+  handleSearch()
 }
 
 // 清空搜索
 const handleClear = () => {
   searchQuery.value = ''
   searchResults.value = []
+  searchSuggestions.value = []
   showResults.value = false
+  showSuggestions.value = false
   if (searchTimeout) {
     clearTimeout(searchTimeout)
+  }
+  if (suggestionTimeout) {
+    clearTimeout(suggestionTimeout)
   }
 }
 
 // 点击输入框聚焦时如果有搜索结果,显示结果
 const handleFocus = () => {
-  if (searchQuery.value.trim() && searchResults.value.length > 0) {
-    showResults.value = true
+  if (searchQuery.value.trim()) {
+    if (searchSuggestions.value.length > 0) {
+      showSuggestions.value = true
+    } else if (searchResults.value.length > 0) {
+      showResults.value = true
+    } else {
+      handleSuggestions()
+    }
   }
 }
 
 // 点击外部关闭结果
 const handleClickOutside = () => {
   showResults.value = false
+  showSuggestions.value = false
 }
 
 // 获取类型标签
 const getTypeLabel = (type: string) => {
   const labels = {
     destination: 'Destination',
-    user: 'User',
     trip: 'Trip'
   }
   return labels[type as keyof typeof labels] || type
+}
+
+// 获取类型颜色
+const getTypeColor = (type: string) => {
+  const colors = {
+    destination: 'var(--md3-primary)',
+    trip: 'var(--md3-secondary)'
+  }
+  return colors[type as keyof typeof colors] || 'var(--md3-on-surface-variant)'
+}
+
+// 获取类型背景色
+const getTypeBackground = (type: string) => {
+  const backgrounds = {
+    destination: 'var(--md3-primary-container)',
+    trip: 'var(--md3-secondary-container)'
+  }
+  return backgrounds[type as keyof typeof backgrounds] || 'var(--md3-surface-variant)'
 }
 </script>
 
@@ -151,8 +232,8 @@ const getTypeLabel = (type: string) => {
         v-model="searchQuery"
         type="text"
         class="search-input"
-        placeholder="Search destinations, users, trips..."
-        @input="handleSearch"
+        placeholder="Search destinations, trips..."
+        @input="handleSuggestions"
         @focus="handleFocus"
         @keyup.enter="handleSearch"
       />
@@ -170,47 +251,82 @@ const getTypeLabel = (type: string) => {
       </button>
     </div>
 
-    <!-- 搜索结果 -->
+    <!-- 搜索结果和建议 -->
     <Transition name="results">
-      <div v-if="showResults && !isSearching" class="search-results">
       <!-- 加载中 -->
-      <div v-if="isSearching" class="search-loading">
-        <div class="spinner"></div>
-        <span>Searching...</span>
-      </div>
-
-      <!-- 结果列表 -->
-      <div v-else-if="searchResults.length > 0" class="results-list">
-        <div
-          v-for="result in searchResults"
-          :key="result.id"
-          class="result-item"
-          @click="handleSelectResult(result)"
-        >
-          <!-- 类型图标 -->
-          <div class="result-icon" v-html="getTypeIcon(result.type)"></div>
-
-          <!-- 结果信息 -->
-          <div class="result-info">
-            <div class="result-title">{{ result.title }}</div>
-            <div class="result-subtitle">{{ result.subtitle }}</div>
-          </div>
-
-          <!-- 类型标签 -->
-          <div class="result-type">{{ getTypeLabel(result.type) }}</div>
+      <div v-if="isSearching" class="search-results">
+        <div class="search-loading">
+          <div class="spinner"></div>
+          <span>Searching...</span>
         </div>
       </div>
 
-      <!-- 无结果 -->
-      <div v-else class="no-results">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <p>No results found</p>
-        <p class="no-results-hint">Try different keywords</p>
+      <!-- 搜索建议 -->
+      <div v-else-if="showSuggestions && searchSuggestions.length > 0" class="search-results">
+        <div class="suggestions-list">
+          <div
+            v-for="(suggestion, index) in searchSuggestions"
+            :key="index"
+            class="suggestion-item"
+            @click="handleSelectSuggestion(suggestion)"
+          >
+            <svg class="suggestion-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <div class="suggestion-text">{{ suggestion }}</div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- 搜索结果 -->
+      <div v-else-if="showResults" class="search-results">
+        <!-- 结果列表 -->
+        <div v-if="searchResults.length > 0" class="results-list">
+          <div
+            v-for="result in searchResults"
+            :key="result.id"
+            class="result-item"
+            @click="handleSelectResult(result)"
+          >
+            <!-- 类型图标 -->
+            <div class="result-icon" v-html="getTypeIcon(result.type)"></div>
+
+            <!-- 结果信息 -->
+            <div class="result-info">
+              <div class="result-title">{{ result.title }}</div>
+              <div class="result-subtitle">{{ result.subtitle }}</div>
+              <div v-if="result.type === 'trip' && result.start_date" class="result-meta">
+                <span class="result-date">{{ new Date(result.start_date).toLocaleDateString() }}</span>
+                <span v-if="result.end_date" class="result-date-separator">-</span>
+                <span v-if="result.end_date" class="result-date">{{ new Date(result.end_date).toLocaleDateString() }}</span>
+                <span class="result-author">by {{ result.author }}</span>
+              </div>
+            </div>
+
+            <!-- 类型标签 -->
+            <div 
+              class="result-type" 
+              :style="{
+                backgroundColor: getTypeBackground(result.type),
+                color: getTypeColor(result.type)
+              }"
+            >
+              {{ getTypeLabel(result.type) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- 无结果 -->
+        <div v-else class="no-results">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <p>No results found</p>
+          <p class="no-results-hint">Try different keywords</p>
+        </div>
+      </div>
     </Transition>
   </div>
 </template>
@@ -318,6 +434,45 @@ const getTypeLabel = (type: string) => {
   }
 }
 
+/* 搜索建议样式 */
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: var(--md3-space-3);
+  cursor: pointer;
+  transition: all var(--md3-transition-short);
+  border-bottom: 1px solid var(--md3-surface-variant);
+  border-radius: var(--md3-radius-medium);
+  margin: 0 var(--md3-space-2);
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: var(--md3-surface-variant-light);
+  transform: translateX(2px);
+}
+
+.suggestion-icon {
+  flex-shrink: 0;
+  color: var(--md3-on-surface-variant);
+}
+
+.suggestion-text {
+  font-size: var(--md3-body-medium);
+  color: var(--md3-on-surface);
+  flex: 1;
+}
+
+/* 结果列表样式 */
 .results-list {
   display: flex;
   flex-direction: column;
@@ -325,7 +480,7 @@ const getTypeLabel = (type: string) => {
 
 .result-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   padding: var(--md3-space-3);
   cursor: pointer;
@@ -346,6 +501,7 @@ const getTypeLabel = (type: string) => {
 
 .result-icon {
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .result-info {
@@ -363,6 +519,31 @@ const getTypeLabel = (type: string) => {
 .result-subtitle {
   font-size: var(--md3-body-small);
   color: var(--md3-on-surface-variant);
+  margin-bottom: 4px;
+}
+
+.result-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--md3-label-small);
+  color: var(--md3-on-surface-variant);
+  flex-wrap: wrap;
+}
+
+.result-date {
+  color: var(--md3-on-surface-variant);
+}
+
+.result-date-separator {
+  color: var(--md3-on-surface-variant);
+}
+
+.result-author {
+  color: var(--md3-on-surface-variant);
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--md3-surface-variant);
 }
 
 .result-type {
@@ -372,21 +553,7 @@ const getTypeLabel = (type: string) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.result-item:nth-child(1) .result-type {
-  background: var(--md3-primary-container);
-  color: var(--md3-primary);
-}
-
-.result-item:nth-child(2) .result-type {
-  background: var(--md3-secondary-container);
-  color: var(--md3-secondary);
-}
-
-.result-item:nth-child(3) .result-type {
-  background: var(--md3-tertiary-container);
-  color: var(--md3-tertiary);
+  margin-top: 2px;
 }
 
 .no-results {
@@ -443,5 +610,31 @@ const getTypeLabel = (type: string) => {
 .results-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .result-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .result-type {
+    align-self: flex-start;
+    margin-top: 0;
+  }
+  
+  .result-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .result-author {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+  }
 }
 </style>
