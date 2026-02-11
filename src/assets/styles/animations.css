@@ -1,0 +1,358 @@
+/* Animation Classes */
+
+/* Fade In/Out */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--md3-transition-medium);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Slide In/Out */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all var(--md3-transition-medium);
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all var(--md3-transition-medium);
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: all var(--md3-transition-medium);
+}
+
+.slide-left-enter-from,
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all var(--md3-transition-medium);
+}
+
+.slide-right-enter-from,
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* Scale In/Out */
+.scale-enter-active,
+.scale-leave-active {
+  transition: all var(--md3-transition-medium);
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Bounce In */
+.bounce-enter-active {
+  animation: bounce-in var(--md3-transition-long);
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Spin Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Slide In From Bottom */
+.slide-in-bottom-enter-active {
+  animation: slide-in-bottom var(--md3-transition-medium);
+}
+
+@keyframes slide-in-bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide In From Top */
+.slide-in-top-enter-active {
+  animation: slide-in-top var(--md3-transition-medium);
+}
+
+@keyframes slide-in-top {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide In From Left */
+.slide-in-left-enter-active {
+  animation: slide-in-left var(--md3-transition-medium);
+}
+
+@keyframes slide-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide In From Right */
+.slide-in-right-enter-active {
+  animation: slide-in-right var(--md3-transition-medium);
+}
+
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Fade In Up */
+.fade-up-enter-active {
+  animation: fade-up var(--md3-transition-medium);
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade In Down */
+.fade-down-enter-active {
+  animation: fade-down var(--md3-transition-medium);
+}
+
+@keyframes fade-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade In Left */
+.fade-left-enter-active {
+  animation: fade-left var(--md3-transition-medium);
+}
+
+@keyframes fade-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Fade In Right */
+.fade-right-enter-active {
+  animation: fade-right var(--md3-transition-medium);
+}
+
+@keyframes fade-right {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Staggered Animation */
+.stagger-enter-active {
+  transition: all var(--md3-transition-medium);
+}
+
+.stagger-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Micro Interactions */
+
+/* Hover Lift */
+.hover-lift {
+  transition: transform var(--md3-transition-short), box-shadow var(--md3-transition-short);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--md3-elevation-3);
+}
+
+/* Hover Scale */
+.hover-scale {
+  transition: transform var(--md3-transition-short);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Hover Glow */
+.hover-glow {
+  transition: box-shadow var(--md3-transition-short);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(103, 80, 164, 0.3);
+}
+
+/* Hover Underline */
+.hover-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--md3-primary);
+  transition: width var(--md3-transition-short);
+}
+
+.hover-underline:hover::after {
+  width: 100%;
+}
+
+/* Focus Effects */
+.focus-ring {
+  transition: box-shadow var(--md3-transition-short);
+}
+
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.2);
+}
+
+/* Button Press Effect */
+.btn-press {
+  transition: transform var(--md3-transition-short), box-shadow var(--md3-transition-short);
+}
+
+.btn-press:active {
+  transform: translateY(1px);
+  box-shadow: var(--md3-elevation-1);
+}
+
+/* Card Hover Effect */
+.card-hover {
+  transition: all var(--md3-transition-short);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--md3-elevation-3);
+}
+
+/* Input Focus Effect */
+.input-focus {
+  transition: all var(--md3-transition-short);
+}
+
+.input-focus:focus {
+  border-color: var(--md3-primary);
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
+}
+
+/* Scroll Animations */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all var(--md3-transition-long);
+}
+
+.scroll-reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
