@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FunctionalComponent } from 'vue'
+import { h, type FunctionalComponent } from 'vue'
 
 type TabType = 'home' | 'connections' | 'search' | 'discover' | 'plugins'
 
@@ -24,52 +24,90 @@ const handleMoreClick = () => {
 }
 
 // 图标组件：统一用 currentColor，方便通过 CSS 控制
-const HomeIcon: FunctionalComponent = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M3 12L12 3L21 12" />
-    <path d="M5 12V20a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1V12" />
-  </svg>
-)
+const HomeIcon: FunctionalComponent = () => h('svg', {
+  width: '24',
+  height: '24',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('path', { d: 'M3 12L12 3L21 12' }),
+  h('path', { d: 'M5 12V20a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1V12' })
+])
 
-const ConnectionsIcon: FunctionalComponent = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="7" r="4" />
-    <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-    <path d="M18 7a2 2 0 1 1 4 0" />
-  </svg>
-)
+const ConnectionsIcon: FunctionalComponent = () => h('svg', {
+  width: '24',
+  height: '24',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('circle', { cx: '12', cy: '7', r: '4' }),
+  h('path', { d: 'M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2' }),
+  h('path', { d: 'M18 7a2 2 0 1 1 4 0' })
+])
 
-const SearchIcon: FunctionalComponent = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="11" cy="11" r="7" />
-    <path d="m16 16 5 5" />
-  </svg>
-)
+const SearchIcon: FunctionalComponent = () => h('svg', {
+  width: '24',
+  height: '24',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('circle', { cx: '11', cy: '11', r: '7' }),
+  h('path', { d: 'm16 16 5 5' })
+])
 
-const DiscoverIcon: FunctionalComponent = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 2v4" />
-    <path d="M12 18v4" />
-    <path d="M2 12h4" />
-    <path d="M18 12h4" />
-    <circle cx="12" cy="12" r="3" fill="currentColor" />
-  </svg>
-)
+const DiscoverIcon: FunctionalComponent = () => h('svg', {
+  width: '24',
+  height: '24',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('circle', { cx: '12', cy: '12', r: '10' }),
+  h('path', { d: 'M12 2v4' }),
+  h('path', { d: 'M12 18v4' }),
+  h('path', { d: 'M2 12h4' }),
+  h('path', { d: 'M18 12h4' }),
+  h('circle', { cx: '12', cy: '12', r: '3', fill: 'currentColor' })
+])
 
-const PluginsIcon: FunctionalComponent = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M20.5 11H19V7a2 2 0 0 0-2-2h-4V3.5A2.5 2.5 0 0 0 10.5 1 2.5 2.5 0 0 0 8 3.5V5H4a2 2 0 0 0-2 2v3.8h1.5a2.7 2.7 0 0 1 0 5.4H2V20a2 2 0 0 0 2 2h3.8v-1.5a2.7 2.7 0 0 1 5.4 0V22H17a2 2 0 0 0 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z" />
-  </svg>
-)
+const PluginsIcon: FunctionalComponent = () => h('svg', {
+  width: '24',
+  height: '24',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('path', { d: 'M20.5 11H19V7a2 2 0 0 0-2-2h-4V3.5A2.5 2.5 0 0 0 10.5 1 2.5 2.5 0 0 0 8 3.5V5H4a2 2 0 0 0-2 2v3.8h1.5a2.7 2.7 0 0 1 0 5.4H2V20a2 2 0 0 0 2 2h3.8v-1.5a2.7 2.7 0 0 1 5.4 0V22H17a2 2 0 0 0 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z' })
+])
 
-const MoreIcon: FunctionalComponent = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-    <circle cx="12" cy="5" r="2" />
-    <circle cx="12" cy="12" r="2" />
-    <circle cx="12" cy="19" r="2" />
-  </svg>
-)
+const MoreIcon: FunctionalComponent = () => h('svg', {
+  width: '24',
+  height: '24',
+  viewBox: '0 0 24 24',
+  fill: 'currentColor'
+}, [
+  h('circle', { cx: '12', cy: '5', r: '2' }),
+  h('circle', { cx: '12', cy: '12', r: '2' }),
+  h('circle', { cx: '12', cy: '19', r: '2' })
+])
 
 const sidebarItems = [
   { id: 'home' as TabType, label: 'Home', icon: HomeIcon },

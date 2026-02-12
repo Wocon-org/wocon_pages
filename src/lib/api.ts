@@ -40,6 +40,7 @@ interface TripSearchResult {
   lat: number
   lng: number
   is_public: boolean
+  score?: number
 }
 
 interface SearchResponse {
@@ -102,7 +103,9 @@ function setCachedSearch(query: string, results: any[]): void {
   // 限制缓存大小
   if (searchCache.size > 50) {
     const oldestKey = searchCache.keys().next().value
-    searchCache.delete(oldestKey)
+    if (oldestKey) {
+      searchCache.delete(oldestKey)
+    }
   }
 }
 

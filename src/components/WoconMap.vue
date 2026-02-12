@@ -87,9 +87,9 @@ const getUserLocation = () => {
         
         userLocationMarker = L.marker([latitude, longitude], { 
           icon: locationIcon,
-          animation: true
+
         })
-        userLocationMarker.addTo(map)
+        if (map) userLocationMarker.addTo(map)
         
         emit('location-found', latitude, longitude)
       },
@@ -314,20 +314,21 @@ onMounted(() => {
     }).addTo(map)
 
     // 添加定位控件
-    L.control.custom({
-      position: 'bottomright',
-      content: `<button class="location-control-btn" title="Find my location">📍</button>`,
-      classes: 'location-control',
-      style: {
-        marginBottom: '10px',
-        marginRight: '10px'
-      },
-      onAdd: (map) => {
-        const controlEl = L.DomUtil.get('.location-control-btn')!
-        L.DomEvent.on(controlEl, 'click', getUserLocation)
-        return controlEl
-      }
-    }).addTo(map)
+    const container = L.DomUtil.create('div', 'location-control')
+    container.style.position = 'absolute'
+    container.style.bottom = '70px'
+    container.style.right = '10px'
+    container.style.zIndex = '1000'
+    
+    const button = L.DomUtil.create('button', 'location-control-btn', container)
+    button.title = 'Find my location'
+    button.innerHTML = '📍'
+    
+    L.DomEvent.on(button, 'click', getUserLocation)
+    
+    if (map && map.getContainer()) {
+      map.getContainer().appendChild(container)
+    }
 
     markersLayer = L.layerGroup().addTo(map)
     tempLayer = L.layerGroup().addTo(map)
@@ -364,7 +365,7 @@ onMounted(() => {
         // 添加标记动画
         const leafletMarker = L.marker([e.latlng.lat, e.latlng.lng], { 
           icon: markerIcon,
-          animation: true
+
         })
         
         leafletMarker.addTo(tempLayer!)
