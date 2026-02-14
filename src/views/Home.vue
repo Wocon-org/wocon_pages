@@ -11,6 +11,7 @@ import DiscoverPanel from '@/components/panels/DiscoverPanel.vue'
 import Draggable from '@/components/common/Draggable.vue'
 import Panel from '@/components/common/Panel.vue'
 import Preloader from '@/components/Preloader.vue'
+import { supabase } from '@/lib/supabase'
 import { getTripById } from '@/modules/trip/api'
 
 type TabType = 'home' | 'connections' | 'search' | 'discover' | 'plugins'
@@ -32,7 +33,7 @@ const showDiscoverPanel = ref(true)
 const worldMapRef = ref<InstanceType<typeof WoconMap>>()
 
 // 处理 tab 切换
-const handleTabChange = (tab: TabType) => {
+const handleTabChange = async (tab: TabType) => {
   // Search 特殊处理：切换显示/隐藏
   if (tab === 'search') {
     if (activeTab.value === 'search') {
@@ -42,6 +43,34 @@ const handleTabChange = (tab: TabType) => {
     } else {
       // 切换到search
       activeTab.value = 'search'
+    }
+  } else if (tab === 'discover') {
+    // 切换到discover时自动触发发现功能
+    activeTab.value = tab
+
+    // 模拟发现功能
+    try {
+      // 从数据库获取热门城市
+      const { data: cities, error } = await supabase
+        .from('cities')
+        .select('geonameid, name, asciiname, country_code, latitude, longitude, population')
+        .gte('population', 500000)
+        .order('population', { ascending: false, nullsFirst: false })
+        .limit(50)
+
+      if (!error && cities && cities.length > 0) {
+        // 随机选择一个城市
+        const randomIndex = Math.floor(Math.random() * cities.length)
+        const randomCity = cities[randomIndex]
+
+        if (randomCity && worldMapRef.value) {
+          // 飞转到随机城市
+          worldMapRef.value.flyTo(randomCity.latitude, randomCity.longitude, 10)
+          console.log('Discovered city:', randomCity.name, randomCity.country_code)
+        }
+      }
+    } catch (error) {
+      console.error('Discover error:', error)
     }
   } else {
     activeTab.value = tab
@@ -185,7 +214,16 @@ const handleSearchResult = (result: any) => {
 
       <!-- DiscoverPanel（全屏显示） -->
       <Transition name="panel-full">
-        <DiscoverPanel v-if="activeTab === 'discover'" class="panel-discover" />
+        <DiscoverPanel
+          v-if="activeTab === 'discover'"
+          class="panel-discover"
+          @discover-place="(place) => {
+            console.log('Discovered place:', place);
+            if (worldMapRef.value && place.coordinates) {
+              worldMapRef.value.flyTo(place.coordinates.lat, place.coordinates.lng, 10);
+            }
+          }"
+        />
       </Transition>
     </div>
 
