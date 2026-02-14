@@ -147,11 +147,12 @@ const sidebarItems = [
   top: 56px; /* 与新的 TopBar 高度对齐 */
   bottom: 0;
   width: 72px;
-  background: #0d1117;
-  border-right: 1px solid #30363d;
+  background: var(--md3-surface);
+  border-right: 1px solid var(--md3-surface-variant);
   display: flex;
   flex-direction: column;
   z-index: 2000;
+  box-shadow: var(--md3-elevation-2);
 }
 
 .sidebar-nav {
@@ -167,50 +168,60 @@ const sidebarItems = [
 .sidebar-item {
   width: 48px;
   height: 48px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: #8b949e;
+  border-radius: var(--md3-radius-large);
+  border: 1px solid transparent;
+  background: var(--md3-surface-variant);
+  color: var(--md3-on-surface-variant);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--md3-transition-short);
   outline: none;
+  position: relative;
 }
 
 .sidebar-item:hover,
 .sidebar-item:focus-visible {
-  background: #161b22;
-  color: #e6e6e6;
+  background: var(--md3-primary-container);
+  color: var(--md3-primary);
+  border-color: var(--md3-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--md3-elevation-2);
 }
 
 .sidebar-item.active {
-  background: #000;
-  color: #e6e6e6;
+  background: var(--md3-primary);
+  color: var(--md3-on-primary);
+  border-color: var(--md3-primary-light);
   transform: scale(0.95);
+  box-shadow: var(--md3-elevation-3);
 }
 
 .sidebar-more {
   width: 48px;
   height: 48px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: #8b949e;
+  border-radius: var(--md3-radius-large);
+  border: 1px solid transparent;
+  background: var(--md3-surface-variant);
+  color: var(--md3-on-surface-variant);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   margin-bottom: 16px;
-  transition: all 0.2s ease;
+  transition: all var(--md3-transition-short);
   outline: none;
+  position: relative;
 }
 
 .sidebar-more:hover,
 .sidebar-more:focus-visible {
-  background: #161b22;
-  color: #e6e6e6;
+  background: var(--md3-primary-container);
+  color: var(--md3-primary);
+  border-color: var(--md3-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--md3-elevation-2);
 }
 
 /* Tooltip */
@@ -219,15 +230,17 @@ const sidebarItems = [
   content: attr(title);
   position: absolute;
   left: 80px;
-  background: #0d1117;
-  color: #e6e6e6;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 12px;
+  background: var(--md3-surface);
+  color: var(--md3-on-surface);
+  padding: var(--md3-space-2) var(--md3-space-3);
+  border-radius: var(--md3-radius-medium);
+  font-size: var(--md3-label-small);
+  font-weight: 500;
   white-space: nowrap;
   pointer-events: none;
-  animation: fadeIn 0.2s ease;
-  border: 1px solid #30363d;
+  animation: fadeIn var(--md3-transition-short);
+  border: 1px solid var(--md3-surface-variant);
+  box-shadow: var(--md3-elevation-3);
   z-index: 3000;
 }
 
@@ -239,6 +252,48 @@ const sidebarItems = [
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+  .sidebar {
+    background: var(--md3-surface);
+    border-right: 1px solid var(--md3-surface-variant);
+  }
+  
+  .sidebar-item {
+    background: var(--md3-surface-variant);
+    color: var(--md3-on-surface-variant);
+  }
+  
+  .sidebar-item:hover,
+  .sidebar-item:focus-visible {
+    background: var(--md3-primary-container);
+    color: var(--md3-primary);
+  }
+  
+  .sidebar-item.active {
+    background: var(--md3-primary);
+    color: var(--md3-on-primary);
+  }
+  
+  .sidebar-more {
+    background: var(--md3-surface-variant);
+    color: var(--md3-on-surface-variant);
+  }
+  
+  .sidebar-more:hover,
+  .sidebar-more:focus-visible {
+    background: var(--md3-primary-container);
+    color: var(--md3-primary);
+  }
+  
+  .sidebar-item[title]:hover::after,
+  .sidebar-more[title]:hover::after {
+    background: var(--md3-surface);
+    color: var(--md3-on-surface);
+    border: 1px solid var(--md3-surface-variant);
   }
 }
 </style>
