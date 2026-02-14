@@ -112,9 +112,9 @@ const handleSearchResult = (result: any) => {
     <TopBar @switchLayer="handleSwitchLayer" />
 
     <!-- 世界地图背景 -->
-    <WoconMap 
-      ref="worldMapRef" 
-      mode="global" 
+    <WoconMap
+      ref="worldMapRef"
+      mode="global"
       @marker-click="handleMarkerClick"
       @location-found="(lat, lng) => console.log('Location found:', lat, lng)"
       @location-error="(error) => console.error('Location error:', error)"
@@ -127,71 +127,102 @@ const handleSearchResult = (result: any) => {
       @moreClick="handleMoreClick"
     />
 
-    <!-- 浮动面板：ConnectionsPanel -->
-    <Draggable
-      v-if="activeTab === 'connections' && showConnectionsPanel"
-      :initialPosition="{ x: 100, y: 100 }"
-    >
-      <Panel title="Connections" :show="showConnectionsPanel" @close="handleConnectionsClose">
-        <ConnectionsPanel :show="showConnectionsPanel" @close="handleConnectionsClose" />
-      </Panel>
-    </Draggable>
+    <!-- 面板容器 -->
+    <div class="panels-container">
+      <!-- 浮动面板：ConnectionsPanel -->
+      <Transition name="panel-fade">
+        <Draggable
+          v-if="activeTab === 'connections' && showConnectionsPanel"
+          :initialPosition="{ x: 100, y: 100 }"
+          class="panel-draggable"
+        >
+          <Panel
+            title="Connections"
+            :show="showConnectionsPanel"
+            @close="handleConnectionsClose"
+            class="panel-connections"
+          >
+            <ConnectionsPanel :show="showConnectionsPanel" @close="handleConnectionsClose" />
+          </Panel>
+        </Draggable>
+      </Transition>
 
-    <!-- 浮动面板：SearchBar -->
-    <Draggable
-      v-if="activeTab === 'search' && showSearchBar"
-      :initialPosition="{ x: 140, y: 140 }"
-    >
-      <Panel title="Search" :show="showSearchBar" @close="handleSearchClose">
-        <SearchBar :show="showSearchBar" @close="handleSearchClose" @selectResult="handleSearchResult" />
-      </Panel>
-    </Draggable>
+      <!-- 浮动面板：SearchBar -->
+      <Transition name="panel-slide">
+        <Draggable
+          v-if="activeTab === 'search' && showSearchBar"
+          :initialPosition="{ x: 140, y: 140 }"
+          class="panel-draggable"
+        >
+          <Panel
+            title="Search"
+            :show="showSearchBar"
+            @close="handleSearchClose"
+            class="panel-search"
+          >
+            <SearchBar :show="showSearchBar" @close="handleSearchClose" @selectResult="handleSearchResult" />
+          </Panel>
+        </Draggable>
+      </Transition>
 
-    <!-- 浮动面板：PluginPanel -->
-    <Draggable
-      v-if="activeTab === 'plugins' && showPluginPanel"
-      :initialPosition="{ x: 120, y: 120 }"
-    >
-      <Panel title="Plugins" :show="showPluginPanel" @close="handlePluginClose">
-        <PluginPanel />
-      </Panel>
-    </Draggable>
+      <!-- 浮动面板：PluginPanel -->
+      <Transition name="panel-scale">
+        <Draggable
+          v-if="activeTab === 'plugins' && showPluginPanel"
+          :initialPosition="{ x: 120, y: 120 }"
+          class="panel-draggable"
+        >
+          <Panel
+            title="Plugins"
+            :show="showPluginPanel"
+            @close="handlePluginClose"
+            class="panel-plugins"
+          >
+            <PluginPanel />
+          </Panel>
+        </Draggable>
+      </Transition>
 
-    <!-- DiscoverPanel（无需Panel包装，因为它是全屏显示的） -->
-    <DiscoverPanel v-if="activeTab === 'discover'" />
+      <!-- DiscoverPanel（全屏显示） -->
+      <Transition name="panel-full">
+        <DiscoverPanel v-if="activeTab === 'discover'" class="panel-discover" />
+      </Transition>
+    </div>
 
     <!-- 右上角 Trip 信息卡（升级视觉） -->
-    <div v-if="selectedTrip" class="trip-info-card">
-      <div class="trip-info-header">
-        <div class="trip-title">
-          <span class="trip-name">{{ selectedTrip.name }}</span>
-          <span class="trip-type" :class="selectedTrip.type === 'recruiting' ? 'type-recruiting' : 'type-private'">
-            {{ selectedTrip.type === 'recruiting' ? 'Recruiting' : 'Private' }}
-          </span>
+    <Transition name="card-slide">
+      <div v-if="selectedTrip" class="trip-info-card">
+        <div class="trip-info-header">
+          <div class="trip-title">
+            <span class="trip-name">{{ selectedTrip.name }}</span>
+            <span class="trip-type" :class="selectedTrip.type === 'recruiting' ? 'type-recruiting' : 'type-private'">
+              {{ selectedTrip.type === 'recruiting' ? 'Recruiting' : 'Private' }}
+            </span>
+          </div>
+          <button class="trip-info-close" @click="selectedTrip = null" aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
-        <button class="trip-info-close" @click="selectedTrip = null" aria-label="Close">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-      <div class="trip-info-body">
-        <div class="info-row">
-          <div class="info-dot owner" />
-          <div class="info-label">Owner</div>
-          <div class="info-value">{{ selectedTrip.owner_username || selectedTrip.owner?.username || 'Unknown' }}</div>
+        <div class="trip-info-body">
+          <div class="info-row">
+            <div class="info-dot owner" />
+            <div class="info-label">Owner</div>
+            <div class="info-value">{{ selectedTrip.owner_username || selectedTrip.owner?.username || 'Unknown' }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-dot public" />
+            <div class="info-label">Visibility</div>
+            <div class="info-value">{{ selectedTrip.is_public ? 'Public' : 'Only me' }}</div>
+          </div>
         </div>
-        <div class="info-row">
-          <div class="info-dot public" />
-          <div class="info-label">Visibility</div>
-          <div class="info-value">{{ selectedTrip.is_public ? 'Public' : 'Only me' }}</div>
+        <div class="trip-info-actions">
+          <button class="action-btn" @click="router.push(`/trip/${selectedTrip.id}`)">View Details</button>
         </div>
       </div>
-      <div class="trip-info-actions">
-        <button class="action-btn" @click="router.push(`/trip/${selectedTrip.id}`)">View Details</button>
-      </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -355,5 +386,146 @@ const handleSearchResult = (result: any) => {
 .action-btn:active {
   transform: translateY(0);
   box-shadow: var(--md3-elevation-1);
+}
+
+/* 面板容器 */
+.panels-container {
+  position: fixed;
+  top: 56px;
+  left: 72px;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  pointer-events: none;
+}
+
+.panel-draggable {
+  pointer-events: auto;
+  z-index: 1000;
+}
+
+/* 面板过渡动画 */
+.panel-fade-enter-active,
+.panel-fade-leave-active {
+  transition: opacity var(--md3-transition-long), transform var(--md3-transition-long);
+}
+
+.panel-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.panel-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.1);
+}
+
+.panel-slide-enter-active,
+.panel-slide-leave-active {
+  transition: opacity var(--md3-transition-long), transform var(--md3-transition-long);
+}
+
+.panel-slide-enter-from {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.panel-slide-leave-to {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.panel-scale-enter-active,
+.panel-scale-leave-active {
+  transition: opacity var(--md3-transition-long), transform var(--md3-transition-long);
+}
+
+.panel-scale-enter-from {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.panel-scale-leave-to {
+  opacity: 0;
+  transform: scale(1.2);
+}
+
+.panel-full-enter-active,
+.panel-full-leave-active {
+  transition: opacity var(--md3-transition-long);
+}
+
+.panel-full-enter-from {
+  opacity: 0;
+}
+
+.panel-full-leave-to {
+  opacity: 0;
+}
+
+/* 卡片过渡动画 */
+.card-slide-enter-active,
+.card-slide-leave-active {
+  transition: transform var(--md3-transition-long), opacity var(--md3-transition-long);
+}
+
+.card-slide-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.card-slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* 面板特定样式 */
+.panel-connections {
+  min-width: 320px;
+  max-width: 400px;
+  min-height: 400px;
+}
+
+.panel-search {
+  min-width: 360px;
+  max-width: 500px;
+}
+
+.panel-plugins {
+  min-width: 300px;
+  max-width: 400px;
+  min-height: 350px;
+}
+
+.panel-discover {
+  position: fixed;
+  top: 56px;
+  left: 72px;
+  right: 0;
+  bottom: 0;
+  z-index: 1500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .panels-container {
+    left: 0;
+  }
+
+  .panel-connections,
+  .panel-search,
+  .panel-plugins {
+    min-width: 280px;
+    max-width: calc(100vw - 40px);
+  }
+
+  .panel-discover {
+    left: 0;
+  }
+
+  .trip-info-card {
+    width: calc(100vw - 48px);
+    right: 24px;
+  }
 }
 </style>
