@@ -112,7 +112,13 @@ const handleSearchResult = (result: any) => {
     <TopBar @switchLayer="handleSwitchLayer" />
 
     <!-- 世界地图背景 -->
-    <WoconMap ref="worldMapRef" mode="global" @marker-click="handleMarkerClick" />
+    <WoconMap 
+      ref="worldMapRef" 
+      mode="global" 
+      @marker-click="handleMarkerClick"
+      @location-found="(lat, lng) => console.log('Location found:', lat, lng)"
+      @location-error="(error) => console.error('Location error:', error)"
+    />
 
     <!-- 左侧 Sidebar -->
     <Sidebar
