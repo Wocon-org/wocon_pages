@@ -20,7 +20,6 @@ const router = useRouter()
 
 // 状态管理
 const activeTab = ref<TabType>('home')
-const showMoreMenu = ref(false)
 
 // 面板显示状态
 const showConnectionsPanel = ref(true)
@@ -106,17 +105,10 @@ const handleTabChange = async (tab: TabType) => {
   }
 }
 
-// 处理更多菜单
-const handleMoreClick = () => {
-  showMoreMenu.value = !showMoreMenu.value
-}
-
 // 点击 Logo 返回首页
 const handleLogoClick = () => {
   activeTab.value = 'home'
 }
-
-
 
 // 处理图层切换
 const handleSwitchLayer = (layer: 'dark' | 'satellite') => {
