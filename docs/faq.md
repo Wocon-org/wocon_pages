@@ -222,3 +222,14 @@ Yes, contributors should follow:
 - **Code linting** and **type checking**
 
 ## Deployment
+
+### How do I deploy my own instance of Wocon?
+
+To deploy your own Wocon instance:
+1. **Clone the repository**
+2. **Set up a Supabase project**
+3. **Configure environment variables**
+4. **Build the project**
+5. **Deploy to Cloudflare Pages** or your preferred hosting provider
+
+Detailed instructions are available in `docs/deployment
