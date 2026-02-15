@@ -273,4 +273,11 @@ if ('geolocation' in navigator) {
 if ('geolocation' in navigator) {
   const watchId = navigator.geolocation.watchPosition(
     (position) => {
-      const { latitude, longitude } = position.coords
+      const { latitude, longitude } = position.coords;
+      // Update position marker
+    },
+    (error) => {
+      console.error('Error watching position:', error);
+    },
+    {
+      enable
