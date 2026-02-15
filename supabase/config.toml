@@ -1,0 +1,35 @@
+[project]
+id = "kpauppfsdtaoqolhmsbp"
+
+[api]
+enabled = true
+schema = "public"
+port = 54321
+
+[db]
+port = 54322
+schema = "public"
+
+[auth]
+enabled = true
+port = 54323
+
+[storage]
+enabled = true
+port = 54324
+
+[functions]
+enabled = true
+port = 54325
+
+[edge_runtime]
+enabled = true
+port = 54326
+
+[inspector]
+enabled = true
+port = 54320
+
+[studio]
+enabled = true
+port = 54327
