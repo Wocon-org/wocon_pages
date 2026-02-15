@@ -692,4 +692,10 @@ CREATE POLICY "Trip owners and active partners can update trips"
     SELECT 1 FROM public.trip_members
     WHERE trip_members.trip_id = trips.id
     AND trip_members.user_id = auth.uid()
-    AND trip_members.role IN
+    AND trip_members.role IN ('owner', 'partner')
+    AND trip_members.status = 'active'
+  ));
+
+CREATE POLICY "Only trip owners can delete trips"
+  ON public.trips FOR DELETE
+  USING (owner
