@@ -922,4 +922,9 @@ CREATE INDEX IF NOT EXISTS cities_name_trgm ON cities USING gin (name gin_trgm_o
 
 ### Discover Implementation
 
-To optimize the discover
+To optimize the discover functionality and avoid using `ORDER BY random()`, we use the following approach:
+
+```sql
+SELECT *
+FROM cities
+WHERE ge
