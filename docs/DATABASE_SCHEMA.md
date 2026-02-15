@@ -915,4 +915,11 @@ CREATE INDEX IF NOT EXISTS comments_trip_idx ON comments(trip_id, created_at);
 
 -- Cities
 CREATE INDEX IF NOT EXISTS cities_name_idx ON cities(name);
-CREATE INDEX IF NOT EXISTS cities_asciiname_idx ON cities(asciin
+CREATE INDEX IF NOT EXISTS cities_asciiname_idx ON cities(asciiname);
+CREATE INDEX IF NOT EXISTS cities_lat_lng_idx ON cities(latitude, longitude);
+CREATE INDEX IF NOT EXISTS cities_name_trgm ON cities USING gin (name gin_trgm_ops);
+```
+
+### Discover Implementation
+
+To optimize the discover
