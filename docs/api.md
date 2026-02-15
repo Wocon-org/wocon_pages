@@ -323,4 +323,6 @@ window.dispatchEvent(event);
 
 | Error Type | Message | Solution |
 |------------|---------|----------|
-| Location Access | `PositionError: User
+| Location Access | `PositionError: User denied Geolocation` | Request location permission again |
+| Network | `Error: Network error` | Check internet connection |
+| Supabase | `Error: Database connection failed` |
