@@ -955,4 +955,10 @@ The schema is designed to support future extensions without major refactoring, i
 
 - Trip tags
 - Trip images
-- Trip
+- Trip statistics
+- Ownership transfer
+- Subscription-based features
+
+## Migration Management
+
+### Best
