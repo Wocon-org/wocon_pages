@@ -102,19 +102,22 @@ const MoreIcon: FunctionalComponent = () => h('svg', {
   width: '24',
   height: '24',
   viewBox: '0 0 24 24',
-  fill: 'currentColor'
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
 }, [
-  h('circle', { cx: '12', cy: '5', r: '2' }),
-  h('circle', { cx: '12', cy: '12', r: '2' }),
-  h('circle', { cx: '12', cy: '19', r: '2' })
+  h('line', { x1: '12', y1: '8', x2: '12', y2: '16' }),
+  h('line', { x1: '8', y1: '12', x2: '16', y2: '12' })
 ])
 
 const sidebarItems = [
-  { id: 'home' as TabType, label: 'Home', icon: HomeIcon },
-  { id: 'connections' as TabType, label: 'Connections', icon: ConnectionsIcon },
-  { id: 'search' as TabType, label: 'Search', icon: SearchIcon },
-  { id: 'discover' as TabType, label: 'Discover', icon: DiscoverIcon },
-  { id: 'plugins' as TabType, label: 'Plugins', icon: PluginsIcon }
+  { id: 'home' as TabType, label: 'HOME', icon: HomeIcon },
+  { id: 'connections' as TabType, label: 'CONNECTIONS', icon: ConnectionsIcon },
+  { id: 'search' as TabType, label: 'SEARCH', icon: SearchIcon },
+  { id: 'discover' as TabType, label: 'DISCOVER', icon: DiscoverIcon },
+  { id: 'plugins' as TabType, label: 'PLUGINS', icon: PluginsIcon }
 ]
 </script>
 
@@ -144,15 +147,15 @@ const sidebarItems = [
 .sidebar {
   position: fixed;
   left: 0;
-  top: 56px; /* 与新的 TopBar 高度对齐 */
+  top: 60px; /* 与新的 TopBar 高度对齐 */
   bottom: 0;
-  width: 72px;
+  width: 80px;
   background: var(--md3-surface);
-  border-right: 1px solid var(--md3-surface-variant);
+  border-right: 2px solid var(--md3-primary);
   display: flex;
   flex-direction: column;
   z-index: 2000;
-  box-shadow: var(--md3-elevation-2);
+  box-shadow: var(--md3-elevation-1);
 }
 
 .sidebar-nav {
@@ -160,18 +163,18 @@ const sidebarItems = [
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 12px 0;
+  gap: 16px;
+  padding: 24px 0;
   overflow-y: auto;
 }
 
 .sidebar-item {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--md3-radius-large);
-  border: 1px solid transparent;
-  background: var(--md3-surface-variant);
-  color: var(--md3-on-surface-variant);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--md3-radius-small);
+  border: 2px solid var(--md3-primary);
+  background: var(--md3-surface);
+  color: var(--md3-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,33 +186,33 @@ const sidebarItems = [
 
 .sidebar-item:hover,
 .sidebar-item:focus-visible {
-  background: var(--md3-primary-container);
-  color: var(--md3-primary);
-  border-color: var(--md3-primary);
-  transform: translateY(-1px);
+  background: var(--md3-primary);
+  color: var(--md3-on-primary);
+  transform: translateY(-2px);
   box-shadow: var(--md3-elevation-2);
 }
 
 .sidebar-item.active {
   background: var(--md3-primary);
   color: var(--md3-on-primary);
-  border-color: var(--md3-primary-light);
-  transform: scale(0.95);
-  box-shadow: var(--md3-elevation-3);
+  box-shadow: var(--md3-elevation-2);
 }
 
 .sidebar-more {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--md3-radius-large);
-  border: 1px solid transparent;
-  background: var(--md3-surface-variant);
-  color: var(--md3-on-surface-variant);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--md3-radius-small);
+  border: 2px solid var(--md3-primary);
+  background: var(--md3-surface);
+  color: var(--md3-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  margin-top: auto;
+  margin-left: auto;
+  margin-right: auto;
   transition: all var(--md3-transition-short);
   outline: none;
   position: relative;
@@ -217,10 +220,9 @@ const sidebarItems = [
 
 .sidebar-more:hover,
 .sidebar-more:focus-visible {
-  background: var(--md3-primary-container);
-  color: var(--md3-primary);
-  border-color: var(--md3-primary);
-  transform: translateY(-1px);
+  background: var(--md3-primary);
+  color: var(--md3-on-primary);
+  transform: translateY(-2px);
   box-shadow: var(--md3-elevation-2);
 }
 
@@ -229,19 +231,21 @@ const sidebarItems = [
 .sidebar-more[title]:hover::after {
   content: attr(title);
   position: absolute;
-  left: 80px;
+  left: 90px;
   background: var(--md3-surface);
   color: var(--md3-on-surface);
   padding: var(--md3-space-2) var(--md3-space-3);
-  border-radius: var(--md3-radius-medium);
+  border-radius: var(--md3-radius-small);
   font-size: var(--md3-label-small);
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   pointer-events: none;
   animation: fadeIn var(--md3-transition-short);
-  border: 1px solid var(--md3-surface-variant);
-  box-shadow: var(--md3-elevation-3);
+  border: 2px solid var(--md3-primary);
+  box-shadow: var(--md3-elevation-2);
   z-index: 3000;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 @keyframes fadeIn {
@@ -259,18 +263,19 @@ const sidebarItems = [
 @media (prefers-color-scheme: dark) {
   .sidebar {
     background: var(--md3-surface);
-    border-right: 1px solid var(--md3-surface-variant);
+    border-right: 2px solid var(--md3-primary);
   }
 
   .sidebar-item {
-    background: var(--md3-surface-variant);
-    color: var(--md3-on-surface-variant);
+    background: var(--md3-surface);
+    border: 2px solid var(--md3-primary);
+    color: var(--md3-primary);
   }
 
   .sidebar-item:hover,
   .sidebar-item:focus-visible {
-    background: var(--md3-primary-container);
-    color: var(--md3-primary);
+    background: var(--md3-primary);
+    color: var(--md3-on-primary);
   }
 
   .sidebar-item.active {
@@ -279,21 +284,43 @@ const sidebarItems = [
   }
 
   .sidebar-more {
-    background: var(--md3-surface-variant);
-    color: var(--md3-on-surface-variant);
+    background: var(--md3-surface);
+    border: 2px solid var(--md3-primary);
+    color: var(--md3-primary);
   }
 
   .sidebar-more:hover,
   .sidebar-more:focus-visible {
-    background: var(--md3-primary-container);
-    color: var(--md3-primary);
+    background: var(--md3-primary);
+    color: var(--md3-on-primary);
   }
 
   .sidebar-item[title]:hover::after,
   .sidebar-more[title]:hover::after {
     background: var(--md3-surface);
     color: var(--md3-on-surface);
-    border: 1px solid var(--md3-surface-variant);
+    border: 2px solid var(--md3-primary);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .sidebar {
+    width: 64px;
+  }
+  .sidebar-nav {
+    gap: 12px;
+    padding: 16px 0;
+  }
+  .sidebar-item,
+  .sidebar-more {
+    width: 48px;
+    height: 48px;
+  }
+  .sidebar-item svg,
+  .sidebar-more svg {
+    width: 20px;
+    height: 20px;
   }
 }
 </style>

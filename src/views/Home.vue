@@ -20,7 +20,6 @@ const router = useRouter()
 
 // 状态管理
 const activeTab = ref<TabType>('home')
-const selectedTrip = ref<any>(null)
 const showMoreMenu = ref(false)
 
 // 面板显示状态
@@ -88,13 +87,7 @@ const handleLogoClick = () => {
   selectedTrip.value = null
 }
 
-// 处理地图标记点击
-const handleMarkerClick = async (tripId: string) => {
-  const { data } = await getTripById(tripId)
-  if (data) {
-    selectedTrip.value = data
-  }
-}
+
 
 // 处理图层切换
 const handleSwitchLayer = (layer: 'dark' | 'satellite') => {
@@ -143,8 +136,6 @@ const handleSearchResult = (result: any) => {
     <!-- 世界地图背景 -->
     <WoconMap
       ref="worldMapRef"
-      mode="global"
-      @marker-click="handleMarkerClick"
       @location-found="(lat, lng) => console.log('Location found:', lat, lng)"
       @location-error="(error) => console.error('Location error:', error)"
     />
@@ -227,40 +218,7 @@ const handleSearchResult = (result: any) => {
       </Transition>
     </div>
 
-    <!-- 右上角 Trip 信息卡（升级视觉） -->
-    <Transition name="card-slide">
-      <div v-if="selectedTrip" class="trip-info-card">
-        <div class="trip-info-header">
-          <div class="trip-title">
-            <span class="trip-name">{{ selectedTrip.name }}</span>
-            <span class="trip-type" :class="selectedTrip.type === 'recruiting' ? 'type-recruiting' : 'type-private'">
-              {{ selectedTrip.type === 'recruiting' ? 'Recruiting' : 'Private' }}
-            </span>
-          </div>
-          <button class="trip-info-close" @click="selectedTrip = null" aria-label="Close">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-        <div class="trip-info-body">
-          <div class="info-row">
-            <div class="info-dot owner" />
-            <div class="info-label">Owner</div>
-            <div class="info-value">{{ selectedTrip.owner_username || selectedTrip.owner?.username || 'Unknown' }}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-dot public" />
-            <div class="info-label">Visibility</div>
-            <div class="info-value">{{ selectedTrip.is_public ? 'Public' : 'Only me' }}</div>
-          </div>
-        </div>
-        <div class="trip-info-actions">
-          <button class="action-btn" @click="router.push(`/trip/${selectedTrip.id}`)">View Details</button>
-        </div>
-      </div>
-    </Transition>
+
   </div>
 </template>
 
@@ -275,156 +233,7 @@ const handleSearchResult = (result: any) => {
   background: var(--md3-background);
 }
 
-.trip-info-card {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  width: 320px;
-  background: var(--md3-surface);
-  border-radius: var(--md3-radius-2xl);
-  box-shadow: var(--md3-elevation-5);
-  border: 1px solid var(--md3-surface-variant);
-  overflow: hidden;
-  z-index: 1000;
-  animation: slide-in-right var(--md3-transition-long);
-}
 
-.trip-info-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--md3-space-4);
-  background: var(--md3-surface-variant);
-  border-bottom: 1px solid var(--md3-surface-variant-dark);
-}
-
-.trip-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.trip-name {
-  color: var(--md3-on-surface);
-  font-size: var(--md3-title-large);
-  font-weight: 700;
-}
-
-.trip-type {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--md3-space-1) var(--md3-space-3);
-  border-radius: var(--md3-radius-full);
-  font-size: var(--md3-label-small);
-  font-weight: 600;
-  background: var(--md3-primary-container);
-  color: var(--md3-primary);
-}
-.type-private {
-  background: var(--md3-secondary-container);
-  color: var(--md3-secondary);
-}
-
-.trip-info-close {
-  background: transparent;
-  border: none;
-  color: var(--md3-on-surface-variant);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--md3-transition-short);
-  padding: var(--md3-space-2);
-  border-radius: var(--md3-radius-full);
-}
-.trip-info-close:hover,
-.trip-info-close:focus-visible {
-  color: var(--md3-on-surface);
-  background: var(--md3-surface-variant-light);
-  transform: scale(1.1);
-}
-
-.trip-info-body {
-  padding: var(--md3-space-4);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: var(--md3-space-2);
-  border-radius: var(--md3-radius-medium);
-  transition: background-color var(--md3-transition-short);
-}
-
-.info-row:hover {
-  background-color: var(--md3-surface-variant-light);
-}
-
-.info-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.info-dot.owner {
-  background: var(--md3-primary);
-  box-shadow: 0 0 0 2px var(--md3-primary-container);
-}
-.info-dot.public {
-  background: var(--md3-secondary);
-  box-shadow: 0 0 0 2px var(--md3-secondary-container);
-}
-
-.info-label {
-  flex: 1;
-  color: var(--md3-on-surface-variant);
-  font-size: var(--md3-body-small);
-}
-
-.info-value {
-  color: var(--md3-on-surface);
-  font-size: var(--md3-body-small);
-  font-weight: 500;
-}
-
-.trip-info-actions {
-  padding: var(--md3-space-4);
-  display: flex;
-}
-
-.action-btn {
-  flex: 1;
-  border: none;
-  border-radius: var(--md3-radius-large);
-  padding: var(--md3-space-3) var(--md3-space-4);
-  font-size: var(--md3-body-medium);
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--md3-primary);
-  color: var(--md3-on-primary);
-  transition: all var(--md3-transition-short);
-  box-shadow: var(--md3-elevation-2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--md3-space-2);
-}
-
-.action-btn:hover,
-.action-btn:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: var(--md3-elevation-3);
-  background: var(--md3-primary-light);
-}
-
-.action-btn:active {
-  transform: translateY(0);
-  box-shadow: var(--md3-elevation-1);
-}
 
 /* 面板容器 */
 .panels-container {
@@ -501,21 +310,7 @@ const handleSearchResult = (result: any) => {
   opacity: 0;
 }
 
-/* 卡片过渡动画 */
-.card-slide-enter-active,
-.card-slide-leave-active {
-  transition: transform var(--md3-transition-long), opacity var(--md3-transition-long);
-}
 
-.card-slide-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.card-slide-leave-to {
-  transform: translateX(100%);
-  opacity: 0;
-}
 
 /* 面板特定样式 */
 .panel-connections {
@@ -561,9 +356,6 @@ const handleSearchResult = (result: any) => {
     left: 0;
   }
 
-  .trip-info-card {
-    width: calc(100vw - 48px);
-    right: 24px;
-  }
+
 }
 </style>

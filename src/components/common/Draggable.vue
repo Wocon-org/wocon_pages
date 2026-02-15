@@ -163,9 +163,9 @@ onUnmounted(() => {
 .default-handle {
   width: 40px;
   height: 4px;
-  background: rgba(139, 148, 158, 0.3);
-  border-radius: 2px;
-  margin: 4px auto;
+  background: var(--md3-primary);
+  border-radius: var(--md3-radius-smaller);
+  margin: var(--md3-space-1) auto;
 }
 
 .drag-content {

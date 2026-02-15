@@ -46,65 +46,66 @@ const handleClose = () => {
 
 <style scoped>
 .panel-container {
-  background: #161b22;
-  border-radius: 20px;
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.4),
-    0 4px 12px rgba(0, 0, 0, 0.3);
+  background: var(--md3-surface);
+  border-radius: var(--md3-radius-smaller);
+  box-shadow: var(--md3-elevation-3);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 120px);
-  border: 1px solid #30363d;
+  border: 2px solid var(--md3-primary);
 }
 
 .panel-header {
-  padding: 16px;
-  border-bottom: 1px solid #30363d;
+  padding: var(--md3-space-3);
+  border-bottom: 2px solid var(--md3-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #161b22;
+  background: var(--md3-surface);
   flex-shrink: 0;
 }
 
 .panel-title {
-  font-size: 16px;
+  font-size: var(--md3-title-medium);
   font-weight: 600;
-  color: #e6e6e6;
+  color: var(--md3-on-surface);
   margin: 0;
+  font-family: var(--md3-font-family);
 }
 
 .panel-close {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   background: transparent;
-  border: none;
-  border-radius: 6px;
+  border: 2px solid var(--md3-primary);
+  border-radius: var(--md3-radius-smaller);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #8b949e;
-  transition: all 0.2s ease;
+  color: var(--md3-primary);
+  transition: all var(--md3-transition-short);
   padding: 0;
 }
 
 .panel-close:hover,
 .panel-close:focus-visible {
-  background: #30363d;
-  color: #e6e6e6;
+  background: var(--md3-primary);
+  color: var(--md3-surface);
+  transform: scale(1.05);
 }
 
 .panel-close:active {
-  background: #21262d;
+  transform: scale(0.95);
 }
 
 .panel-body {
-  padding: 16px;
+  padding: var(--md3-space-3);
   overflow-y: auto;
   flex: 1;
-  color: #c9d1d9;
+  color: var(--md3-on-surface);
+  font-family: var(--md3-font-family);
 }
 
 /* 滚动条样式 */
@@ -113,14 +114,14 @@ const handleClose = () => {
 }
 
 .panel-body::-webkit-scrollbar-track {
-  background: #0d1117;
-  border-radius: 3px;
+  background: var(--md3-surface-variant);
+  border-radius: var(--md3-radius-smaller);
 }
 
 /* 面板显隐过渡 */
 .panel-fade-enter-active,
 .panel-fade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity var(--md3-transition-short), transform var(--md3-transition-short);
 }
 .panel-fade-enter-from {
   opacity: 0;
@@ -132,11 +133,11 @@ const handleClose = () => {
 }
 
 .panel-body::-webkit-scrollbar-thumb {
-  background: #30363d;
-  border-radius: 3px;
+  background: var(--md3-primary);
+  border-radius: var(--md3-radius-smaller);
 }
 
 .panel-body::-webkit-scrollbar-thumb:hover {
-  background: #8b949e;
+  background: var(--md3-primary-light);
 }
 </style>

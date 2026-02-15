@@ -1,33 +1,33 @@
-/* Google MD3 Design System Variables */
+/* Swiss Design System Variables with Teal-Blue Color Scheme */
 :root {
   /* Colors */
-  --md3-primary: #6750A4;
-  --md3-primary-light: #8F75D9;
-  --md3-primary-dark: #4B3883;
-  --md3-primary-container: #EADDFF;
-  --md3-primary-container-light: #FFEBFF;
-  --md3-primary-container-dark: #D6BCFA;
-  --md3-secondary: #625B71;
-  --md3-secondary-light: #8B8698;
-  --md3-secondary-dark: #4A4458;
-  --md3-secondary-container: #E8E0F4;
-  --md3-secondary-container-light: #F6EDFF;
-  --md3-secondary-container-dark: #CCC4DA;
-  --md3-tertiary: #7D5260;
-  --md3-tertiary-light: #A87B89;
-  --md3-tertiary-dark: #593641;
-  --md3-tertiary-container: #FFD8E4;
-  --md3-tertiary-container-light: #FFEBF0;
-  --md3-tertiary-container-dark: #F3B8C6;
+  --md3-primary: #00B4AB; /* Teal-Blue main color */
+  --md3-primary-light: #7FFFD4; /* Light teal */
+  --md3-primary-dark: #006460; /* Dark teal */
+  --md3-primary-container: #E5FBF7; /* Light teal background */
+  --md3-primary-container-light: #F0FFFF; /* Very light teal */
+  --md3-primary-container-dark: #B3E8E3; /* Medium teal */
+  --md3-secondary: #006460; /* Dark teal as secondary */
+  --md3-secondary-light: #009E96; /* Medium dark teal */
+  --md3-secondary-dark: #00403D; /* Very dark teal */
+  --md3-secondary-container: #E5FBF7; /* Same as primary container */
+  --md3-secondary-container-light: #F0FFFF;
+  --md3-secondary-container-dark: #B3E8E3;
+  --md3-tertiary: #009E96; /* Medium dark teal as tertiary */
+  --md3-tertiary-light: #7FFFD4;
+  --md3-tertiary-dark: #006460;
+  --md3-tertiary-container: #E5FBF7;
+  --md3-tertiary-container-light: #F0FFFF;
+  --md3-tertiary-container-dark: #B3E8E3;
   --md3-surface: #FFFFFF;
   --md3-surface-light: #FFFFFF;
   --md3-surface-dark: #F5F5F5;
-  --md3-surface-variant: #E7E0EC;
-  --md3-surface-variant-light: #F5F0F8;
-  --md3-surface-variant-dark: #CDC4DA;
-  --md3-background: #F8F9FA;
+  --md3-surface-variant: #E7EFEF; /* Light teal-gray */
+  --md3-surface-variant-light: #F5FBFB;
+  --md3-surface-variant-dark: #D1E2E2;
+  --md3-background: #F8FAFA; /* Very light teal-gray */
   --md3-background-light: #FFFFFF;
-  --md3-background-dark: #E9ECEF;
+  --md3-background-dark: #E9F2F2;
   --md3-error: #B3261E;
   --md3-error-light: #DC2626;
   --md3-error-dark: #8C1D18;
@@ -37,13 +37,13 @@
 
   /* Text Colors */
   --md3-on-primary: #FFFFFF;
-  --md3-on-primary-container: #21005D;
+  --md3-on-primary-container: #00403D;
   --md3-on-secondary: #FFFFFF;
-  --md3-on-secondary-container: #1D192B;
+  --md3-on-secondary-container: #00403D;
   --md3-on-tertiary: #FFFFFF;
-  --md3-on-tertiary-container: #31111D;
+  --md3-on-tertiary-container: #00403D;
   --md3-on-surface: #1C1B1F;
-  --md3-on-surface-variant: #49454F;
+  --md3-on-surface-variant: #334141; /* Dark teal-gray */
   --md3-on-background: #1C1B1F;
   --md3-on-error: #FFFFFF;
   --md3-on-error-container: #410E0B;
@@ -61,22 +61,22 @@
   --md3-space-10: 40px;
 
   /* Border Radius */
-  --md3-radius-small: 4px;
-  --md3-radius-medium: 8px;
-  --md3-radius-large: 12px;
-  --md3-radius-xl: 16px;
-  --md3-radius-2xl: 20px;
+  --md3-radius-small: 2px; /* More angular for Swiss style */
+  --md3-radius-medium: 4px;
+  --md3-radius-large: 6px;
+  --md3-radius-xl: 8px;
+  --md3-radius-2xl: 12px;
   --md3-radius-full: 9999px;
 
   /* Elevation */
-  --md3-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
-  --md3-elevation-2: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 4px 1px rgba(0, 0, 0, 0.15);
-  --md3-elevation-3: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15);
-  --md3-elevation-4: 0 2px 4px rgba(0, 0, 0, 0.3), 0 6px 12px 4px rgba(0, 0, 0, 0.15);
-  --md3-elevation-5: 0 4px 6px rgba(0, 0, 0, 0.3), 0 8px 16px 6px rgba(0, 0, 0, 0.15);
+  --md3-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24); /* More subtle shadows for Swiss style */
+  --md3-elevation-2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  --md3-elevation-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  --md3-elevation-4: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  --md3-elevation-5: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
 
   /* Typography */
-  --md3-font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  --md3-font-family: 'Helvetica Neue', 'Arial', 'sans-serif'; /* Clean sans-serif for Swiss style */
   --md3-headline-large: 32px;
   --md3-headline-medium: 28px;
   --md3-headline-small: 24px;
@@ -94,6 +94,10 @@
   --md3-transition-short: 150ms cubic-bezier(0.2, 0, 0, 1);
   --md3-transition-medium: 200ms cubic-bezier(0.2, 0, 0, 1);
   --md3-transition-long: 250ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* Swiss Design Specific */
+  --md3-grid-unit: 4px; /* Base grid unit for Swiss design */
+  --md3-max-content-width: 1200px; /* Max width for content */
 }
 
 /* Dark Theme */
@@ -102,14 +106,14 @@
     --md3-surface: #1C1B1F;
     --md3-surface-light: #2D2B31;
     --md3-surface-dark: #19181B;
-    --md3-surface-variant: #49454F;
-    --md3-surface-variant-light: #5F5B68;
-    --md3-surface-variant-dark: #3A3641;
+    --md3-surface-variant: #2A3D3B; /* Dark teal-gray */
+    --md3-surface-variant-light: #3A4D4B;
+    --md3-surface-variant-dark: #1A2D2B;
     --md3-background: #121212;
     --md3-background-light: #1E1E1E;
     --md3-background-dark: #0A0A0A;
     --md3-on-surface: #E6E6E6;
-    --md3-on-surface-variant: #CDC4DA;
+    --md3-on-surface-variant: #B3E8E3; /* Teal-gray text */
     --md3-on-background: #E6E6E6;
   }
 }
@@ -124,19 +128,86 @@
 body {
   font-family: var(--md3-font-family);
   font-size: var(--md3-body-medium);
-  line-height: 1.5;
+  line-height: 1.4;
   color: var(--md3-on-surface);
   background-color: var(--md3-background);
   transition: background-color var(--md3-transition-medium), color var(--md3-transition-medium);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* MD3 Card Component */
+/* Swiss Design Grid System */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  max-width: var(--md3-max-content-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Swiss Design Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--md3-on-surface);
+}
+
+p {
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+/* Swiss Design Helper Classes */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+
+/* Swiss Design Layout */
+.container {
+  max-width: var(--md3-max-content-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8px;
+}
+
+.col {
+  flex: 1;
+  padding: 0 8px;
+}
+
+/* Swiss Design Card Component */
 .md3-card {
   background-color: var(--md3-surface);
-  border-radius: var(--md3-radius-large);
+  border-radius: var(--md3-radius-medium);
   box-shadow: var(--md3-elevation-1);
   padding: var(--md3-space-4);
   transition: box-shadow var(--md3-transition-medium);
+  border: 1px solid var(--md3-surface-variant);
 }
 
 .md3-card:hover {
@@ -145,6 +216,8 @@ body {
 
 .md3-card-header {
   margin-bottom: var(--md3-space-3);
+  border-bottom: 1px solid var(--md3-surface-variant);
+  padding-bottom: var(--md3-space-2);
 }
 
 .md3-card-title {
@@ -152,6 +225,7 @@ body {
   font-weight: 600;
   color: var(--md3-on-surface);
   margin-bottom: var(--md3-space-1);
+  letter-spacing: -0.02em;
 }
 
 .md3-card-subtitle {
@@ -167,9 +241,11 @@ body {
   display: flex;
   gap: var(--md3-space-3);
   justify-content: flex-end;
+  border-top: 1px solid var(--md3-surface-variant);
+  padding-top: var(--md3-space-3);
 }
 
-/* MD3 Button Component */
+/* Swiss Design Button Component */
 .md3-btn {
   display: inline-flex;
   align-items: center;
@@ -177,12 +253,14 @@ body {
   gap: var(--md3-space-2);
   padding: var(--md3-space-3) var(--md3-space-4);
   border: none;
-  border-radius: var(--md3-radius-full);
+  border-radius: var(--md3-radius-small);
   font-size: var(--md3-label-large);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--md3-transition-short);
   text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .md3-btn-primary {
@@ -193,6 +271,7 @@ body {
 .md3-btn-primary:hover {
   background-color: var(--md3-primary-light);
   box-shadow: var(--md3-elevation-2);
+  transform: translateY(-1px);
 }
 
 .md3-btn-secondary {
@@ -203,6 +282,7 @@ body {
 .md3-btn-secondary:hover {
   background-color: var(--md3-secondary-light);
   box-shadow: var(--md3-elevation-2);
+  transform: translateY(-1px);
 }
 
 .md3-btn-tertiary {
@@ -213,16 +293,18 @@ body {
 .md3-btn-tertiary:hover {
   background-color: var(--md3-tertiary-light);
   box-shadow: var(--md3-elevation-2);
+  transform: translateY(-1px);
 }
 
 .md3-btn-outline {
   background-color: transparent;
   color: var(--md3-primary);
-  border: 1px solid var(--md3-primary);
+  border: 2px solid var(--md3-primary);
 }
 
 .md3-btn-outline:hover {
-  background-color: rgba(103, 80, 164, 0.08);
+  background-color: rgba(0, 180, 171, 0.08);
+  transform: translateY(-1px);
 }
 
 .md3-btn-text {
@@ -231,7 +313,19 @@ body {
 }
 
 .md3-btn-text:hover {
-  background-color: rgba(103, 80, 164, 0.08);
+  background-color: rgba(0, 180, 171, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Swiss Design Button Sizes */
+.md3-btn-small {
+  padding: var(--md3-space-2) var(--md3-space-3);
+  font-size: var(--md3-label-medium);
+}
+
+.md3-btn-large {
+  padding: var(--md3-space-4) var(--md3-space-5);
+  font-size: var(--md3-body-large);
 }
 
 /* MD3 Input Component */
