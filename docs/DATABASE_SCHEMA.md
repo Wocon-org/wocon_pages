@@ -707,4 +707,11 @@ CREATE POLICY "Trip members are viewable by trip participants"
     SELECT id FROM public.trips
     WHERE owner_id = auth.uid() OR id IN (
       SELECT trip_id FROM public.trip_members
-      WHERE user_id = auth.uid
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Trip owners can manage members"
+  ON public.trip_members FOR INSERT
+  WITH CHECK (EXISTS (
