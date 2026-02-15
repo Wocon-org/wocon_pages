@@ -702,3 +702,9 @@ CREATE POLICY "Only trip owners can delete trips"
 
 -- Trip members RLS policies
 CREATE POLICY "Trip members are viewable by trip participants"
+  ON public.trip_members FOR SELECT
+  USING (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid
