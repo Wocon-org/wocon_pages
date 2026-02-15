@@ -42,4 +42,19 @@
 
 | Event | Payload | Description |
 |-------|---------|-------------|
-| `tabChange` | `'home' \| 'connections' \| 'search' \| 'discover
+| `tabChange` | `'home' \| 'connections' \| 'search' \| 'discover' \| 'plugins'` | Emitted when tab is changed |
+| `moreClick` | N/A | Emitted when more button is clicked |
+
+### TopBar Component
+
+#### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `switchLayer` | `'dark' \| 'satellite'` | Emitted when map layer is switched |
+
+### DiscoverPanel Component
+
+#### Props
+
+| Prop | Type |
