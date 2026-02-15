@@ -232,4 +232,17 @@ To deploy your own Wocon instance:
 4. **Build the project**
 5. **Deploy to Cloudflare Pages** or your preferred hosting provider
 
-Detailed instructions are available in `docs/deployment
+Detailed instructions are available in `docs/deployment.md`.
+
+### Can I deploy Wocon to other platforms besides Cloudflare Pages?
+
+Yes, Wocon can be deployed to any static hosting provider that supports:
+- **Node.js build process**
+- **Environment variables**
+- **HTTPS**
+
+Popular alternatives include Vercel, Netlify, and GitHub Pages.
+
+### How much does it cost to deploy Wocon?
+
+Wocon can be deployed for free using
