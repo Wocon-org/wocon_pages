@@ -174,6 +174,13 @@ onBeforeUnmount(() => {
     layers = null
   }
 })
+
+// 暴露方法给父组件
+defineExpose({
+  flyTo,
+  getUserLocation,
+  switchLayer
+})
 </script>
 
 <style>

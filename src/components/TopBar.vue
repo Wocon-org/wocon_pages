@@ -9,13 +9,20 @@ const handleLogoClick = () => {
 }
 
 const emit = defineEmits<{
-  switchLayer: [layer: 'dark' | 'satellite']
+  switchLayer: [layer: 'standard' | 'dark' | 'satellite']
 }>()
 
-const currentLayer = ref<'dark' | 'satellite'>('dark')
+const currentLayer = ref<'standard' | 'dark' | 'satellite'>('standard')
 
 const handleSwitchLayer = () => {
-  const newLayer: 'dark' | 'satellite' = currentLayer.value === 'dark' ? 'satellite' : 'dark'
+  let newLayer: 'standard' | 'dark' | 'satellite'
+  if (currentLayer.value === 'standard') {
+    newLayer = 'dark'
+  } else if (currentLayer.value === 'dark') {
+    newLayer = 'satellite'
+  } else {
+    newLayer = 'standard'
+  }
   currentLayer.value = newLayer
   emit('switchLayer', newLayer)
 }
@@ -36,26 +43,27 @@ const handleProfile = () => {
     </div>
 
     <nav class="top-bar-actions" role="navigation" aria-label="Top bar actions">
-      <!-- 图层切换按钮 -->
+      <!-- 地图图层切换按钮 -->
       <button
         class="action-btn"
         :class="{ active: currentLayer === 'satellite' }"
         @click="handleSwitchLayer"
-        :title="currentLayer === 'dark' ? 'Switch to Satellite View' : 'Switch to Dark View'"
+        :title="currentLayer === 'dark' ? 'Switch to Satellite Map' : 'Switch to Dark Map'"
         aria-label="Switch map layer"
         @keydown.enter="handleSwitchLayer"
         @keydown.space="handleSwitchLayer"
         tabindex="0"
       >
-        <!-- 深色模式图标 -->
-        <svg v-if="currentLayer === 'dark'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        <!-- 深色地图图标 -->
+        <svg v-if="currentLayer === 'dark' width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
         </svg>
-        <!-- 卫星模式图标 -->
+        <!-- 卫星地图图标 -->
         <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-          <line x1="8" y1="21" x2="16" y2="21" />
-          <line x1="12" y1="17" x2="12" y2="21" />
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21 15 16 10 5 21" />
         </svg>
       </button>
 
