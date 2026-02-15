@@ -698,4 +698,7 @@ CREATE POLICY "Trip owners and active partners can update trips"
 
 CREATE POLICY "Only trip owners can delete trips"
   ON public.trips FOR DELETE
-  USING (owner
+  USING (owner_id = auth.uid());
+
+-- Trip members RLS policies
+CREATE POLICY "Trip members are viewable by trip participants"
