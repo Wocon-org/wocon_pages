@@ -61,7 +61,7 @@ const getUserLocation = () => {
 
 // 切换地图图层
 const switchLayer = (layer: 'standard' | 'satellite' | 'dark') => {
-  if (!map || !layers) return
+  if (!map) return
 
   // 移除当前所有图层
   map.eachLayer((layer) => {
@@ -130,16 +130,17 @@ onMounted(() => {
 
     lightLayer.addTo(map)
 
-    const baseMaps = {
-      'Standard': lightLayer,
-      'Satellite': satelliteLayer,
-      'Dark': darkLayer
-    }
+    // 移除默认图层控制，使用TopBar中的切换功能
+    // const baseMaps = {
+    //   'Standard': lightLayer,
+    //   'Satellite': satelliteLayer,
+    //   'Dark': darkLayer
+    // }
 
-    layers = L.control.layers(baseMaps, undefined, {
-      position: 'topright',
-      collapsed: false
-    }).addTo(map)
+    // layers = L.control.layers(baseMaps, undefined, {
+    //   position: 'topright',
+    //   collapsed: false
+    // }).addTo(map)
 
     // 添加缩放控件
     L.control.zoom({

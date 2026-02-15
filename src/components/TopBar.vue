@@ -9,20 +9,13 @@ const handleLogoClick = () => {
 }
 
 const emit = defineEmits<{
-  switchLayer: [layer: 'standard' | 'dark' | 'satellite']
+  switchLayer: [layer: 'dark' | 'satellite']
 }>()
 
-const currentLayer = ref<'standard' | 'dark' | 'satellite'>('standard')
+const currentLayer = ref<'dark' | 'satellite'>('dark')
 
 const handleSwitchLayer = () => {
-  let newLayer: 'standard' | 'dark' | 'satellite'
-  if (currentLayer.value === 'standard') {
-    newLayer = 'dark'
-  } else if (currentLayer.value === 'dark') {
-    newLayer = 'satellite'
-  } else {
-    newLayer = 'standard'
-  }
+  const newLayer: 'dark' | 'satellite' = currentLayer.value === 'dark' ? 'satellite' : 'dark'
   currentLayer.value = newLayer
   emit('switchLayer', newLayer)
 }
