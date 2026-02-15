@@ -961,4 +961,6 @@ The schema is designed to support future extensions without major refactoring, i
 
 ## Migration Management
 
-### Best
+### Best Practices
+
+1. **Version Control**: Store all migration scripts in the `supabase/migrations
