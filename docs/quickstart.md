@@ -68,6 +68,4 @@ When you first open Wocon, you'll be greeted with an interactive world map. Here
 ## Next Steps
 
 - [Features](features.md): Learn about all available features in detail
-- [API Documentation](api.md): Explore the technical aspects of Wocon
-- [Tech Stack](tech-stack.md): Understand the technologies powering Wocon
 - [FAQ](faq.md): Find answers to common questions

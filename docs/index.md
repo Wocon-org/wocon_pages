@@ -19,16 +19,9 @@ Wocon 是一个专注于旅游社交的应用，帮助用户找到志同道合�
 - **开发工具**：VS Code、Trae、GitHub、TablePlus
 
 ## 文档导航
-- [安装指南](installation.md)：环境搭建和项目安装
 - [快速开始](quickstart.md)：首次使用指南
 - [功能说明](features.md)：详细功能介绍
-- [API文档](api.md)：组件和方法说明
-- [技术栈](tech-stack.md)：技术选型和集成
-- [OAuth指南](oauth.md)：第三方登录配置
-- [贡献指南](contributing.md)：开发规范和流程
 - [常见问题](faq.md)：使用问题解答
-- [部署指南](deployment.md)：生产环境部署
-- [更新记录](changelog.md)：版本变更历史
 
 ## 快速链接
 - [GitHub 仓库](https://github.com/wocon-org/wocon_pages)
