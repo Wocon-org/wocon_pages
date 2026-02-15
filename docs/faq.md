@@ -194,4 +194,31 @@ To suggest a new feature:
 
 ## Contribution
 
-### How can I contribute to Wocon
+### How can I contribute to Wocon?
+
+To contribute to Wocon:
+1. **Read the contributing guide** in `docs/contributing.md`
+2. **Fork the repository** on GitHub
+3. **Create a branch** for your contribution
+4. **Make changes** following the project's code style
+5. **Submit a pull request** with a detailed description
+
+### What kind of contributions are welcome?
+
+Wocon welcomes contributions including:
+- **Bug fixes**
+- **New features**
+- **Documentation improvements**
+- **Performance optimizations**
+- **UI/UX enhancements**
+
+### Do I need to follow any coding standards?
+
+Yes, contributors should follow:
+- **TypeScript** best practices
+- **Vue 3 Composition API** for new components
+- **MD3 Design System** for UI elements
+- **Conventional commit messages**
+- **Code linting** and **type checking**
+
+## Deployment
