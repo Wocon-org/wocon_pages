@@ -165,7 +165,6 @@ const handleSearchResult = (result: any) => {
     <Sidebar
       :activeTab="activeTab"
       @tabChange="handleTabChange"
-      @moreClick="handleMoreClick"
     />
 
     <!-- 面板容器 -->
