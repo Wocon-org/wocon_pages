@@ -1,1 +1,463 @@
--- ============================================\n-- wocon Database Schema Update for Supabase\n-- ============================================\n\n-- Enable UUID extension if not exists\nCREATE EXTENSION IF NOT EXISTS "uuid-ossp";\n\n-- Enable pg_trgm extension for better search\nCREATE EXTENSION IF NOT EXISTS pg_trgm;\n\n-- ============================================\n-- PROFILES TABLE (UPDATE)\n-- ============================================\n-- Remove unnecessary columns if they exist\nDO $$\nBEGIN\n  -- Remove score if exists\n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'score'\n  ) THEN\n    ALTER TABLE public.profiles DROP COLUMN score;\n  END IF;\n  \n  -- Remove bio if exists\n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'bio'\n  ) THEN\n    ALTER TABLE public.profiles DROP COLUMN bio;\n  END IF;\n  \n  -- Remove email if exists (email should come from auth.users)\n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'email'\n  ) THEN\n    ALTER TABLE public.profiles DROP COLUMN email;\n  END IF;\n  \n  -- Ensure avatar_url exists\n  IF NOT EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'avatar_url'\n  ) THEN\n    ALTER TABLE public.profiles ADD COLUMN avatar_url TEXT;\n  END IF;\n  \n  -- Remove updated_at if exists (not in new schema)\n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'updated_at'\n  ) THEN\n    ALTER TABLE public.profiles DROP COLUMN updated_at;\n  END IF;\nEND $$;\n\n-- ============================================\n-- CITIES TABLE (CREATE)\n-- ============================================\nCREATE TABLE IF NOT EXISTS public.cities (\n  geonameid BIGINT PRIMARY KEY,\n  name TEXT,\n  asciiname TEXT,\n  alternatenames TEXT,\n  latitude DOUBLE PRECISION,\n  longitude DOUBLE PRECISION,\n  feature_class TEXT,\n  feature_code TEXT,\n  country_code TEXT,\n  admin1 TEXT,\n  population BIGINT,\n  timezone TEXT,\n  modification_date DATE\n);\n\n-- Create indexes for cities\nCREATE INDEX IF NOT EXISTS cities_name_idx ON cities(name);\nCREATE INDEX IF NOT EXISTS cities_asciiname_idx ON cities(asciiname);\nCREATE INDEX IF NOT EXISTS cities_lat_lng_idx ON cities(latitude, longitude);\nCREATE INDEX IF NOT EXISTS cities_name_trgm ON cities USING gin (name gin_trgm_ops);\n\n-- Enable RLS for cities (read-only)\nALTER TABLE public.cities ENABLE ROW LEVEL SECURITY;\n\n-- Create policy for cities\nCREATE POLICY "Cities are viewable by everyone"\n  ON public.cities FOR SELECT\n  USING (true);\n\n-- ============================================\n-- TRIPS TABLE (UPDATE)\n-- ============================================\n-- Rename name to title\nDO $$\nBEGIN\n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'name'\n  ) AND NOT EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'title'\n  ) THEN\n    ALTER TABLE public.trips RENAME COLUMN name TO title;\n  END IF;\n  \n  -- Remove unnecessary columns\n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'description'\n  ) THEN\n    ALTER TABLE public.trips DROP COLUMN description;\n  END IF;\n  \n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'type'\n  ) THEN\n    ALTER TABLE public.trips DROP COLUMN type;\n  END IF;\n  \n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'max_participants'\n  ) THEN\n    ALTER TABLE public.trips DROP COLUMN max_participants;\n  END IF;\n  \n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'cover_image_url'\n  ) THEN\n    ALTER TABLE public.trips DROP COLUMN cover_image_url;\n  END IF;\n  \n  IF EXISTS (\n    SELECT 1 FROM information_schema.columns\n    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'updated_at'\n  ) THEN\n    ALTER TABLE public.trips DROP COLUMN updated_at;\n  END IF;\nEND $$;\n\n-- Update RLS policies for trips\nDROP POLICY IF EXISTS "Public trips are viewable by everyone" ON public.trips;\nDROP POLICY IF EXISTS "Users can create their own trips" ON public.trips;\nDROP POLICY IF EXISTS "Users can update own trips" ON public.trips;\nDROP POLICY IF EXISTS "Users can delete own trips" ON public.trips;\n\nCREATE POLICY "Public trips are viewable by everyone"\n  ON public.trips FOR SELECT\n  USING (is_public = true OR owner_id = auth.uid() OR EXISTS (\n    SELECT 1 FROM public.trip_members\n    WHERE trip_members.trip_id = trips.id\n    AND trip_members.user_id = auth.uid()\n    AND trip_members.status = 'active'\n  ));\n\nCREATE POLICY "Users can create their own trips"\n  ON public.trips FOR INSERT\n  WITH CHECK (auth.uid() = owner_id);\n\nCREATE POLICY "Trip owners and active partners can update trips"\n  ON public.trips FOR UPDATE\n  USING (owner_id = auth.uid() OR EXISTS (\n    SELECT 1 FROM public.trip_members\n    WHERE trip_members.trip_id = trips.id\n    AND trip_members.user_id = auth.uid()\n    AND trip_members.role IN ('owner', 'partner')\n    AND trip_members.status = 'active'\n  ));\n\nCREATE POLICY "Only trip owners can delete trips"\n  ON public.trips FOR DELETE\n  USING (owner_id = auth.uid());\n\n-- ============================================\n-- TRIP_MEMBERS TABLE (CREATE)\n-- ============================================\nCREATE TABLE IF NOT EXISTS public.trip_members (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,\n  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,\n  role TEXT CHECK (role IN ('owner','partner')),\n  status TEXT CHECK (status IN ('active','left')),\n  joined_at TIMESTAMP DEFAULT now(),\n  UNIQUE(trip_id, user_id)\n);\n\n-- Enable RLS\nALTER TABLE public.trip_members ENABLE ROW LEVEL SECURITY;\n\n-- Create policies\nCREATE POLICY "Trip members are viewable by trip participants"\n  ON public.trip_members FOR SELECT\n  USING (trip_id IN (\n    SELECT id FROM public.trips\n    WHERE owner_id = auth.uid() OR id IN (\n      SELECT trip_id FROM public.trip_members\n      WHERE user_id = auth.uid()\n      AND status = 'active'\n    )\n  ));\n\nCREATE POLICY "Trip owners can manage members"\n  ON public.trip_members FOR INSERT\n  WITH CHECK (EXISTS (\n    SELECT 1 FROM public.trips\n    WHERE id = trip_members.trip_id\n    AND owner_id = auth.uid()\n  ));\n\nCREATE POLICY "Trip members can update their status"\n  ON public.trip_members FOR UPDATE\n  USING (user_id = auth.uid() OR EXISTS (\n    SELECT 1 FROM public.trips\n    WHERE id = trip_members.trip_id\n    AND owner_id = auth.uid()\n  ));\n\n-- Create indexes\nCREATE INDEX IF NOT EXISTS trip_members_trip_idx ON trip_members(trip_id);\nCREATE INDEX IF NOT EXISTS trip_members_user_idx ON trip_members(user_id);\n\n-- ============================================\n-- TRIP_ITEMS TABLE (CREATE)\n-- ============================================\nCREATE TABLE IF NOT EXISTS public.trip_items (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,\n  city_id BIGINT REFERENCES cities(geonameid),\n  order_index INTEGER,\n  note TEXT,\n  created_at TIMESTAMP DEFAULT now()\n);\n\n-- Enable RLS\nALTER TABLE public.trip_items ENABLE ROW LEVEL SECURITY;\n\n-- Create policies\nCREATE POLICY "Trip items are viewable by trip participants"\n  ON public.trip_items FOR SELECT\n  USING (trip_id IN (\n    SELECT id FROM public.trips\n    WHERE is_public = true OR owner_id = auth.uid() OR id IN (\n      SELECT trip_id FROM public.trip_members\n      WHERE user_id = auth.uid()\n      AND status = 'active'\n    )\n  ));\n\nCREATE POLICY "Trip participants can create items"\n  ON public.trip_items FOR INSERT\n  WITH CHECK (trip_id IN (\n    SELECT id FROM public.trips\n    WHERE owner_id = auth.uid() OR id IN (\n      SELECT trip_id FROM public.trip_members\n      WHERE user_id = auth.uid()\n      AND status = 'active'\n    )\n  ));\n\nCREATE POLICY "Trip participants can update items"\n  ON public.trip_items FOR UPDATE\n  USING (trip_id IN (\n    SELECT id FROM public.trips\n    WHERE owner_id = auth.uid() OR id IN (\n      SELECT trip_id FROM public.trip_members\n      WHERE user_id = auth.uid()\n      AND status = 'active'\n    )\n  ));\n\n-- Create index\nCREATE INDEX IF NOT EXISTS trip_items_trip_idx ON trip_items(trip_id);\n\n-- ============================================\n-- COMMENTS TABLE (CREATE)\n-- ============================================\nCREATE TABLE IF NOT EXISTS public.comments (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,\n  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,\n  parent_id UUID REFERENCES comments(id) ON DELETE CASCADE,\n  content TEXT NOT NULL,\n  created_at TIMESTAMP DEFAULT now()\n);\n\n-- Enable RLS\nALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;\n\n-- Create policies\nCREATE POLICY "Comments on public trips are viewable by everyone"\n  ON public.comments FOR SELECT\n  USING (trip_id IN (\n    SELECT id FROM public.trips\n    WHERE is_public = true OR owner_id = auth.uid() OR id IN (\n      SELECT trip_id FROM public.trip_members\n      WHERE user_id = auth.uid()\n      AND status = 'active'\n    )\n  ));\n\nCREATE POLICY "Users can create comments on trips they participate in"\n  ON public.comments FOR INSERT\n  WITH CHECK (trip_id IN (\n    SELECT id FROM public.trips\n    WHERE owner_id = auth.uid() OR id IN (\n      SELECT trip_id FROM public.trip_members\n      WHERE user_id = auth.uid()\n      AND status = 'active'\n    )\n  ));\n\nCREATE POLICY "Users can delete their own comments"\n  ON public.comments FOR DELETE\n  USING (user_id = auth.uid());\n\n-- Create index\nCREATE INDEX IF NOT EXISTS comments_trip_idx ON comments(trip_id, created_at);\n\n-- ============================================\n-- TRIP_LIKES TABLE (CREATE)\n-- ============================================\nCREATE TABLE IF NOT EXISTS public.trip_likes (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,\n  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,\n  created_at TIMESTAMP DEFAULT now(),\n  UNIQUE(trip_id, user_id)\n);\n\n-- Enable RLS\nALTER TABLE public.trip_likes ENABLE ROW LEVEL SECURITY;\n\n-- Create policies\nCREATE POLICY "Trip likes are viewable by everyone"\n  ON public.trip_likes FOR SELECT\n  USING (true);\n\nCREATE POLICY "Users can insert their own likes"\n  ON public.trip_likes FOR INSERT\n  WITH CHECK (user_id = auth.uid());\n\nCREATE POLICY "Users can delete their own likes"\n  ON public.trip_likes FOR DELETE\n  USING (user_id = auth.uid());\n\n-- ============================================\n-- FRIENDSHIPS TABLE (CREATE)\n-- ============================================\nCREATE TABLE IF NOT EXISTS public.friendships (\n  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),\n  requester_id UUID REFERENCES profiles(id) ON DELETE CASCADE,\n  addressee_id UUID REFERENCES profiles(id) ON DELETE CASCADE,\n  status TEXT CHECK (status IN ('pending','accepted','rejected')),\n  created_at TIMESTAMP DEFAULT now(),\n  UNIQUE(requester_id, addressee_id)\n);\n\n-- Enable RLS\nALTER TABLE public.friendships ENABLE ROW LEVEL SECURITY;\n\n-- Create policies\nCREATE POLICY "Friendships are viewable by involved users"\n  ON public.friendships FOR SELECT\n  USING (requester_id = auth.uid() OR addressee_id = auth.uid());\n\nCREATE POLICY "Users can send friend requests"\n  ON public.friendships FOR INSERT\n  WITH CHECK (requester_id = auth.uid());\n\nCREATE POLICY "Users can update their own friend requests"\n  ON public.friendships FOR UPDATE\n  USING (addressee_id = auth.uid());\n\n-- ============================================\n-- FUNCTIONS & TRIGGERS\n-- ============================================\n\n-- Update handle_new_user function\nCREATE OR REPLACE FUNCTION public.handle_new_user()\nRETURNS TRIGGER AS $$\nBEGIN\n  INSERT INTO public.profiles (id, username, nickname, avatar_url)\n  VALUES (\n    NEW.id,\n    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),\n    COALESCE(NEW.raw_user_meta_data->>'nickname', NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),\n    NEW.raw_user_meta_data->>'avatar_url'\n  );\n  RETURN NEW;\nEND;\n$$ LANGUAGE plpgsql SECURITY DEFINER;\n\n-- ============================================\n-- RPC FUNCTIONS\n-- ============================================\n\n-- Function to get profile by username\nCREATE OR REPLACE FUNCTION public.get_profile_by_username(username TEXT)\nRETURNS SETOF public.profiles\nLANGUAGE sql\nSECURITY DEFINER\nAS $$\n  SELECT * FROM public.profiles WHERE username = get_profile_by_username.username;\n$$;\n\n-- Function for discover functionality\nCREATE OR REPLACE FUNCTION public.discover_city()\nRETURNS SETOF public.cities\nLANGUAGE sql\nSECURITY DEFINER\nAS $$\n  SELECT *\n  FROM cities\n  WHERE geonameid >= (\n    SELECT floor(random() * (SELECT max(geonameid) FROM cities))\n  )\n  LIMIT 1;\n$$;\n\n-- Grant permissions\nGRANT EXECUTE ON FUNCTION public.get_profile_by_username(TEXT) TO authenticated;\nGRANT EXECUTE ON FUNCTION public.discover_city() TO authenticated;\nGRANT EXECUTE ON FUNCTION public.discover_city() TO anon;\n\n-- ============================================\n-- CLEANUP\n-- ============================================\n\n-- Drop old tables if they exist\nDROP TABLE IF EXISTS public.trip_participants;\nDROP TABLE IF EXISTS public.map_markers;\nDROP TABLE IF EXISTS public.routes;\n\n-- Drop old views\nDROP VIEW IF EXISTS public.trips_with_participants;\n\n-- Drop old functions if they exist\nDROP FUNCTION IF EXISTS public.search_cities(TEXT);\n\n-- ============================================\n-- VIEWS\n-- ============================================\n\n-- View: Get trip with member count\nCREATE OR REPLACE VIEW public.trips_with_members AS\nSELECT\n  t.*,\n  COUNT(tm.id) FILTER (WHERE tm.status = 'active') AS member_count,\n  json_agg(\n    json_build_object(\n      'id', p.id,\n      'username', p.username,\n      'avatar_url', p.avatar_url,\n      'role', tm.role\n    )\n  ) FILTER (WHERE tm.status = 'active') AS members\nFROM public.trips t\nLEFT JOIN public.trip_members tm ON t.id = tm.trip_id\nLEFT JOIN public.profiles p ON tm.user_id = p.id\nGROUP BY t.id\nORDER BY t.created_at DESC;
+-- ============================================
+-- wocon Database Schema Update for Supabase
+-- ============================================
+
+-- Enable UUID extension if not exists
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Enable pg_trgm extension for better search
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- ============================================
+-- CLEANUP (MOVE TO FRONT)
+-- ============================================
+
+-- Drop old views BEFORE altering tables they depend on
+DROP VIEW IF EXISTS public.trips_with_participants;
+DROP VIEW IF EXISTS public.user_friends;
+
+-- Drop old tables if they exist
+DROP TABLE IF EXISTS public.trip_participants CASCADE;
+DROP TABLE IF EXISTS public.map_markers CASCADE;
+DROP TABLE IF EXISTS public.routes CASCADE;
+
+-- Drop old functions if they exist
+DROP FUNCTION IF EXISTS public.search_cities(TEXT);
+
+-- ============================================
+-- PROFILES TABLE (UPDATE)
+-- ============================================
+-- Remove unnecessary columns if they exist
+DO $$
+BEGIN
+  -- Remove score if exists
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'score'
+  ) THEN
+    ALTER TABLE public.profiles DROP COLUMN score CASCADE;
+  END IF;
+  
+  -- Remove bio if exists
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'bio'
+  ) THEN
+    ALTER TABLE public.profiles DROP COLUMN bio CASCADE;
+  END IF;
+  
+  -- Remove email if exists (email should come from auth.users)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'email'
+  ) THEN
+    ALTER TABLE public.profiles DROP COLUMN email CASCADE;
+  END IF;
+  
+  -- Ensure avatar_url exists
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'avatar_url'
+  ) THEN
+    ALTER TABLE public.profiles ADD COLUMN avatar_url TEXT;
+  END IF;
+  
+  -- Remove updated_at if exists (not in new schema)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'updated_at'
+  ) THEN
+    ALTER TABLE public.profiles DROP COLUMN updated_at CASCADE;
+  END IF;
+END $$;
+
+-- ============================================
+-- CITIES TABLE (CREATE)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.cities (
+  geonameid BIGINT PRIMARY KEY,
+  name TEXT,
+  asciiname TEXT,
+  alternatenames TEXT,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  feature_class TEXT,
+  feature_code TEXT,
+  country_code TEXT,
+  admin1 TEXT,
+  population BIGINT,
+  timezone TEXT,
+  modification_date DATE
+);
+
+-- Create indexes for cities
+CREATE INDEX IF NOT EXISTS cities_name_idx ON cities(name);
+CREATE INDEX IF NOT EXISTS cities_asciiname_idx ON cities(asciiname);
+CREATE INDEX IF NOT EXISTS cities_lat_lng_idx ON cities(latitude, longitude);
+CREATE INDEX IF NOT EXISTS cities_name_trgm ON cities USING gin (name gin_trgm_ops);
+
+-- Enable RLS for cities (read-only)
+ALTER TABLE public.cities ENABLE ROW LEVEL SECURITY;
+
+-- Create policy for cities
+CREATE POLICY "Cities are viewable by everyone"
+  ON public.cities FOR SELECT
+  USING (true);
+
+-- ============================================
+-- TRIPS TABLE (UPDATE)
+-- ============================================
+-- Rename name to title
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'name'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'title'
+  ) THEN
+    ALTER TABLE public.trips RENAME COLUMN name TO title;
+  END IF;
+  
+  -- Remove unnecessary columns with CASCADE
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'description'
+  ) THEN
+    ALTER TABLE public.trips DROP COLUMN description CASCADE;
+  END IF;
+  
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'type'
+  ) THEN
+    ALTER TABLE public.trips DROP COLUMN type CASCADE;
+  END IF;
+  
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'max_participants'
+  ) THEN
+    ALTER TABLE public.trips DROP COLUMN max_participants CASCADE;
+  END IF;
+  
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'cover_image_url'
+  ) THEN
+    ALTER TABLE public.trips DROP COLUMN cover_image_url CASCADE;
+  END IF;
+  
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'trips' AND column_name = 'updated_at'
+  ) THEN
+    ALTER TABLE public.trips DROP COLUMN updated_at CASCADE;
+  END IF;
+END $$;
+
+-- Drop existing RLS policies for trips (will recreate later)
+DROP POLICY IF EXISTS "Public trips are viewable by everyone" ON public.trips;
+DROP POLICY IF EXISTS "Users can create their own trips" ON public.trips;
+DROP POLICY IF EXISTS "Users can update own trips" ON public.trips;
+DROP POLICY IF EXISTS "Users can delete own trips" ON public.trips;
+
+-- ============================================
+-- TRIP_MEMBERS TABLE (CREATE)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.trip_members (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  role TEXT CHECK (role IN ('owner','partner')),
+  status TEXT CHECK (status IN ('active','left')),
+  joined_at TIMESTAMP DEFAULT now(),
+  UNIQUE(trip_id, user_id)
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS trip_members_trip_idx ON trip_members(trip_id);
+CREATE INDEX IF NOT EXISTS trip_members_user_idx ON trip_members(user_id);
+
+-- ============================================
+-- TRIP_ITEMS TABLE (CREATE)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.trip_items (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,
+  city_id BIGINT REFERENCES cities(geonameid),
+  order_index INTEGER,
+  note TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+-- Create index
+CREATE INDEX IF NOT EXISTS trip_items_trip_idx ON trip_items(trip_id);
+
+-- ============================================
+-- COMMENTS TABLE (CREATE)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.comments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  parent_id UUID REFERENCES comments(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+-- Create index
+CREATE INDEX IF NOT EXISTS comments_trip_idx ON comments(trip_id, created_at);
+
+-- ============================================
+-- TRIP_LIKES TABLE (CREATE)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.trip_likes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  trip_id UUID REFERENCES trips(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT now(),
+  UNIQUE(trip_id, user_id)
+);
+
+-- ============================================
+-- FRIENDSHIPS TABLE (CREATE)
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.friendships (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  requester_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  addressee_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  status TEXT CHECK (status IN ('pending','accepted','rejected')),
+  created_at TIMESTAMP DEFAULT now(),
+  UNIQUE(requester_id, addressee_id)
+);
+
+-- ============================================
+-- RLS POLICIES (AFTER ALL TABLES CREATED)
+-- ============================================
+
+-- Enable RLS for all tables
+ALTER TABLE public.trip_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.trip_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.trip_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.friendships ENABLE ROW LEVEL SECURITY;
+
+-- Trips RLS policies
+CREATE POLICY "Public trips are viewable by everyone"
+  ON public.trips FOR SELECT
+  USING (is_public = true OR owner_id = auth.uid() OR EXISTS (
+    SELECT 1 FROM public.trip_members
+    WHERE trip_members.trip_id = trips.id
+    AND trip_members.user_id = auth.uid()
+    AND trip_members.status = 'active'
+  ));
+
+CREATE POLICY "Users can create their own trips"
+  ON public.trips FOR INSERT
+  WITH CHECK (auth.uid() = owner_id);
+
+CREATE POLICY "Trip owners and active partners can update trips"
+  ON public.trips FOR UPDATE
+  USING (owner_id = auth.uid() OR EXISTS (
+    SELECT 1 FROM public.trip_members
+    WHERE trip_members.trip_id = trips.id
+    AND trip_members.user_id = auth.uid()
+    AND trip_members.role IN ('owner', 'partner')
+    AND trip_members.status = 'active'
+  ));
+
+CREATE POLICY "Only trip owners can delete trips"
+  ON public.trips FOR DELETE
+  USING (owner_id = auth.uid());
+
+-- Trip members RLS policies
+CREATE POLICY "Trip members are viewable by trip participants"
+  ON public.trip_members FOR SELECT
+  USING (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Trip owners can manage members"
+  ON public.trip_members FOR INSERT
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM public.trips
+    WHERE id = trip_members.trip_id
+    AND owner_id = auth.uid()
+  ));
+
+CREATE POLICY "Trip members can update their status"
+  ON public.trip_members FOR UPDATE
+  USING (user_id = auth.uid() OR EXISTS (
+    SELECT 1 FROM public.trips
+    WHERE id = trip_members.trip_id
+    AND owner_id = auth.uid()
+  ));
+
+-- Trip items RLS policies
+CREATE POLICY "Trip items are viewable by trip participants"
+  ON public.trip_items FOR SELECT
+  USING (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE is_public = true OR owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Trip participants can create items"
+  ON public.trip_items FOR INSERT
+  WITH CHECK (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Trip participants can update items"
+  ON public.trip_items FOR UPDATE
+  USING (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+-- Comments RLS policies
+CREATE POLICY "Comments on public trips are viewable by everyone"
+  ON public.comments FOR SELECT
+  USING (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE is_public = true OR owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Users can create comments on trips they participate in"
+  ON public.comments FOR INSERT
+  WITH CHECK (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Users can delete their own comments"
+  ON public.comments FOR DELETE
+  USING (user_id = auth.uid());
+
+-- Trip likes RLS policies
+CREATE POLICY "Trip likes are viewable by everyone"
+  ON public.trip_likes FOR SELECT
+  USING (true);
+
+CREATE POLICY "Users can insert their own likes"
+  ON public.trip_likes FOR INSERT
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can delete their own likes"
+  ON public.trip_likes FOR DELETE
+  USING (user_id = auth.uid());
+
+-- Friendships RLS policies
+CREATE POLICY "Friendships are viewable by involved users"
+  ON public.friendships FOR SELECT
+  USING (requester_id = auth.uid() OR addressee_id = auth.uid());
+
+CREATE POLICY "Users can send friend requests"
+  ON public.friendships FOR INSERT
+  WITH CHECK (requester_id = auth.uid());
+
+CREATE POLICY "Users can update their own friend requests"
+  ON public.friendships FOR UPDATE
+  USING (addressee_id = auth.uid());
+
+-- ============================================
+-- FUNCTIONS & TRIGGERS
+-- ============================================
+
+-- Update handle_new_user function
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, username, nickname, avatar_url)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'nickname', NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    NEW.raw_user_meta_data->>'avatar_url'
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================
+-- RPC FUNCTIONS
+-- ============================================
+
+-- Function to get profile by username
+DROP FUNCTION IF EXISTS public.get_profile_by_username(TEXT);
+CREATE FUNCTION public.get_profile_by_username(username TEXT)
+RETURNS SETOF public.profiles
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT * FROM public.profiles WHERE username = get_profile_by_username.username;
+$$;
+
+-- Function for discover functionality
+CREATE OR REPLACE FUNCTION public.discover_city()
+RETURNS SETOF public.cities
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT *
+  FROM cities
+  WHERE geonameid >= (
+    SELECT floor(random() * (SELECT max(geonameid) FROM cities))
+  )
+  LIMIT 1;
+$$;
+
+-- Grant permissions
+GRANT EXECUTE ON FUNCTION public.get_profile_by_username(TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.discover_city() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.discover_city() TO anon;
+
+-- ============================================
+-- VIEWS
+-- ============================================
+
+-- View: Get trip with member count
+CREATE OR REPLACE VIEW public.trips_with_members AS
+SELECT
+  t.*,
+  COUNT(tm.id) FILTER (WHERE tm.status = 'active') AS member_count,
+  json_agg(
+    json_build_object(
+      'id', p.id,
+      'username', p.username,
+      'avatar_url', p.avatar_url,
+      'role', tm.role
+    )
+  ) FILTER (WHERE tm.status = 'active') AS members
+FROM public.trips t
+LEFT JOIN public.trip_members tm ON t.id = tm.trip_id
+LEFT JOIN public.profiles p ON tm.user_id = p.id
+GROUP BY t.id
+ORDER BY t.created_at DESC;

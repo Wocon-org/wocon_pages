@@ -89,15 +89,15 @@ const discoverPlace = async () => {
         // 显示发现消息
         discoverMessage.value = `Discovering ${currentPlace.value.name}, ${currentPlace.value.country_code}...`
         showDiscoverMessage.value = true
-        
+
         // 1.5秒后隐藏消息
         setTimeout(() => {
           showDiscoverMessage.value = false
         }, 1500)
-        
+
         // 触发父组件事件
         emit('discover-place', currentPlace.value)
-        
+
         // 同时触发全局事件，确保地图能够接收到
         const event = new CustomEvent('discover-place', {
           detail: currentPlace.value

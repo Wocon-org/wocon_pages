@@ -63,22 +63,22 @@ interface SearchOptions {
 function calculateSimilarity(str1: string, str2: string): number {
   const s1 = str1.toLowerCase()
   const s2 = str2.toLowerCase()
-  
+
   // 完全匹配
   if (s1 === s2) return 1.0
-  
+
   // 前缀匹配
   if (s1.startsWith(s2) || s2.startsWith(s1)) return 0.9
-  
+
   // 包含关系
   if (s1.includes(s2) || s2.includes(s1)) return 0.8
-  
+
   // 计算字符匹配率
   let matchCount = 0
   for (const char of s1) {
     if (s2.includes(char)) matchCount++
   }
-  
+
   return matchCount / Math.max(s1.length, s2.length)
 }
 
@@ -99,7 +99,7 @@ function setCachedSearch(query: string, results: any[]): void {
     results,
     timestamp: Date.now()
   })
-  
+
   // 限制缓存大小
   if (searchCache.size > 50) {
     const oldestKey = searchCache.keys().next().value
@@ -281,7 +281,7 @@ export async function searchEverything(query: string, options: SearchOptions = {
 
   // 合并结果并按相关性排序
   const allResults = [...cities, ...trips]
-  
+
   // 计算综合相关性分数
   allResults.forEach(result => {
     if (result.type === 'destination') {
@@ -289,7 +289,7 @@ export async function searchEverything(query: string, options: SearchOptions = {
     } else {
       // 为行程计算分数
       const trip = result as TripSearchResult
-      trip['score'] = calculateSimilarity(query, trip.title) * 0.7 + 
+      trip['score'] = calculateSimilarity(query, trip.title) * 0.7 +
                       (trip.subtitle ? calculateSimilarity(query, trip.subtitle) * 0.3 : 0)
     }
   })

@@ -261,34 +261,34 @@ const sidebarItems = [
     background: var(--md3-surface);
     border-right: 1px solid var(--md3-surface-variant);
   }
-  
+
   .sidebar-item {
     background: var(--md3-surface-variant);
     color: var(--md3-on-surface-variant);
   }
-  
+
   .sidebar-item:hover,
   .sidebar-item:focus-visible {
     background: var(--md3-primary-container);
     color: var(--md3-primary);
   }
-  
+
   .sidebar-item.active {
     background: var(--md3-primary);
     color: var(--md3-on-primary);
   }
-  
+
   .sidebar-more {
     background: var(--md3-surface-variant);
     color: var(--md3-on-surface-variant);
   }
-  
+
   .sidebar-more:hover,
   .sidebar-more:focus-visible {
     background: var(--md3-primary-container);
     color: var(--md3-primary);
   }
-  
+
   .sidebar-item[title]:hover::after,
   .sidebar-more[title]:hover::after {
     background: var(--md3-surface);

@@ -187,17 +187,17 @@ const handleProfile = () => {
     background: var(--md3-surface);
     border-bottom: 1px solid var(--md3-surface-variant);
   }
-  
+
   .logo-text {
     background: linear-gradient(135deg, var(--md3-primary-light) 0%, var(--md3-primary) 100%);
   }
-  
+
   .action-btn {
     background: var(--md3-surface-variant);
     border: 1px solid var(--md3-surface-variant-dark);
     color: var(--md3-on-surface);
   }
-  
+
   .action-btn:hover,
   .action-btn:focus-visible {
     background: var(--md3-primary-container);
