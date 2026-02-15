@@ -305,4 +305,14 @@ if ('geolocation' in navigator) {
 
 ```typescript
 // Listen for discover-place event
-window.addEventListener('discover-place', (
+window.addEventListener('discover-place', (e: CustomEvent) => {
+  const place = e.detail;
+  // Handle discovered place
+});
+
+// Dispatch custom event
+const event = new CustomEvent('trip-click', {
+  detail: tripId
+});
+window.dispatchEvent(event);
+```
