@@ -325,4 +325,32 @@ window.dispatchEvent(event);
 |------------|---------|----------|
 | Location Access | `PositionError: User denied Geolocation` | Request location permission again |
 | Network | `Error: Network error` | Check internet connection |
-| Supabase | `Error: Database connection failed` |
+| Supabase | `Error: Database connection failed` | Verify Supabase credentials |
+| Leaflet | `Error: Map container not found` | Ensure map container exists |
+
+### Error Boundary
+
+```typescript
+try {
+  // API call or map operation
+} catch (error) {
+  console.error('Operation failed:', error);
+  // Show user-friendly error message
+}
+```
+
+## Performance Optimization
+
+### Map Rendering
+
+- **Marker Clustering**: Use marker clustering for large datasets
+- **Layer Management**: Only load visible layers
+- **Debouncing**: Debounce map events for better performance
+- **Lazy Loading**: Lazy load map components when needed
+
+### API Requests
+
+- **Caching**: Cache frequent API responses
+- **Pagination**: Use pagination for large result sets
+- **Batch Requests**: Combine multiple requests when possible
+- **Error Retry**: Implement exponential backoff for failed requests
