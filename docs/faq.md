@@ -245,4 +245,7 @@ Popular alternatives include Vercel, Netlify, and GitHub Pages.
 
 ### How much does it cost to deploy Wocon?
 
-Wocon can be deployed for free using
+Wocon can be deployed for free using:
+- **Supabase Free Tier**: Up to 50,000 API calls and 1GB database
+- **Cloudflare Pages Free Tier**: Unlimited sites and bandwidth
+
