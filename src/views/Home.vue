@@ -33,12 +33,22 @@ const worldMapRef = ref<any>()
 
 // 处理 tab 切换
 const handleTabChange = async (tab: TabType) => {
+  // 重置对应面板的显示状态
+  if (tab === 'connections') {
+    showConnectionsPanel.value = true
+  } else if (tab === 'search') {
+    showSearchBar.value = true
+  } else if (tab === 'plugins') {
+    showPluginPanel.value = true
+  } else if (tab === 'discover') {
+    showDiscoverPanel.value = true
+  }
+
   // Search 特殊处理：切换显示/隐藏
   if (tab === 'search') {
     if (activeTab.value === 'search') {
       // 当前已经是search，则关闭
       activeTab.value = 'home'
-      showSearchBar.value = true
     } else {
       // 切换到search
       activeTab.value = 'search'
