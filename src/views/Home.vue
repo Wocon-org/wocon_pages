@@ -98,7 +98,7 @@ const handleMarkerClick = async (tripId: string) => {
 
 // 处理图层切换
 const handleSwitchLayer = (layer: 'dark' | 'satellite') => {
-  // worldMapRef.value?.switchLayer(layer)
+  worldMapRef.value?.switchLayer(layer)
 }
 
 // 面板关闭处理
@@ -127,7 +127,7 @@ const handleSearchResult = (result: any) => {
   console.log('Search result selected:', result)
   // 移动地图到结果位置
   if (result.lat && result.lng) {
-    // worldMapRef.value?.flyTo(result.lat, result.lng, 10)
+    worldMapRef.value?.flyTo(result.lat, result.lng, 10)
   }
 }
 </script>
