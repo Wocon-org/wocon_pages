@@ -941,4 +941,10 @@ LIMIT 1;
 
 ### Trip Membership
 - Only update status to 'left' (do not delete records)
-- Ensure unique constraints: `unique(trip_id
+- Ensure unique constraints: `unique(trip_id, user_id)`
+
+### Like System
+- Ensure unique constraints: `unique(trip_id, user_id)`
+
+### Username Uniqueness
+- Ensure unique constraints: `
