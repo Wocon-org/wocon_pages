@@ -9,7 +9,6 @@ interface Props {
 
 interface Emits {
   (e: 'tabChange', tab: TabType): void
-  (e: 'moreClick'): void
 }
 
 const props = defineProps<Props>()
@@ -17,10 +16,6 @@ const emit = defineEmits<Emits>()
 
 const handleTabClick = (tab: TabType) => {
   emit('tabChange', tab)
-}
-
-const handleMoreClick = () => {
-  emit('moreClick')
 }
 
 // 图标组件：统一用 currentColor，方便通过 CSS 控制
