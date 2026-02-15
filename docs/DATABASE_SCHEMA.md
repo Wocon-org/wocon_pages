@@ -715,3 +715,11 @@ CREATE POLICY "Trip members are viewable by trip participants"
 CREATE POLICY "Trip owners can manage members"
   ON public.trip_members FOR INSERT
   WITH CHECK (EXISTS (
+    SELECT 1 FROM public.trips
+    WHERE id = trip_members.trip_id
+    AND owner_id = auth.uid()
+  ));
+
+CREATE POLICY "Trip members can update their status"
+  ON public.trip_members FOR UPDATE
+  USING (user_id = auth.uid()
