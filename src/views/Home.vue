@@ -84,7 +84,6 @@ const handleMoreClick = () => {
 // 点击 Logo 返回首页
 const handleLogoClick = () => {
   activeTab.value = 'home'
-  selectedTrip.value = null
 }
 
 
