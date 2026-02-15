@@ -947,4 +947,12 @@ LIMIT 1;
 - Ensure unique constraints: `unique(trip_id, user_id)`
 
 ### Username Uniqueness
-- Ensure unique constraints: `
+- Ensure unique constraints: `unique(username)`
+
+## Future Extensions
+
+The schema is designed to support future extensions without major refactoring, including:
+
+- Trip tags
+- Trip images
+- Trip
