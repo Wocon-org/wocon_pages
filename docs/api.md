@@ -258,4 +258,19 @@ if ('geolocation' in navigator) {
   navigator.geolocation.getCurrentPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
-      // Use
+      // Use position data
+    },
+    (error) => {
+      console.error('Error getting user location:', error);
+    }
+  );
+}
+```
+
+### Watch Position
+
+```typescript
+if ('geolocation' in navigator) {
+  const watchId = navigator.geolocation.watchPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords
