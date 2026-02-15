@@ -57,4 +57,13 @@
 
 #### Props
 
-| Prop | Type |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `show` | `boolean` | `true` | Control panel visibility |
+
+#### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `close` | N/A | Emitted when panel is closed |
+| `discover-place` | `PlaceInfo` | Emitted when
