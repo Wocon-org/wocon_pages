@@ -48,13 +48,14 @@ let markersLayer: L.LayerGroup | null = null
 let tempLayer: L.LayerGroup | null = null
 let userLocationMarker: L.Marker | null = null
 
-// 平滑飞行动画到指定位置
-const flyTo = (lat: number, lng: number, zoom: number = 10) => {
+// 平滑飞行动画到指定位置（类似Google Earth效果）
+const flyTo = (lat: number, lng: number, zoom: number = 12) => {
   if (map) {
     map.flyTo([lat, lng], zoom, {
-      duration: 1.5,
-      easeLinearity: 0.25,
-      noMoveStart: true
+      duration: 2.0,
+      easeLinearity: 0.2,
+      noMoveStart: true,
+      animate: true
     })
   }
 }
@@ -68,29 +69,29 @@ const getUserLocation = () => {
       (position) => {
         const { latitude, longitude } = position.coords
         flyTo(latitude, longitude, 12)
-        
+
         // 添加用户位置标记
         if (userLocationMarker) {
           map!.removeLayer(userLocationMarker)
         }
-        
+
         const locationIcon = L.divIcon({
           className: 'location-marker',
           html: `
             <div class="location-marker-content">
-              <div class="location-marker-icon">📍</div>
+              <div class="location-marker-icon"></div>
             </div>
           `,
           iconSize: [40, 40],
           iconAnchor: [20, 20]
         })
-        
-        userLocationMarker = L.marker([latitude, longitude], { 
+
+        userLocationMarker = L.marker([latitude, longitude], {
           icon: locationIcon,
 
         })
         if (map) userLocationMarker.addTo(map)
-        
+
         emit('location-found', latitude, longitude)
       },
       (error) => {
@@ -141,7 +142,7 @@ const loadPublicTrips = async () => {
               iconAnchor: [18, 18]
             })
 
-            const leafletMarker = L.marker([marker.lat, marker.lng], { 
+            const leafletMarker = L.marker([marker.lat, marker.lng], {
               icon: markerIcon,
               riseOnHover: true,
               title: trip.name
@@ -213,12 +214,12 @@ const renderTripMarkers = () => {
       iconSize: [36, 36],
       iconAnchor: [18, 18]
     })
-    
-    const leafletMarker = L.marker([m.lat, m.lng], { 
+
+    const leafletMarker = L.marker([m.lat, m.lng], {
       icon: markerIcon,
       riseOnHover: true
     })
-    
+
     // 添加延迟动画，使标记依次出现
     setTimeout(() => {
       markersLayer!.addLayer(leafletMarker)
@@ -239,7 +240,7 @@ const switchLayer = (layer: 'standard' | 'satellite' | 'dark') => {
 
   // 添加新图层
   let newLayer: L.TileLayer
-  
+
   switch (layer) {
     case 'satellite':
       newLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -259,7 +260,7 @@ const switchLayer = (layer: 'standard' | 'satellite' | 'dark') => {
         maxZoom: 19
       })
   }
-  
+
   newLayer.addTo(map)
 }
 
@@ -319,13 +320,13 @@ onMounted(() => {
     container.style.bottom = '70px'
     container.style.right = '10px'
     container.style.zIndex = '1000'
-    
+
     const button = L.DomUtil.create('button', 'location-control-btn', container)
     button.title = 'Find my location'
     button.innerHTML = '📍'
-    
+
     L.DomEvent.on(button, 'click', getUserLocation)
-    
+
     if (map && map.getContainer()) {
       map.getContainer().appendChild(container)
     }
@@ -361,15 +362,15 @@ onMounted(() => {
           iconSize: [36, 36],
           iconAnchor: [18, 18]
         })
-        
+
         // 添加标记动画
-        const leafletMarker = L.marker([e.latlng.lat, e.latlng.lng], { 
+        const leafletMarker = L.marker([e.latlng.lat, e.latlng.lng], {
           icon: markerIcon,
 
         })
-        
+
         leafletMarker.addTo(tempLayer!)
-        
+
         // 添加入场动画
         const element = leafletMarker.getElement()
         if (element) {
@@ -488,8 +489,11 @@ onBeforeUnmount(() => {
 }
 
 .location-marker-icon {
-  font-size: 18px;
-  color: var(--md3-on-secondary);
+  width: 16px;
+  height: 16px;
+  background: var(--md3-on-secondary);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  transform: rotate(45deg);
 }
 
 /* 定位控制按钮样式 */
@@ -643,18 +647,18 @@ onBeforeUnmount(() => {
     min-width: 160px;
     max-width: 200px;
   }
-  
+
   .location-control-btn {
     width: 36px;
     height: 36px;
     font-size: 16px;
   }
-  
+
   .trip-marker-content {
     width: 32px;
     height: 32px;
   }
-  
+
   .location-marker-content {
     width: 36px;
     height: 36px;

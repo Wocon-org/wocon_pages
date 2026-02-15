@@ -30,7 +30,7 @@ const showSearchBar = ref(true)
 const showDiscoverPanel = ref(true)
 
 // WorldMap 引用
-const worldMapRef = ref<InstanceType<typeof WoconMap>>()
+const worldMapRef = ref<any>()
 
 // 处理 tab 切换
 const handleTabChange = async (tab: TabType) => {
@@ -64,8 +64,8 @@ const handleTabChange = async (tab: TabType) => {
         const randomCity = cities[randomIndex]
 
         if (randomCity && worldMapRef.value) {
-          // 飞转到随机城市
-          worldMapRef.value.flyTo(randomCity.latitude, randomCity.longitude, 10)
+          // 飞转到随机城市（类似Google Earth效果，使用更高的缩放级别）
+          worldMapRef.value.flyTo(randomCity.latitude, randomCity.longitude, 12)
           console.log('Discovered city:', randomCity.name, randomCity.country_code)
         }
       }
