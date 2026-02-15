@@ -280,4 +280,19 @@ if ('geolocation' in navigator) {
       console.error('Error watching position:', error);
     },
     {
-      enable
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 0
+    }
+  );
+  
+  // To stop watching
+  // navigator.geolocation.clearWatch(watchId);
+}
+```
+
+## Global Events
+
+### Custom Events
+
+|
