@@ -299,3 +299,10 @@ if ('geolocation' in navigator) {
 |-------|--------|-------------|
 | `discover-place` | `PlaceInfo` | Dispatched when a new place is discovered |
 | `trip-click` | `string` | Dispatched when a trip marker is clicked |
+| `map-layer-change` | `'standard' \| 'satellite' \| 'dark'` | Dispatched when map layer is changed |
+
+### Event Listeners
+
+```typescript
+// Listen for discover-place event
+window.addEventListener('discover-place', (
