@@ -30,4 +30,16 @@
 | `switchLayer` | `layer: 'standard' \| 'satellite' \| 'dark'` | `void` | Change map layer style |
 | `getUserLocation` | N/A | `void` | Request and show user location |
 
-### Side
+### Sidebar Component
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `activeTab` | `'home' \| 'connections' \| 'search' \| 'discover' \| 'plugins'` | N/A | Currently active tab |
+
+#### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `tabChange` | `'home' \| 'connections' \| 'search' \| 'discover
