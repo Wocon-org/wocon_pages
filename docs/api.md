@@ -295,4 +295,7 @@ if ('geolocation' in navigator) {
 
 ### Custom Events
 
-|
+| Event | Detail | Description |
+|-------|--------|-------------|
+| `discover-place` | `PlaceInfo` | Dispatched when a new place is discovered |
+| `trip-click` | `string` | Dispatched when a trip marker is clicked |
