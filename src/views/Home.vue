@@ -33,7 +33,7 @@ const citiesCache = ref<any[]>([])
 const isCitiesLoaded = ref(false)
 
 // WorldMap 引用
-const worldMapRef = ref<any>
+const worldMapRef = ref<any>()
 
 // 处理 tab 切换
 const handleTabChange = async (tab: TabType) => {
