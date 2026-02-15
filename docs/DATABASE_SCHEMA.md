@@ -963,4 +963,20 @@ The schema is designed to support future extensions without major refactoring, i
 
 ### Best Practices
 
-1. **Version Control**: Store all migration scripts in the `supabase/migrations
+1. **Version Control**: Store all migration scripts in the `supabase/migrations` directory
+2. **Idempotent Operations**: Use `CREATE IF NOT EXISTS` and `DROP IF EXISTS`
+3. **Dependency Management**: Ensure proper execution order (tables before policies)
+4. **Testing**: Test migrations in staging environment before production
+5. **Documentation**: Update this document whenever schema changes
+
+### Rollback Strategy
+
+For critical changes, maintain rollback scripts that revert to previous schema versions. This ensures the ability to quickly recover from unexpected issues.
+
+## Conclusion
+
+This comprehensive database schema document provides all necessary information for understanding, maintaining, and extending the Wocon database. By following the guidelines and using the provided migration scripts, new team members and AI assistants can seamlessly contribute to the project.
+
+---
+
+*Last updated: February 15, 2026*
