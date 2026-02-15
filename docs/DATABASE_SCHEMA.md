@@ -927,4 +927,7 @@ To optimize the discover functionality and avoid using `ORDER BY random()`, we u
 ```sql
 SELECT *
 FROM cities
-WHERE ge
+WHERE geonameid >= (
+  SELECT floor(random() * (SELECT max(geonameid) FROM cities))
+)
+LIMIT
