@@ -103,8 +103,9 @@ const MoreIcon: FunctionalComponent = () => h('svg', {
   'stroke-linecap': 'round',
   'stroke-linejoin': 'round'
 }, [
-  h('line', { x1: '12', y1: '8', x2: '12', y2: '16' }),
-  h('line', { x1: '8', y1: '12', x2: '16', y2: '12' })
+  h('line', { x1: '4', y1: '12', x2: '20', y2: '12' }),
+  h('line', { x1: '4', y1: '6', x2: '20', y2: '6' }),
+  h('line', { x1: '4', y1: '18', x2: '20', y2: '18' })
 ])
 
 const sidebarItems = [
@@ -185,23 +186,32 @@ const sidebarItems = [
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all var(--md3-transition-short);
+  transition: all var(--md3-transition-medium);
   outline: none;
   position: relative;
+  overflow: hidden;
 }
 
 .sidebar-item:hover,
 .sidebar-item:focus-visible {
   background: var(--md3-primary);
   color: var(--md3-on-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--md3-elevation-2);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: var(--md3-elevation-3);
+  border-color: var(--md3-primary-light);
+}
+
+.sidebar-item:hover svg,
+.sidebar-item:focus-visible svg {
+  transform: scale(1.1);
+  transition: transform var(--md3-transition-medium);
 }
 
 .sidebar-item.active {
   background: var(--md3-primary);
   color: var(--md3-on-primary);
   box-shadow: var(--md3-elevation-2);
+  border-color: var(--md3-primary-light);
 }
 
 .sidebar-more {
@@ -219,17 +229,25 @@ const sidebarItems = [
   margin-top: auto;
   margin-left: auto;
   margin-right: auto;
-  transition: all var(--md3-transition-short);
+  transition: all var(--md3-transition-medium);
   outline: none;
   position: relative;
+  overflow: hidden;
 }
 
 .sidebar-more:hover,
 .sidebar-more:focus-visible {
   background: var(--md3-primary);
   color: var(--md3-on-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--md3-elevation-2);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: var(--md3-elevation-3);
+  border-color: var(--md3-primary-light);
+}
+
+.sidebar-more:hover svg,
+.sidebar-more:focus-visible svg {
+  transform: scale(1.1);
+  transition: transform var(--md3-transition-medium);
 }
 
 /* Tooltip */
@@ -282,11 +300,21 @@ const sidebarItems = [
   .sidebar-item:focus-visible {
     background: var(--md3-primary);
     color: var(--md3-on-primary);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: var(--md3-elevation-3);
+    border-color: var(--md3-primary-light);
+  }
+
+  .sidebar-item:hover svg,
+  .sidebar-item:focus-visible svg {
+    transform: scale(1.1);
+    transition: transform var(--md3-transition-medium);
   }
 
   .sidebar-item.active {
     background: var(--md3-primary);
     color: var(--md3-on-primary);
+    border-color: var(--md3-primary-light);
   }
 
   .sidebar-more {
@@ -299,6 +327,15 @@ const sidebarItems = [
   .sidebar-more:focus-visible {
     background: var(--md3-primary);
     color: var(--md3-on-primary);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: var(--md3-elevation-3);
+    border-color: var(--md3-primary-light);
+  }
+
+  .sidebar-more:hover svg,
+  .sidebar-more:focus-visible svg {
+    transform: scale(1.1);
+    transition: transform var(--md3-transition-medium);
   }
 
   .sidebar-item[title]:hover::after,
@@ -327,6 +364,22 @@ const sidebarItems = [
   .sidebar-more svg {
     width: 20px;
     height: 20px;
+  }
+  .sidebar-item:hover,
+  .sidebar-item:focus-visible {
+    transform: translateY(-2px) scale(1.05);
+  }
+  .sidebar-item:hover svg,
+  .sidebar-item:focus-visible svg {
+    transform: scale(1.1);
+  }
+  .sidebar-more:hover,
+  .sidebar-more:focus-visible {
+    transform: translateY(-2px) scale(1.05);
+  }
+  .sidebar-more:hover svg,
+  .sidebar-more:focus-visible svg {
+    transform: scale(1.1);
   }
 }
 </style>

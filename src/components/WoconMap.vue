@@ -147,22 +147,7 @@ onMounted(() => {
       position: 'bottomright'
     }).addTo(map)
 
-    // 添加定位控件
-    const container = L.DomUtil.create('div', 'location-control')
-    container.style.position = 'absolute'
-    container.style.bottom = '70px'
-    container.style.right = '10px'
-    container.style.zIndex = '1000'
 
-    const button = L.DomUtil.create('button', 'location-control-btn', container)
-    button.title = 'Find my location'
-    button.innerHTML = '📍'
-
-    L.DomEvent.on(button, 'click', getUserLocation)
-
-    if (map && map.getContainer()) {
-      map.getContainer().appendChild(container)
-    }
   }
 })
 
@@ -198,33 +183,7 @@ defineExpose({
   will-change: transform;
 }
 
-/* 定位控制按钮样式 */
-.location-control-btn {
-  width: 40px;
-  height: 40px;
-  background: var(--md3-surface);
-  border: 2px solid var(--md3-primary);
-  border-radius: var(--md3-radius-smaller);
-  box-shadow: var(--md3-elevation-2);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all var(--md3-transition-short);
-}
 
-.location-control-btn:hover {
-  background: var(--md3-primary);
-  color: var(--md3-surface);
-  box-shadow: var(--md3-elevation-3);
-  transform: scale(1.05);
-}
-
-.location-control-btn:active {
-  transform: scale(0.95);
-  box-shadow: var(--md3-elevation-1);
-}
 
 .leaflet-container {
   -webkit-overflow-scrolling: touch;
@@ -300,12 +259,6 @@ defineExpose({
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-  .location-control-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-  }
-
   .leaflet-control-zoom a {
     width: 28px !important;
     height: 28px !important;
