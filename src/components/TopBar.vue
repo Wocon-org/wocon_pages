@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -20,12 +20,6 @@ const handleSwitchLayer = () => {
   emit('switchLayer', newLayer)
 }
 
-const layerIcon = computed(() =>
-  currentLayer.value === 'dark'
-    ? 'M21 19.998a10 10 0 0 1-19.95 1.32 10 10 0 0 1 17.2-14.14 10 10 0 0 1 2.75 12.82zM12 3v2M12 19v2M19 12h2M3 12h2M16.17 7.83l1.41 1.41M6.41 17.59l1.41 1.41M16.17 16.17l-1.41 1.41M6.41 6.41l-1.41 1.41' // satellite
-    : 'M12 2a10 10 0 0 0-9.95 9.14 10 10 0 0 0 7.08 15.56 10 10 0 0 0 11.74-3.54A10 10 0 0 0 12 2z' // dark
-)
-
 const handleSettings = () => {
   router.push('/settings')
 }
@@ -41,38 +35,54 @@ const handleProfile = () => {
       <span class="logo-text">WOCON</span>
     </div>
 
-    <nav class="top-bar-actions">
+    <nav class="top-bar-actions" role="navigation" aria-label="Top bar actions">
+      <!-- 图层切换按钮 -->
       <button
         class="action-btn"
+        :class="{ active: currentLayer === 'satellite' }"
         @click="handleSwitchLayer"
-        :title="currentLayer === 'dark' ? 'Switch to Satellite' : 'Switch to Dark'"
+        :title="currentLayer === 'dark' ? 'Switch to Satellite View' : 'Switch to Dark View'"
         aria-label="Switch map layer"
+        @keydown.enter="handleSwitchLayer"
+        @keydown.space="handleSwitchLayer"
+        tabindex="0"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path :d="layerIcon" />
+        <!-- 深色模式图标 -->
+        <svg v-if="currentLayer === 'dark'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        <!-- 卫星模式图标 -->
+        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+          <line x1="8" y1="21" x2="16" y2="21" />
+          <line x1="12" y1="17" x2="12" y2="21" />
         </svg>
       </button>
 
+      <!-- GitHub 链接 -->
       <a
         href="https://github.com"
         target="_blank"
         rel="noopener"
         class="action-btn"
-        title="GitHub"
-        aria-label="GitHub"
+        title="GitHub Repository"
+        aria-label="Visit GitHub repository"
+        tabindex="0"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
         </svg>
       </a>
 
+      <!-- 下载按钮 -->
       <a
         href="https://wocon-org.github.io/"
         target="_blank"
         rel="noopener"
         class="action-btn"
-        title="Download"
-        aria-label="Download"
+        title="Download App"
+        aria-label="Download WOCON app"
+        tabindex="0"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -81,14 +91,32 @@ const handleProfile = () => {
         </svg>
       </a>
 
-      <button class="action-btn" @click="handleSettings" title="Settings" aria-label="Settings">
+      <!-- 设置按钮 -->
+      <button
+        class="action-btn"
+        @click="handleSettings"
+        title="Settings"
+        aria-label="Open settings"
+        @keydown.enter="handleSettings"
+        @keydown.space="handleSettings"
+        tabindex="0"
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3" />
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
         </svg>
       </button>
 
-      <button class="action-btn" @click="handleProfile" title="Profile" aria-label="Profile">
+      <!-- 个人资料按钮 -->
+      <button
+        class="action-btn"
+        @click="handleProfile"
+        title="Profile"
+        aria-label="Open profile"
+        @keydown.enter="handleProfile"
+        @keydown.space="handleProfile"
+        tabindex="0"
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />
