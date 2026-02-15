@@ -305,8 +305,8 @@ const getTypeBackground = (type: string) => {
             </div>
 
             <!-- 类型标签 -->
-            <div 
-              class="result-type" 
+            <div
+              class="result-type"
               :style="{
                 backgroundColor: getTypeBackground(result.type),
                 color: getTypeColor(result.type)
@@ -619,18 +619,18 @@ const getTypeBackground = (type: string) => {
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .result-type {
     align-self: flex-start;
     margin-top: 0;
   }
-  
+
   .result-meta {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
   }
-  
+
   .result-author {
     margin-left: 0;
     padding-left: 0;
