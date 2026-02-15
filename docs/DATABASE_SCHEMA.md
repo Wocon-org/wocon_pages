@@ -886,4 +886,23 @@ SELECT
   ) FILTER (WHERE tm.status = 'active') AS members
 FROM public.trips t
 LEFT JOIN public.trip_members tm ON t.id = tm.trip_id
-LEFT JOIN public.profiles
+LEFT JOIN public.profiles p ON tm.user_id = p.id
+GROUP BY t.id
+ORDER BY t.created_at DESC;
+```
+
+## Performance Strategies
+
+### Essential Indexes
+
+```sql
+-- Profiles
+CREATE INDEX IF NOT EXISTS idx_profiles_username ON public.profiles(username);
+
+-- Trips
+CREATE INDEX IF NOT EXISTS idx_trips_owner ON public.trips(owner_id);
+CREATE INDEX IF NOT EXISTS idx_trips_public ON public.trips(is_public);
+
+-- Trip Members
+CREATE INDEX IF NOT EXISTS trip_members_trip_idx ON trip_members(trip_id);
+CREATE INDEX IF NOT EXISTS trip_members_user_idx ON
