@@ -669,4 +669,27 @@ CREATE TABLE IF NOT EXISTS public.friendships (
 ALTER TABLE public.trip_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.trip_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.trip_likes ENABLE ROW LEVEL SEC
+ALTER TABLE public.trip_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.friendships ENABLE ROW LEVEL SECURITY;
+
+-- Trips RLS policies
+CREATE POLICY "Public trips are viewable by everyone"
+  ON public.trips FOR SELECT
+  USING (is_public = true OR owner_id = auth.uid() OR EXISTS (
+    SELECT 1 FROM public.trip_members
+    WHERE trip_members.trip_id = trips.id
+    AND trip_members.user_id = auth.uid()
+    AND trip_members.status = 'active'
+  ));
+
+CREATE POLICY "Users can create their own trips"
+  ON public.trips FOR INSERT
+  WITH CHECK (auth.uid() = owner_id);
+
+CREATE POLICY "Trip owners and active partners can update trips"
+  ON public.trips FOR UPDATE
+  USING (owner_id = auth.uid() OR EXISTS (
+    SELECT 1 FROM public.trip_members
+    WHERE trip_members.trip_id = trips.id
+    AND trip_members.user_id = auth.uid()
+    AND trip_members.role IN
