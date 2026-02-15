@@ -63,15 +63,31 @@ const handleTabChange = async (tab: TabType) => {
 
     // 模拟发现功能
     try {
-      // 从数据库获取热门城市
-      const { data: cities, error } = await supabase
-        .from('cities')
-        .select('geonameid, name, asciiname, country_code, latitude, longitude, population')
-        .gte('population', 500000)
-        .order('population', { ascending: false, nullsFirst: false })
-        .limit(50)
+      let cities: any[] = []
 
-      if (!error && cities && cities.length > 0) {
+      // 检查缓存是否存在
+      if (isCitiesLoaded.value && citiesCache.value.length > 0) {
+        cities = citiesCache.value
+        console.log('Using cached cities data')
+      } else {
+        // 从数据库获取热门城市
+        const { data, error } = await supabase
+          .from('cities')
+          .select('geonameid, name, asciiname, country_code, latitude, longitude, population')
+          .gte('population', 500000)
+          .order('population', { ascending: false, nullsFirst: false })
+          .limit(50)
+
+        if (!error && data && data.length > 0) {
+          cities = data
+          // 存储到缓存
+          citiesCache.value = data
+          isCitiesLoaded.value = true
+          console.log('Loaded cities data from database')
+        }
+      }
+
+      if (cities.length > 0) {
         // 随机选择一个城市
         const randomIndex = Math.floor(Math.random() * cities.length)
         const randomCity = cities[randomIndex]
@@ -168,6 +184,7 @@ const handleSearchResult = (result: any) => {
           v-if="activeTab === 'connections' && showConnectionsPanel"
           :initialPosition="{ x: 100, y: 100 }"
           class="panel-draggable"
+          :class="{ 'panel-active': activeTab === 'connections' }"
         >
           <Panel
             title="Connections"
@@ -186,6 +203,7 @@ const handleSearchResult = (result: any) => {
           v-if="activeTab === 'search' && showSearchBar"
           :initialPosition="{ x: 140, y: 140 }"
           class="panel-draggable"
+          :class="{ 'panel-active': activeTab === 'search' }"
         >
           <Panel
             title="Search"
@@ -204,6 +222,7 @@ const handleSearchResult = (result: any) => {
           v-if="activeTab === 'plugins' && showPluginPanel"
           :initialPosition="{ x: 120, y: 120 }"
           class="panel-draggable"
+          :class="{ 'panel-active': activeTab === 'plugins' }"
         >
           <Panel
             title="Plugins"
@@ -262,6 +281,10 @@ const handleSearchResult = (result: any) => {
 .panel-draggable {
   pointer-events: auto;
   z-index: 1000;
+}
+
+.panel-draggable.panel-active {
+  z-index: 1500;
 }
 
 /* 面板过渡动画 */
