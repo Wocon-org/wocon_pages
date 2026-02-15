@@ -930,4 +930,15 @@ FROM cities
 WHERE geonameid >= (
   SELECT floor(random() * (SELECT max(geonameid) FROM cities))
 )
-LIMIT
+LIMIT 1;
+```
+
+## Data Consistency Rules
+
+### User Deletion
+- If user is an owner: trips are automatically deleted
+- Cascading deletion of all related data
+
+### Trip Membership
+- Only update status to 'left' (do not delete records)
+- Ensure unique constraints: `unique(trip_id
