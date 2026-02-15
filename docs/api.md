@@ -316,3 +316,11 @@ const event = new CustomEvent('trip-click', {
 });
 window.dispatchEvent(event);
 ```
+
+## Error Handling
+
+### Common Errors
+
+| Error Type | Message | Solution |
+|------------|---------|----------|
+| Location Access | `PositionError: User
