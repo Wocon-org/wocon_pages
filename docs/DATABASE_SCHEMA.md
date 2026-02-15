@@ -905,4 +905,10 @@ CREATE INDEX IF NOT EXISTS idx_trips_public ON public.trips(is_public);
 
 -- Trip Members
 CREATE INDEX IF NOT EXISTS trip_members_trip_idx ON trip_members(trip_id);
-CREATE INDEX IF NOT EXISTS trip_members_user_idx ON
+CREATE INDEX IF NOT EXISTS trip_members_user_idx ON trip_members(user_id);
+
+-- Trip Items
+CREATE INDEX IF NOT EXISTS trip_items_trip_idx ON trip_items(trip_id);
+
+-- Comments
+CREATE INDEX IF NOT EXISTS comments_trip_idx ON comments(trip_id
