@@ -911,4 +911,8 @@ CREATE INDEX IF NOT EXISTS trip_members_user_idx ON trip_members(user_id);
 CREATE INDEX IF NOT EXISTS trip_items_trip_idx ON trip_items(trip_id);
 
 -- Comments
-CREATE INDEX IF NOT EXISTS comments_trip_idx ON comments(trip_id
+CREATE INDEX IF NOT EXISTS comments_trip_idx ON comments(trip_id, created_at);
+
+-- Cities
+CREATE INDEX IF NOT EXISTS cities_name_idx ON cities(name);
+CREATE INDEX IF NOT EXISTS cities_asciiname_idx ON cities(asciin
