@@ -722,4 +722,168 @@ CREATE POLICY "Trip owners can manage members"
 
 CREATE POLICY "Trip members can update their status"
   ON public.trip_members FOR UPDATE
-  USING (user_id = auth.uid()
+  USING (user_id = auth.uid() OR EXISTS (
+    SELECT 1 FROM public.trips
+    WHERE id = trip_members.trip_id
+    AND owner_id = auth.uid()
+  ));
+
+-- Trip items RLS policies
+CREATE POLICY "Trip items are viewable by trip participants"
+  ON public.trip_items FOR SELECT
+  USING (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE is_public = true OR owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Trip participants can create items"
+  ON public.trip_items FOR INSERT
+  WITH CHECK (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Trip participants can update items"
+  ON public.trip_items FOR UPDATE
+  USING (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+-- Comments RLS policies
+CREATE POLICY "Comments on public trips are viewable by everyone"
+  ON public.comments FOR SELECT
+  USING (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE is_public = true OR owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Users can create comments on trips they participate in"
+  ON public.comments FOR INSERT
+  WITH CHECK (trip_id IN (
+    SELECT id FROM public.trips
+    WHERE owner_id = auth.uid() OR id IN (
+      SELECT trip_id FROM public.trip_members
+      WHERE user_id = auth.uid()
+      AND status = 'active'
+    )
+  ));
+
+CREATE POLICY "Users can delete their own comments"
+  ON public.comments FOR DELETE
+  USING (user_id = auth.uid());
+
+-- Trip likes RLS policies
+CREATE POLICY "Trip likes are viewable by everyone"
+  ON public.trip_likes FOR SELECT
+  USING (true);
+
+CREATE POLICY "Users can insert their own likes"
+  ON public.trip_likes FOR INSERT
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can delete their own likes"
+  ON public.trip_likes FOR DELETE
+  USING (user_id = auth.uid());
+
+-- Friendships RLS policies
+CREATE POLICY "Friendships are viewable by involved users"
+  ON public.friendships FOR SELECT
+  USING (requester_id = auth.uid() OR addressee_id = auth.uid());
+
+CREATE POLICY "Users can send friend requests"
+  ON public.friendships FOR INSERT
+  WITH CHECK (requester_id = auth.uid());
+
+CREATE POLICY "Users can update their own friend requests"
+  ON public.friendships FOR UPDATE
+  USING (addressee_id = auth.uid());
+
+-- ============================================
+-- FUNCTIONS & TRIGGERS
+-- ============================================
+
+-- Update handle_new_user function
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, username, nickname, avatar_url)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'nickname', NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    NEW.raw_user_meta_data->>'avatar_url'
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================
+-- RPC FUNCTIONS
+-- ============================================
+
+-- Function to get profile by username
+DROP FUNCTION IF EXISTS public.get_profile_by_username(TEXT);
+CREATE FUNCTION public.get_profile_by_username(username TEXT)
+RETURNS SETOF public.profiles
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT * FROM public.profiles WHERE username = get_profile_by_username.username;
+$$;
+
+-- Function for discover functionality
+CREATE OR REPLACE FUNCTION public.discover_city()
+RETURNS SETOF public.cities
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT *
+  FROM cities
+  WHERE geonameid >= (
+    SELECT floor(random() * (SELECT max(geonameid) FROM cities))
+  )
+  LIMIT 1;
+$$;
+
+-- Grant permissions
+GRANT EXECUTE ON FUNCTION public.get_profile_by_username(TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.discover_city() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.discover_city() TO anon;
+
+-- ============================================
+-- VIEWS
+-- ============================================
+
+-- View: Get trip with member count
+CREATE OR REPLACE VIEW public.trips_with_members AS
+SELECT
+  t.*,
+  COUNT(tm.id) FILTER (WHERE tm.status = 'active') AS member_count,
+  json_agg(
+    json_build_object(
+      'id', p.id,
+      'username', p.username,
+      'avatar_url', p.avatar_url,
+      'role', tm.role
+    )
+  ) FILTER (WHERE tm.status = 'active') AS members
+FROM public.trips t
+LEFT JOIN public.trip_members tm ON t.id = tm.trip_id
+LEFT JOIN public.profiles
