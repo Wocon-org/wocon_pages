@@ -66,4 +66,171 @@
 | Event | Payload | Description |
 |-------|---------|-------------|
 | `close` | N/A | Emitted when panel is closed |
-| `discover-place` | `PlaceInfo` | Emitted when
+| `discover-place` | `PlaceInfo` | Emitted when a place is discovered |
+
+## Data Structures
+
+### PlaceInfo
+
+```typescript
+interface PlaceInfo {
+  geonameid: number;
+  name: string;
+  asciiname: string;
+  country_code: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  population: number | null;
+}
+```
+
+### Trip Data
+
+```typescript
+interface Trip {
+  id: string;
+  name: string;
+  description: string;
+  owner_id: string;
+  is_public: boolean;
+  type: 'recruiting' | 'private';
+  created_at: string;
+  updated_at: string;
+  map_markers: Array<{
+    id: string;
+    lat: number;
+    lng: number;
+    title: string;
+    description: string;
+  }>;
+  owner: {
+    username: string;
+    avatar_url: string;
+  };
+}
+```
+
+### User Profile
+
+```typescript
+interface UserProfile {
+  id: string;
+  username: string;
+  full_name: string;
+  avatar_url: string;
+  bio: string;
+  interests: string[];
+  travel_style: string;
+  location: {
+    city: string;
+    country: string;
+  };
+}
+```
+
+## Supabase API
+
+### Authentication
+
+#### Sign Up
+
+```typescript
+const { data, error } = await supabase.auth.signUp({
+  email: 'user@example.com',
+  password: 'password123',
+  options: {
+    data: {
+      username: 'traveler123',
+      full_name: 'John Doe'
+    }
+  }
+});
+```
+
+#### Sign In
+
+```typescript
+const { data, error } = await supabase.auth.signInWithPassword({
+  email: 'user@example.com',
+  password: 'password123'
+});
+```
+
+#### Sign Out
+
+```typescript
+const { error } = await supabase.auth.signOut();
+```
+
+### Database Queries
+
+#### Get Trips
+
+```typescript
+const { data: trips, error } = await supabase
+  .from('trips')
+  .select(`
+    id,
+    name,
+    type,
+    owner:profiles!trips_owner_id_fkey(username),
+    map_markers!left(id, lat, lng)
+  `)
+  .eq('is_public', true);
+```
+
+#### Get Cities
+
+```typescript
+const { data: cities, error } = await supabase
+  .from('cities')
+  .select('geonameid, name, asciiname, country_code, latitude, longitude, population')
+  .gte('population', 500000)
+  .order('population', { ascending: false })
+  .limit(50);
+```
+
+## Leaflet.js Integration
+
+### Map Initialization
+
+```typescript
+map = L.map(mapContainer.value, {
+  zoomControl: false,
+  inertiaDeceleration: 2000,
+  inertiaMaxSpeed: 2500,
+  easeLinearity: 0.25,
+  wheelDebounceTime: 20,
+  wheelPxPerZoomLevel: 45,
+  tapTolerance: 10,
+  bounceAtZoomLimits: true,
+  minZoom: 2,
+  maxZoom: 18,
+  maxBounds: [[-90, -180], [90, 180]],
+  maxBoundsViscosity: 1.0
+}).setView([20, 0], 2);
+```
+
+### Custom Markers
+
+```typescript
+const locationIcon = L.divIcon({
+  className: 'location-marker',
+  html: `
+    <div class="location-marker-content">
+      <div class="location-marker-icon"></div>
+    </div>
+  `,
+  iconSize: [40, 40],
+  iconAnchor: [20, 20]
+});
+
+const marker = L.marker([lat, lng], { icon: locationIcon });
+```
+
+### Layer Management
+
+```typescript
+const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y
