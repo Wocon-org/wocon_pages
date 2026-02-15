@@ -249,3 +249,4 @@ Wocon can be deployed for free using:
 - **Supabase Free Tier**: Up to 50,000 API calls and 1GB database
 - **Cloudflare Pages Free Tier**: Unlimited sites and bandwidth
 
+Costs may increase with higher usage or additional features.
