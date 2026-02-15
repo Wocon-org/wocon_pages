@@ -25,4 +25,9 @@
 #### Methods
 
 | Method | Parameters | Return | Description |
-|--------|------------|--------|-------------
+|--------|------------|--------|-------------|
+| `flyTo` | `lat: number, lng: number, zoom: number = 12` | `void` | Smoothly animate to a location |
+| `switchLayer` | `layer: 'standard' \| 'satellite' \| 'dark'` | `void` | Change map layer style |
+| `getUserLocation` | N/A | `void` | Request and show user location |
+
+### Side
