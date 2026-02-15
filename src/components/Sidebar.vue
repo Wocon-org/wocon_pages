@@ -118,21 +118,32 @@ const sidebarItems = [
 
 <template>
   <aside class="sidebar">
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
       <button
         v-for="item in sidebarItems"
         :key="item.id"
         class="sidebar-item"
         :class="{ active: activeTab === item.id }"
         @click="handleTabClick(item.id)"
+        @keydown.enter="handleTabClick(item.id)"
+        @keydown.space="handleTabClick(item.id)"
         :title="item.label"
         :aria-label="item.label"
+        :aria-current="activeTab === item.id ? 'page' : 'false'"
+        tabindex="0"
       >
         <component :is="item.icon" />
       </button>
     </nav>
 
-    <button class="sidebar-more" @click="handleMoreClick" title="More" aria-label="More">
+    <button
+      class="sidebar-more"
+      title="More"
+      aria-label="More options"
+      tabindex="0"
+      @keydown.enter=""
+      @keydown.space=""
+    >
       <MoreIcon />
     </button>
   </aside>

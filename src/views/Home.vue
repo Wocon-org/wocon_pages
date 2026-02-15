@@ -176,13 +176,19 @@ const handleSearchResult = (result: any) => {
           :initialPosition="{ x: 100, y: 100 }"
           class="panel-draggable"
           :class="{ 'panel-active': activeTab === 'connections' }"
+          tabindex="0"
+          role="dialog"
+          aria-labelledby="connections-panel-title"
+          aria-describedby="connections-panel-description"
         >
           <Panel
             title="Connections"
             :show="showConnectionsPanel"
             @close="handleConnectionsClose"
             class="panel-connections"
+            id="connections-panel-title"
           >
+            <div id="connections-panel-description" class="sr-only">Connections panel showing your connections</div>
             <ConnectionsPanel :show="showConnectionsPanel" @close="handleConnectionsClose" />
           </Panel>
         </Draggable>
@@ -195,12 +201,16 @@ const handleSearchResult = (result: any) => {
           :initialPosition="{ x: 140, y: 140 }"
           class="panel-draggable"
           :class="{ 'panel-active': activeTab === 'search' }"
+          tabindex="0"
+          role="search"
+          aria-labelledby="search-panel-title"
         >
           <Panel
             title="Search"
             :show="showSearchBar"
             @close="handleSearchClose"
             class="panel-search"
+            id="search-panel-title"
           >
             <SearchBar :show="showSearchBar" @close="handleSearchClose" @selectResult="handleSearchResult" />
           </Panel>
@@ -214,23 +224,36 @@ const handleSearchResult = (result: any) => {
           :initialPosition="{ x: 120, y: 120 }"
           class="panel-draggable"
           :class="{ 'panel-active': activeTab === 'plugins' }"
+          tabindex="0"
+          role="dialog"
+          aria-labelledby="plugins-panel-title"
+          aria-describedby="plugins-panel-description"
         >
           <Panel
             title="Plugins"
             :show="showPluginPanel"
             @close="handlePluginClose"
             class="panel-plugins"
+            id="plugins-panel-title"
           >
+            <div id="plugins-panel-description" class="sr-only">Plugins panel showing available plugins</div>
             <PluginPanel />
           </Panel>
         </Draggable>
       </Transition>
 
       <!-- DiscoverPanel（全屏显示） -->
+      <div class="sr-only">
+        <div id="discover-panel-title">Discover Panel</div>
+        <div id="discover-panel-description">Discover panel showing recommended places</div>
+      </div>
       <Transition name="panel-full">
         <DiscoverPanel
           v-if="activeTab === 'discover'"
           class="panel-discover"
+          role="dialog"
+          aria-labelledby="discover-panel-title"
+          aria-describedby="discover-panel-description"
           @discover-place="(place) => {
             console.log('Discovered place:', place);
             if (worldMapRef.value && place.coordinates) {
@@ -254,6 +277,19 @@ const handleSearchResult = (result: any) => {
   bottom: 0;
   overflow: hidden;
   background: var(--md3-background);
+}
+
+/* 屏幕阅读器专用类 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 
