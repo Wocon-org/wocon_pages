@@ -232,7 +232,7 @@ export async function searchTrips(query: string, options: SearchOptions = {}): P
         profiles(name)
       `)
       .ilike('title', `%${query}%`)
-      .or(`ilike(description, %${query}%)`)
+      .ilike('description', `%${query}%`)
       .eq('is_public', true)
       .limit(options.limit || 10)
 
