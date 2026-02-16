@@ -1,0 +1,21 @@
+User-agent: *
+Disallow: /login
+Disallow: /signup
+Disallow: /profile
+Disallow: /settings
+Disallow: /settings/change-password
+Disallow: /trip/
+
+Allow: /
+Allow: /contact
+Allow: /feedback
+Allow: /docs
+Allow: /documentation
+Allow: /api-test
+Allow: /create-trip
+Allow: /map
+
+Sitemap: https://www.woconapp.com/sitemap.xml
+
+# Crawl-delay: 10
+# Host: https://www.woconapp.com
