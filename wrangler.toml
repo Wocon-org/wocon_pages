@@ -1,8 +1,38 @@
 name = "woconworker"
 main = "worker.ts"
 compatibility_date = "2026-01-13"
+compatibility_flags = ["nodejs_compat"]
+
+# KV Namespaces
+[[kv_namespaces]]
+binding = "CACHE"
+id = "wocon-cache" # Replace with actual KV namespace ID after creation
+preview_id = "wocon-cache-preview" # Replace with actual preview KV namespace ID
 
 # Environment variables
 [vars]
 SUPABASE_URL = "https://kpauppfsdtaoqolhmsbp.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtwYXVwcGZzZHRhb3FvbGhtc2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NTczMTksImV4cCI6MjA4MzMzMzMxOX0.tgAS8-lNY4WG6OSZ4r_wEf4-Vw9Qvj7NkbnlMk6f8Uc"
+ENVIRONMENT = "production"
+LOG_LEVEL = "info"
+
+# Worker settings
+[worker]
+route = "api.example.com/*" # Replace with actual route
+zone_id = "your-zone-id" # Replace with actual Cloudflare zone ID
+
+# Build settings
+[build]
+command = "npm run build" # Optional build command
+
+# Dev settings
+[dev]
+bindings = {
+  CACHE = { kv_namespace = "wocon-cache" }
+}
+
+# Preview settings
+[preview]
+bindings = {
+  CACHE = { kv_namespace = "wocon-cache-preview" }
+}

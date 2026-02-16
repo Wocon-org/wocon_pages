@@ -75,6 +75,63 @@ async function setToCache(env: Env, key: string, value: any, ttl: number = 3600)
   }
 }
 
+// Logging functions
+function log(level: 'info' | 'warn' | 'error' | 'debug', message: string, data: any = {}): void {
+  const timestamp = new Date().toISOString()
+  const logEntry = {
+    timestamp,
+    level,
+    message,
+    ...data
+  }
+
+  switch (level) {
+    case 'info':
+      console.log(JSON.stringify(logEntry))
+      break
+    case 'warn':
+      console.warn(JSON.stringify(logEntry))
+      break
+    case 'error':
+      console.error(JSON.stringify(logEntry))
+      break
+    case 'debug':
+      console.debug(JSON.stringify(logEntry))
+      break
+  }
+}
+
+// Enhanced error handling
+function handleError(error: any, context: string): Error {
+  log('error', `${context} failed`, {
+    error: error.message || error,
+    stack: error.stack
+  })
+
+  return new Error(`${context} failed: ${error.message || error}`)
+}
+
+// Request logger
+function logRequest(request: Request): void {
+  const url = new URL(request.url)
+  log('info', 'Incoming request', {
+    method: request.method,
+    path: url.pathname,
+    query: Object.fromEntries(url.searchParams.entries())
+  })
+}
+
+// Response logger
+function logResponse(request: Request, response: Response, duration: number): void {
+  const url = new URL(request.url)
+  log('info', 'Outgoing response', {
+    method: request.method,
+    path: url.pathname,
+    status: response.status,
+    duration: `${duration}ms`
+  })
+}
+
 // Supabase client
 function createSupabaseClient(env: Env) {
   const supabaseUrl = env.SUPABASE_URL
@@ -426,22 +483,40 @@ function router(request: Request, env: Env): RouteHandler | null {
 // Main fetch handler
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const startTime = Date.now()
+
+    // Log incoming request
+    logRequest(request)
+
     // Handle CORS
     const corsResponse = handleCors(request)
-    if (corsResponse) return corsResponse
+    if (corsResponse) {
+      const duration = Date.now() - startTime
+      logResponse(request, corsResponse, duration)
+      return corsResponse
+    }
 
     // Find and execute route handler
     const handler = router(request, env)
     if (handler) {
       try {
-        return await handler(request, env)
+        const response = await handler(request, env)
+        const duration = Date.now() - startTime
+        logResponse(request, response, duration)
+        return response
       } catch (error) {
-        console.error('Route handler error:', error)
-        return errorResponse('Internal Server Error', 500)
+        const duration = Date.now() - startTime
+        const errorResp = errorResponse('Internal Server Error', 500)
+        logResponse(request, errorResp, duration)
+        handleError(error, 'Route handler')
+        return errorResp
       }
     }
 
     // 404
-    return errorResponse('Not Found', 404)
+    const notFoundResponse = errorResponse('Not Found', 404)
+    const duration = Date.now() - startTime
+    logResponse(request, notFoundResponse, duration)
+    return notFoundResponse
   }
 }
