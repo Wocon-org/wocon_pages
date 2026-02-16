@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteMeta } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useSeo } from '@/composables/useSeo'
 import { useStructuredData } from '@/composables/useStructuredData'
@@ -16,6 +17,19 @@ import Contact from '@/views/Contact.vue'
 import ApiTest from '@/views/ApiTest.vue'
 import Documentation from '@/views/Documentation.vue'
 import Docs from '@/views/Docs.vue'
+
+// 定义路由meta类型
+declare module 'vue-router' {
+  interface RouteMeta {
+    requiresAuth?: boolean
+    guestOnly?: boolean
+    seo?: {
+      title: string
+      description: string
+      keywords: string[]
+    }
+  }
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

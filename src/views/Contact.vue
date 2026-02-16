@@ -42,6 +42,7 @@ useStructuredData({
 const router = useRouter()
 const showToast = ref(false)
 const toastMessage = ref('')
+const currentLang = 'en' // 默认英文
 
 const toast = (msg: string) => {
   toastMessage.value = msg
@@ -141,6 +142,40 @@ const handleBack = () => {
                   <p class="member-role">Founder & CEO</p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div class="quick-links">
+            <h2 class="section-title">Quick Links</h2>
+            <div class="links-grid">
+              <a href="/" class="quick-link" @click.prevent="router.push('/')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12L12 3L21 12"/>
+                  <path d="M5 12V20a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1V12"/>
+                </svg>
+                <span>{{ currentLang === 'zh' ? '首页' : 'Home' }}</span>
+              </a>
+              <a href="/docs" class="quick-link" @click.prevent="router.push('/docs')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+                <span>{{ currentLang === 'zh' ? '文档中心' : 'Documentation' }}</span>
+              </a>
+              <a href="/feedback" class="quick-link" @click.prevent="router.push('/feedback')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>{{ currentLang === 'zh' ? '反馈' : 'Feedback' }}</span>
+              </a>
+              <a href="/api-test" class="quick-link" @click.prevent="router.push('/api-test')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+                  <circle cx="18" cy="18" r="3"/>
+                  <path d="M13 7h3m-3 3h3m-3 3h3"/>
+                </svg>
+                <span>{{ currentLang === 'zh' ? 'API测试' : 'API Test' }}</span>
+              </a>
             </div>
           </div>
         </div>
@@ -463,6 +498,57 @@ const handleBack = () => {
     padding: 16px;
   }
 
+  .quick-link {
+    padding: 12px;
+  }
+
+  .links-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Quick Links Section */
+.quick-links {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--md3-outline);
+}
+
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--md3-surface-variant);
+  border: 1px solid var(--md3-outline);
+  border-radius: var(--md3-radius-medium);
+  text-decoration: none;
+  color: var(--md3-on-surface-variant);
+  transition: all var(--md3-transition-short);
+}
+
+.quick-link:hover {
+  background: var(--md3-primary-container);
+  color: var(--md3-on-primary-container);
+  transform: translateY(-2px);
+  box-shadow: var(--md3-elevation-2);
+}
+
+.quick-link svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Responsive Design - Additional Styles */
+@media (max-width: 768px) {
   .option-icon {
     width: 48px;
     height: 48px;

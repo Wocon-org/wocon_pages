@@ -21,14 +21,25 @@ export default defineConfig({
   build: {
     // 压缩配置
     minify: 'esbuild',
-    // 启用gzip压缩
+    // 启用CSS代码分割
     cssCodeSplit: true,
     // 生成sourcemap
-    sourcemap: false
+    sourcemap: false,
+    // 配置chunk大小限制
+    chunkSizeWarningLimit: 1000,
+    // 启用gzip压缩
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia'],
+          leaflet: ['leaflet'],
+          supabase: ['@supabase/supabase-js']
+        }
+      }
+    }
   },
   // 预加载配置
   optimizeDeps: {
-    include: ['vue', 'vue-router', 'pinia', 'leaflet', '@supabase/supabase-js'],
-    exclude: ['@supabase/supabase-js']
+    include: ['vue', 'vue-router', 'pinia', 'leaflet', '@supabase/supabase-js']
   }
 })

@@ -38,7 +38,7 @@ export function useSeo(options: SeoOptions = defaultOptions) {
     // Update keywords
     const keywordsMeta = document.querySelector('meta[name="keywords"]')
     if (keywordsMeta) {
-      const keywords = seoOptions.keywords || defaultOptions.keywords
+      const keywords = seoOptions.keywords || defaultOptions.keywords || []
       keywordsMeta.setAttribute('content', keywords.join(', '))
     }
 
