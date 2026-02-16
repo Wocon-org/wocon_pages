@@ -30,6 +30,12 @@ const t = {
     accountVisibility: 'Account Visibility',
     tripVisibility: 'Trip Visibility',
     profileVisibility: 'Profile Visibility',
+    searchSettings: 'Search Settings',
+    searchSortOrder: 'Search Sort Order',
+    searchSortOrderSub: 'How search results are ordered',
+    relevance: 'Relevance',
+    population: 'Population',
+    name: 'Name',
     public: 'Public',
     friendsOnly: 'Friends Only',
     about: 'About',
@@ -58,6 +64,12 @@ const t = {
     accountVisibility: '账号可见性',
     tripVisibility: '行程可见性',
     profileVisibility: '个人资料可见性',
+    searchSettings: '搜索设置',
+    searchSortOrder: '搜索排序方式',
+    searchSortOrderSub: '搜索结果的排序方式',
+    relevance: '相关性',
+    population: '人口',
+    name: '名称',
     public: '公开',
     friendsOnly: '仅好友可见',
     about: '关于',
@@ -76,8 +88,22 @@ const languageOptions = [
   { value: 'zh' as Language, label: '中文' }
 ]
 
+const searchSortOptions = [
+  { value: 'relevance' as const, label: lang.value.relevance },
+  { value: 'population' as const, label: lang.value.population },
+  { value: 'name' as const, label: lang.value.name }
+]
+
+const currentSortOrder = ref<'relevance' | 'population' | 'name'>('relevance')
+
 const changeLanguage = (newLang: Language) => {
   currentLanguage.value = newLang
+}
+
+const changeSortOrder = (newOrder: 'relevance' | 'population' | 'name') => {
+  currentSortOrder.value = newOrder
+  // 保存到本地存储
+  localStorage.setItem('searchSortOrder', newOrder)
 }
 </script>
 
@@ -93,6 +119,24 @@ const changeLanguage = (newLang: Language) => {
           </div>
           <select v-model="currentLanguage" @change="changeLanguage(currentLanguage)" class="language-selector">
             <option v-for="option in languageOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Settings -->
+    <div class="settings-section">
+      <div class="section-header">{{ lang.searchSettings }}</div>
+      <div class="section-content">
+        <div class="settings-item">
+          <div class="item-info">
+            <span class="item-label">{{ lang.searchSortOrder }}</span>
+            <span class="item-sublabel">{{ lang.searchSortOrderSub }}</span>
+          </div>
+          <select v-model="currentSortOrder" @change="changeSortOrder(currentSortOrder)" class="language-selector">
+            <option v-for="option in searchSortOptions" :key="option.value" :value="option.value">
               {{ option.label }}
             </option>
           </select>
