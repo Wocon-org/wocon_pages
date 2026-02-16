@@ -1,35 +1,37 @@
-# Wocon 项目文档
+# Wocon Project Documentation
 
-## 项目概述
-Wocon 是一个专注于旅游社交的应用，帮助用户找到志同道合的旅游伙伴，发现独特的旅行目的地。我们的目标是在你计划旅行的未知时刻，为你提供一个独一无二的解决方案。
+## Project Overview
+Wocon is a travel social application that helps users find like-minded travel companions and discover unique travel destinations. Our goal is to provide you with a one-of-a-kind solution during those unknown moments when you're planning your trip.
 
-## 核心功能
-- 🗺️ **交互式地图**：基于 Leaflet.js 实现的流畅地图体验
-- 🌍 **位置发现**：随机跳转到全球热门旅游目的地
-- 📍 **定位功能**：获取并显示用户当前位置
-- 👥 **旅游伙伴匹配**：基于兴趣和目的地找到合适的旅行伙伴
-- 📋 **行程管理**：创建、分享和协作旅行计划
-- 🔍 **地点搜索**：快速查找旅游景点和住宿，支持多种排序方式
-- 🎨 **现代化界面**：基于 Google MD3 设计系统的优雅体验
-- 📞 **联系我们**：多种渠道与团队取得联系
-- ☰ **更多选项菜单**：响应式设计的导航菜单
-- ⚙️ **搜索设置**：自定义搜索排序偏好
-- 📱 **侧边栏导航**：带有切换功能的标签式导航
-- 👤 **连接面板**：管理旅游伙伴和消息
-- 📚 **文档页面**：多语言支持的项目文档中心
+## Core Features
+- 🗺️ **Interactive Map**: Smooth map experience powered by Leaflet.js
+- 🌍 **Location Discovery**: Randomly jump to popular travel destinations worldwide with Swiss Design style notifications
+- 📍 **Geolocation**: Get and display user's current location
+- 👥 **Travel Companion Matching**: Find suitable travel companions based on interests and destinations
+- 📋 **Trip Management**: Create, share, and collaborate on travel plans
+- 🔍 **Location Search**: Quickly find tourist attractions and accommodations with multiple sorting options
+- 🎨 **Modern Interface**: Elegant experience based on Google MD3 design system
+- 📞 **Contact Us**: Multiple channels to get in touch with the team
+- ☰ **More Options Menu**: Responsive design navigation menu
+- ⚙️ **Search Settings**: Customize search sorting preferences
+- 📱 **Sidebar Navigation**: Tab-based navigation with toggle functionality
+- 👤 **Connections Panel**: Manage travel companions and messages
+- 📚 **Documentation Page**: Multi-language support for project documentation center
+- 🔐 **User Authentication**: Support for email/password, email link, and OAuth login
+- ✉️ **Email Verification**: Secure user email confirmation system
+- 👨‍💼 **Account Management**: Profile editing and password reset functionality
 
-## 技术栈
-- **前端**：Vue 3 Composition API、TypeScript、Leaflet.js
-- **后端**：Supabase (数据库和用户认证)
-- **部署**：Cloudflare Pages
-- **开发工具**：VS Code、Trae、GitHub、TablePlus
+## Technology Stack
+- **Frontend**: Vue 3 Composition API, TypeScript, Leaflet.js
+- **Backend**: Supabase (database and user authentication)
+- **Deployment**: Cloudflare Pages
+- **Development Tools**: VS Code, Trae, GitHub, TablePlus
 
-## 文档导航
-- [快速开始](quickstart.md)：首次使用指南
-- [功能说明](features.md)：详细功能介绍
-- [常见问题](faq.md)：使用问题解答
+## Documentation Navigation
+- [Quick Start](quickstart.md): First-time usage guide
+- [Features](features.md): Detailed feature introduction
+- [FAQ](faq.md): Usage question answers
 
-## 快速链接
-- [GitHub 仓库](https://github.com/wocon-org/wocon_pages)
-- [在线演示](https://wocon.pages.dev)
-- [Supabase 控制台](https://app.supabase.com)
+## Quick Links
+- [GitHub Repository](https://github.com/wocon-org/wocon_pages)
+- [Online Demo](https://wocon.pages.dev)

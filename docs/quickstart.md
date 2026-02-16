@@ -190,6 +190,64 @@ When you first open Wocon, you'll be greeted with an interactive world map. Here
 4. **Check Notifications**: Keep an eye on the notification area for updates
 5. **Experiment with Zoom**: Practice zooming in and out to understand map scales
 
+## User Authentication
+
+### Creating an Account
+
+1. **Access Sign Up Page**
+   - Click the "Profile" icon in the top bar
+   - Select "Sign Up" from the dropdown menu
+   - Or use the URL path `/signup` to directly access the sign up page
+
+2. **Complete Sign Up Form**
+   - Enter your email address
+   - Choose a strong password
+   - Create a username
+   - Enter a nickname (optional)
+   - Click "Sign Up" to create your account
+
+3. **Verify Your Email**
+   - Check your email inbox for a verification message from Wocon
+   - Click the verification link in the email
+   - You will be redirected back to the Wocon app
+   - Your account is now verified and ready to use
+
+### Logging In
+
+1. **Access Login Page**
+   - Click the "Profile" icon in the top bar
+   - Select "Login" from the dropdown menu
+   - Or use the URL path `/login` to directly access the login page
+
+2. **Choose Login Method**
+   - **Email/Password**: Enter your registered email and password
+   - **Email Link**: Enter your email and receive a magic link to login
+   - **Social Login**: Click on the icon of your preferred social platform (GitHub, Google, Facebook, LinkedIn)
+
+3. **Complete Login**
+   - Follow the prompts for your selected login method
+   - Once authenticated, you will be redirected to the main app
+
+### Managing Your Account
+
+1. **Access Profile Settings**
+   - Click the "Profile" icon in the top bar
+   - Select "Profile" from the dropdown menu
+   - Or use the URL path `/profile` to directly access your profile
+
+2. **Update Profile Information**
+   - Edit your username, nickname, and other profile details
+   - Save your changes
+
+3. **Reset Password**
+   - If you forget your password, click "Forgot Password?" on the login page
+   - Enter your email address
+   - Follow the instructions in the password reset email
+
+4. **Logout**
+   - Click the "Profile" icon in the top bar
+   - Select "Logout" from the dropdown menu
+
 ## Next Steps
 
 - [Features](features.md): Learn about all available features in detail

@@ -210,12 +210,107 @@
 ### Backend Services
 - **Database**: PostgreSQL database for storing user data and trip information
 - **Authentication**: Secure user login and session management
+- **Email Verification**: Email confirmation system for user account security
 - **Realtime Updates**: Live data synchronization for collaborative features
 
 ### Data Management
 - **Efficient Queries**: Optimized database queries for fast performance
 - **Data Validation**: Server-side validation for data integrity
 - **Scalability**: Designed to handle growing user base and data volume
+
+## User Authentication
+
+### Authentication Methods
+- **Email/Password**: Traditional email and password authentication
+- **Email Link**: Passwordless login via email link
+- **OAuth Integration**: Support for social login providers (GitHub, Google, Facebook, LinkedIn)
+
+### Email Verification
+- **Security**: Ensures only verified users can access the system
+- **User Experience**: Clear verification process with email notifications
+- **Redirect Flow**: Smooth redirect back to the app after verification
+
+### Account Management
+- **Password Reset**: Secure password recovery process
+- **Profile Management**: User profile creation and editing
+- **Session Management**: Secure session handling and automatic logout
+
+## Sidebar Navigation
+
+### Core Functionality
+- **Tab-based Navigation**: Easy access to different app sections
+- **Toggle Behavior**: Click once to activate, click again to return to home state
+- **Visual Feedback**: Clear active state indicators
+- **Keyboard Accessibility**: Full keyboard navigation support
+
+### Navigation Options
+- **Home**: Return to the main map view
+- **Connections**: Access your travel connections and messaging
+- **Search**: Find destinations and points of interest
+- **Discover**: Explore random travel destinations
+- **Plugins**: Access additional app features
+- **More**: Additional options and settings
+
+### More Menu
+- **Dropdown Functionality**: Click to reveal additional options
+- **Keyboard Accessible**: Full keyboard navigation support
+- **Responsive Design**: Adapts to different screen sizes
+- **Menu Options**: Includes settings, profile, documentation, and more
+
+## Connections Panel
+
+### Connection Management
+- **Add Connections**: Simple interface to add new travel companions
+- **Connection List**: Display of all your travel connections
+- **Status Indicators**: Online, away, and offline status for each connection
+- **Unread Messages**: Badge indicators for unread messages
+
+### User Experience
+- **Modal Interface**: Clean modal for adding new connections
+- **Real-time Updates**: Dynamic list updates when connections change
+- **Empty State**: Helpful message when no connections exist
+- **Smooth Animations**: Transition effects for panel interactions
+
+## Documentation Page
+
+### Core Features
+- **Multi-language Support**: Available in both Chinese and English
+- **Document Organization**: Structured list of all documentation files
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Smooth Navigation**: Easy switching between different documentation pages
+
+### User Experience
+- **Modern Typography**: Clean, readable text layout
+- **Visual Hierarchy**: Clear heading structure and spacing
+- **Language Switcher**: Convenient language toggle in header
+- **Loading States**: Elegant loading indicators during content fetching
+
+### Content Coverage
+- **Quickstart Guide**: Getting started with the application
+- **Features Documentation**: Detailed information about all app features
+- **FAQ**: Answers to common questions
+- **Deployment Guide**: Instructions for deploying the application
+- **Database Schema**: Information about the database structure
+- **Backend Logic**: Details about the backend implementation
+- **Startup Prompts**: Information about startup screen prompts
+
+## Discover Feature
+
+### Random Destination Selection
+- **Smart Algorithm**: Selects popular travel destinations from a curated database
+- **Variety**: Ensures diverse locations across different regions
+- **Popularity Based**: Prioritizes destinations with high travel interest
+
+### Animation Experience
+- **Smooth Flight**: Google Earth-style camera movement to new destinations
+- **Scale Adjustment**: Automatically zooms to the optimal level for each location
+- **Visual Feedback**: Clear transition from current view to new destination
+
+### Notification System
+- **Destination Alert**: Shows the name and country of the discovered location
+- **Auto-dismiss**: Fades automatically after 1.5 seconds
+- **Stylish Design**: Modern Swiss Design style notification with subtle animations
+- **Smooth Transitions**: Elegant enter and exit animations
 
 ## Cloudflare Pages Deployment
 
