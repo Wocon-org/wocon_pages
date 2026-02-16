@@ -147,15 +147,36 @@ export async function searchCities(query: string, options: SearchOptions = {}): 
 
   // 直接调用Supabase
   try {
-    const { data, error: rpcError } = await supabase.rpc('search_cities', { query })
+    let data: any[] = []
+    let error: any = null
 
-    if (rpcError) {
-      console.error('Supabase RPC error:', rpcError)
+    // 直接使用fallback方案，查询cities表
+    try {
+      console.log('Using direct cities table query for search')
+      const queryResult = await supabase
+        .from('cities')
+        .select('*')
+        .ilike('name', `%${query}%`)
+        .limit(20)
+      data = queryResult.data
+      error = queryResult.error
+    } catch (queryError) {
+      console.error('Direct cities query failed:', queryError)
+      return []
+    }
+
+    if (error) {
+      console.error('Supabase city search error:', error)
+      return []
+    }
+
+    if (!data || data.length === 0) {
+      console.log('No cities found for query:', query)
       return []
     }
 
     let results = (data as any[]).map((city: any) => ({
-      id: `city-${city.geonameid}`,
+      id: `city-${city.geonameid || city.id}`,
       type: 'destination' as const,
       title: city.name,
       subtitle: `${city.country_code} • Population: ${city.population?.toLocaleString() || 'N/A'}`,
@@ -222,17 +243,14 @@ export async function searchTrips(query: string, options: SearchOptions = {}): P
       .select(`
         id,
         title,
-        description,
         start_date,
         end_date,
         author,
         location_lat,
         location_lng,
-        is_public,
-        profiles(name)
+        is_public
       `)
       .ilike('title', `%${query}%`)
-      .ilike('description', `%${query}%`)
       .eq('is_public', true)
       .limit(options.limit || 10)
 
@@ -245,10 +263,10 @@ export async function searchTrips(query: string, options: SearchOptions = {}): P
       id: trip.id,
       type: 'trip' as const,
       title: trip.title,
-      subtitle: trip.description || 'No description',
+      subtitle: 'Trip',
       start_date: trip.start_date,
       end_date: trip.end_date,
-      author: trip.profiles?.name || 'Unknown',
+      author: trip.author || 'Unknown',
       lat: trip.location_lat,
       lng: trip.location_lng,
       is_public: trip.is_public
@@ -316,9 +334,22 @@ export async function getSearchSuggestions(query: string): Promise<string[]> {
   }
 
   try {
-    const { data } = await supabase
-      .rpc('search_city_suggestions', { query })
-      .limit(5)
+    let data: any[] = []
+
+    // 尝试使用RPC函数
+    try {
+      const rpcResult = await supabase.rpc('search_city_suggestions', { query }).limit(5)
+      data = rpcResult.data
+    } catch (rpcError) {
+      console.warn('RPC suggestion function not available, falling back to direct query:', rpcError)
+      // Fallback: 直接查询cities表
+      const queryResult = await supabase
+        .from('cities')
+        .select('name')
+        .ilike('name', `${query}%`)
+        .limit(5)
+      data = queryResult.data
+    }
 
     return (data || []).map((item: any) => item.name)
   } catch (error) {
