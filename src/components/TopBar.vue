@@ -37,6 +37,11 @@ const handleCreateTrip = () => {
   showMoreMenu.value = false
 }
 
+const handleDocumentation = () => {
+  router.push('/documentation')
+  showMoreMenu.value = false
+}
+
 const toggleMoreMenu = () => {
   showMoreMenu.value = !showMoreMenu.value
 }
@@ -197,7 +202,7 @@ const closeMoreMenu = () => {
         </button>
 
         <!-- 更多选项菜单 -->
-        <div v-if="showMoreMenu" class="more-menu" @click.stop>
+        <div v-if="showMoreMenu" class="more-menu show" @click.stop>
           <div class="more-menu-content">
             <!-- 地图图层切换 -->
             <button
@@ -275,6 +280,24 @@ const closeMoreMenu = () => {
                 <circle cx="12" cy="7" r="4" />
               </svg>
               <span>Profile</span>
+            </button>
+
+            <!-- 查看文档按钮 -->
+            <button
+              class="more-menu-item"
+              @click="handleDocumentation"
+              @keydown.enter="handleDocumentation"
+              @keydown.space="handleDocumentation"
+              tabindex="0"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              <span>View Documentation</span>
             </button>
           </div>
         </div>
@@ -434,40 +457,40 @@ const closeMoreMenu = () => {
   .desktop-actions {
     display: none;
   }
-  
+
   .mobile-actions {
     display: flex;
   }
-  
+
   .top-bar {
     padding: 0 16px;
     height: 56px;
   }
-  
+
   .logo-text {
     font-size: 1.25rem;
     letter-spacing: 1px;
   }
-  
+
   .top-bar-actions {
     gap: 12px;
   }
-  
+
   .action-btn {
     width: 36px;
     height: 36px;
   }
-  
+
   .action-btn svg {
     width: 16px;
     height: 16px;
   }
-  
+
   .more-menu {
     min-width: 200px;
     margin-top: 6px;
   }
-  
+
   .more-menu-item {
     padding: 10px 14px;
     font-size: var(--md3-body-small);
@@ -496,22 +519,22 @@ const closeMoreMenu = () => {
     background: var(--md3-primary);
     color: var(--md3-on-primary);
   }
-  
+
   .more-menu {
     background: var(--md3-surface);
     border: 2px solid var(--md3-primary);
   }
-  
+
   .more-menu-item {
     color: var(--md3-on-surface);
   }
-  
+
   .more-menu-item:hover,
   .more-menu-item:focus-visible {
     background: rgba(0, 180, 171, 0.1);
     color: var(--md3-primary);
   }
-  
+
   .more-menu-item.active {
     background: rgba(0, 180, 171, 0.1);
     color: var(--md3-primary);
@@ -519,9 +542,5 @@ const closeMoreMenu = () => {
 }
 
 /* Show more menu when active */
-.more-menu {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
+/* Removed global override to allow conditional display */
 </style>

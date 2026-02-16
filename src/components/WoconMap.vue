@@ -219,79 +219,103 @@ watch(() => props.markers, (newMarkers) => {
 }, { deep: true })
 
 onMounted(() => {
-  if (mapContainer.value) {
-    map = L.map(mapContainer.value, {
-      zoomControl: false,
-      inertiaDeceleration: 2000,
-      inertiaMaxSpeed: 2500,
-      easeLinearity: 0.25,
-      wheelDebounceTime: 20,
-      wheelPxPerZoomLevel: 45,
-      tapTolerance: 10,
-      bounceAtZoomLimits: true,
-      minZoom: 2,
-      maxZoom: 18,
-      maxBounds: [[-90, -180], [90, 180]],
-      maxBoundsViscosity: 1.0
-    }).setView([20, 0], 2)
+  if (mapContainer.value && !map) {
+    try {
+      // 确保容器是干净的
+      if (mapContainer.value._leaflet_id) {
+        // 容器已经被初始化，先清理
+        const existingMap = L.Util.getMap(mapContainer.value)
+        if (existingMap) {
+          existingMap.remove()
+        }
+      }
 
-    const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      maxZoom: 19
-    })
+      map = L.map(mapContainer.value, {
+        zoomControl: false,
+        inertiaDeceleration: 2000,
+        inertiaMaxSpeed: 2500,
+        easeLinearity: 0.25,
+        wheelDebounceTime: 20,
+        wheelPxPerZoomLevel: 45,
+        tapTolerance: 10,
+        bounceAtZoomLimits: true,
+        minZoom: 2,
+        maxZoom: 18,
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1.0
+      }).setView([20, 0], 2)
 
-    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
-      maxZoom: 19
-    })
-
-    const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      maxZoom: 19
-    })
-
-    lightLayer.addTo(map)
-
-    // 移除默认图层控制，使用TopBar中的切换功能
-    // const baseMaps = {
-    //   'Standard': lightLayer,
-    //   'Satellite': satelliteLayer,
-    //   'Dark': darkLayer
-    // }
-
-    // layers = L.control.layers(baseMaps, undefined, {
-    //   position: 'topright',
-    //   collapsed: false
-    // }).addTo(map)
-
-    // 添加缩放控件
-    L.control.zoom({
-      position: 'bottomright'
-    }).addTo(map)
-
-    // 添加地图点击事件来添加标记点
-    if (!props.readonly && props.mode === 'trip') {
-      map.on('click', (e) => {
-        addMarker(e.latlng.lat, e.latlng.lng)
+      const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 19
       })
-    }
 
-    // 初始添加markers
-    props.markers?.forEach(marker => {
-      addMarker(marker.lat, marker.lng)
-    })
+      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
+        maxZoom: 19
+      })
+
+      const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 19
+      })
+
+      lightLayer.addTo(map)
+
+      // 移除默认图层控制，使用TopBar中的切换功能
+      // const baseMaps = {
+      //   'Standard': lightLayer,
+      //   'Satellite': satelliteLayer,
+      //   'Dark': darkLayer
+      // }
+
+      // layers = L.control.layers(baseMaps, undefined, {
+      //   position: 'topright',
+      //   collapsed: false
+      // }).addTo(map)
+
+      // 添加缩放控件
+      L.control.zoom({
+        position: 'bottomright'
+      }).addTo(map)
+
+      // 添加地图点击事件来添加标记点
+      if (!props.readonly && props.mode === 'trip') {
+        map.on('click', (e) => {
+          addMarker(e.latlng.lat, e.latlng.lng)
+        })
+      }
+
+      // 初始添加markers
+      props.markers?.forEach(marker => {
+        addMarker(marker.lat, marker.lng)
+      })
+    } catch (error) {
+      console.error('Error initializing map:', error)
+      // 清理错误状态
+      map = null
+    }
   }
 })
 
 onBeforeUnmount(() => {
-  if (map) {
-    map.remove()
-    map = null
+  try {
+    // 清理标记点
+    clearMarkers()
+
+    // 清理地图实例
+    if (map) {
+      map.remove()
+      map = null
+    }
+
+    // 清理图层控制
+    if (layers) {
+      layers = null
+    }
+  } catch (error) {
+    console.error('Error cleaning up map:', error)
   }
-  if (layers) {
-    layers = null
-  }
-  mapMarkers.value = []
 })
 
 // 暴露方法给父组件

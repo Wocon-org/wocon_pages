@@ -12,6 +12,7 @@ import ChangePassword from '@/views/ChangePassword.vue'
 import Feedback from '@/views/Feedback.vue'
 import Contact from '@/views/Contact.vue'
 import ApiTest from '@/views/ApiTest.vue'
+import Documentation from '@/views/Documentation.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -97,6 +98,13 @@ const router = createRouter({
       path: '/api-test',
       name: 'api-test',
       component: ApiTest,
+      meta: { requiresAuth: false }
+    },
+    // Documentation page
+    {
+      path: '/documentation',
+      name: 'documentation',
+      component: Documentation,
       meta: { requiresAuth: false }
     }
   ]
