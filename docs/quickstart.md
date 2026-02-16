@@ -70,6 +70,49 @@ When you first open Wocon, you'll be greeted with an interactive world map. Here
 - **Discover**: Randomly explore new destinations
 - **Plugins**: Access additional features and integrations
 
+#### Toggle Behavior
+
+- **Click Once**: Activates the selected feature
+- **Click Again**: Returns to the home state
+- **Visual Feedback**: Clear active state indicators for selected features
+
+### Connections Panel
+
+1. **Access Connections**
+   - Click the "Connections" icon in the sidebar
+   - The connections panel will appear
+
+2. **Add New Connection**
+   - Click the "Add Connection" button at the top of the panel
+   - Enter the connection name in the modal
+   - Click "Add" to save the new connection
+
+3. **Manage Connections**
+   - View connection status (online, away, offline)
+   - See unread message counts
+   - Click on a connection to open chat (coming soon)
+
+### Documentation Page
+
+1. **Access Documentation**
+   - Click the "More" button in the sidebar
+   - Select "Docs" from the dropdown menu
+   - Or use the URL path `/docs` to directly access the documentation
+
+2. **Navigate Documentation**
+   - Use the sidebar to select different documentation files
+   - Click on a documentation file to view its content
+   - Use the language switcher in the header to change between Chinese and English
+
+3. **Available Documentation**
+   - Quickstart Guide: Getting started with Wocon
+   - Features: Detailed information about all features
+   - FAQ: Answers to common questions
+   - Deployment Guide: Instructions for deploying Wocon
+   - Database Schema: Information about the database structure
+   - Backend Logic: Details about the backend implementation
+   - Startup Prompts: Information about startup screen prompts
+
 ### Top Bar Navigation
 
 - **Wocon Logo**: Click to return to the home page

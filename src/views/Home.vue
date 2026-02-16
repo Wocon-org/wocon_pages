@@ -31,11 +31,18 @@ const showDiscoverPanel = ref(true)
 const citiesCache = ref<any[]>([])
 const isCitiesLoaded = ref(false)
 
+// 发现提示消息状态
+const showDiscoverMessage = ref(false)
+const discoverMessage = ref('')
+
 // WorldMap 引用
 const worldMapRef = ref<any>()
 
 // 处理 tab 切换
 const handleTabChange = async (tab: TabType) => {
+  // 检查是否需要切换关闭（当前已经是选中状态）
+  const isTogglingOff = activeTab.value === tab
+
   // 重置对应面板的显示状态
   if (tab === 'connections') {
     showConnectionsPanel.value = true
@@ -47,61 +54,66 @@ const handleTabChange = async (tab: TabType) => {
     showDiscoverPanel.value = true
   }
 
-  // Search 特殊处理：切换显示/隐藏
-  if (tab === 'search') {
-    if (activeTab.value === 'search') {
-      // 当前已经是search，则关闭
-      activeTab.value = 'home'
-    } else {
-      // 切换到search
-      activeTab.value = 'search'
-    }
-  } else if (tab === 'discover') {
-    // 切换到discover时自动触发发现功能
-    activeTab.value = tab
-
-    // 模拟发现功能
-    try {
-      let cities: any[] = []
-
-      // 检查缓存是否存在
-      if (isCitiesLoaded.value && citiesCache.value.length > 0) {
-        cities = citiesCache.value
-        console.log('Using cached cities data')
-      } else {
-        // 从数据库获取热门城市
-        const { data, error } = await supabase
-          .from('cities')
-          .select('geonameid, name, asciiname, country_code, latitude, longitude, population')
-          .gte('population', 500000)
-          .order('population', { ascending: false, nullsFirst: false })
-          .limit(50)
-
-        if (!error && data && data.length > 0) {
-          cities = data
-          // 存储到缓存
-          citiesCache.value = data
-          isCitiesLoaded.value = true
-          console.log('Loaded cities data from database')
-        }
-      }
-
-      if (cities.length > 0) {
-        // 随机选择一个城市
-        const randomIndex = Math.floor(Math.random() * cities.length)
-        const randomCity = cities[randomIndex]
-
-        if (randomCity && worldMapRef.value) {
-          // 飞转到随机城市（类似Google Earth效果，使用更高的缩放级别）
-          worldMapRef.value.flyTo(randomCity.latitude, randomCity.longitude, 12)
-          console.log('Discovered city:', randomCity.name, randomCity.country_code)
-        }
-      }
-    } catch (error) {
-      console.error('Discover error:', error)
-    }
+  // 处理切换逻辑
+  if (isTogglingOff) {
+    // 当前已经是选中状态，切换关闭
+    activeTab.value = 'home'
   } else {
+    // 切换到新标签
     activeTab.value = tab
+
+    // 切换到discover时自动触发发现功能
+    if (tab === 'discover') {
+      // 模拟发现功能
+      try {
+        let cities: any[] = []
+
+        // 检查缓存是否存在
+        if (isCitiesLoaded.value && citiesCache.value.length > 0) {
+          cities = citiesCache.value
+          console.log('Using cached cities data')
+        } else {
+          // 从数据库获取热门城市
+          const { data, error } = await supabase
+            .from('cities')
+            .select('geonameid, name, asciiname, country_code, latitude, longitude, population')
+            .gte('population', 500000)
+            .order('population', { ascending: false, nullsFirst: false })
+            .limit(50)
+
+          if (!error && data && data.length > 0) {
+            cities = data
+            // 存储到缓存
+            citiesCache.value = data
+            isCitiesLoaded.value = true
+            console.log('Loaded cities data from database')
+          }
+        }
+
+        if (cities.length > 0) {
+          // 随机选择一个城市
+          const randomIndex = Math.floor(Math.random() * cities.length)
+          const randomCity = cities[randomIndex]
+
+          if (randomCity && worldMapRef.value) {
+            // 飞转到随机城市（类似Google Earth效果，使用更高的缩放级别）
+            worldMapRef.value.flyTo(randomCity.latitude, randomCity.longitude, 12)
+            console.log('Discovered city:', randomCity.name, randomCity.country_code)
+
+            // 显示发现提示消息
+            discoverMessage.value = `Discovering ${randomCity.name}, ${randomCity.country_code}...`
+            showDiscoverMessage.value = true
+
+            // 1.5秒后隐藏消息
+            setTimeout(() => {
+              showDiscoverMessage.value = false
+            }, 1500)
+          }
+        }
+      } catch (error) {
+        console.error('Discover error:', error)
+      }
+    }
   }
 }
 
@@ -295,6 +307,17 @@ const handleMoreOptionClick = (option: string) => {
       </Transition>
     </div>
 
+    <!-- 发现消息提示 - Swiss Style -->
+    <Transition name="discover-message">
+      <div v-if="showDiscoverMessage" class="discover-message">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+        <span>{{ discoverMessage }}</span>
+      </div>
+    </Transition>
 
   </div>
 </template>
@@ -404,7 +427,70 @@ const handleMoreOptionClick = (option: string) => {
   opacity: 0;
 }
 
+/* 发现消息提示 - Swiss Style */
+.discover-message {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--md3-surface);
+  color: var(--md3-on-surface);
+  padding: 12px 24px;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--md3-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 2000;
+  border: 2px solid var(--md3-primary);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
+.discover-message svg {
+  color: var(--md3-primary);
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.discover-message span {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--md3-on-surface);
+  line-height: 1.4;
+}
+
+/* 消息动画 - 平滑过渡 */
+.discover-message-enter-active,
+.discover-message-leave-active {
+  transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.discover-message-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+  box-shadow: 0 0 0 var(--md3-primary);
+}
+
+.discover-message-enter-to {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  box-shadow: 4px 4px 0 var(--md3-primary);
+}
+
+.discover-message-leave-from {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  box-shadow: 4px 4px 0 var(--md3-primary);
+}
+
+.discover-message-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+  box-shadow: 0 0 0 var(--md3-primary);
+}
 
 /* 面板特定样式 */
 .panel-connections {
@@ -443,13 +529,11 @@ const handleMoreOptionClick = (option: string) => {
   .panel-search,
   .panel-plugins {
     min-width: 280px;
-    max-width: calc(100vw - 40px);
+    max-width: calc(100vw - 20px);
   }
 
   .panel-discover {
     left: 0;
   }
-
-
 }
 </style>

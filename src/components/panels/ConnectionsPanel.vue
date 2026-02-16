@@ -22,6 +22,11 @@ const handleClose = () => {
 // 模拟好友列表数据(后续使用Supabase数据)
 const connections = ref<any[]>([])
 
+// 添加连接弹窗状态
+const showAddModal = ref(false)
+const newConnectionName = ref('')
+const isAdding = ref(false)
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'online':
@@ -41,8 +46,34 @@ const handleConnectionClick = (id: string) => {
 }
 
 const handleAddConnection = () => {
-  console.log('Add connection')
-  // TODO: 打开添加好友弹窗
+  showAddModal.value = true
+}
+
+const handleAddConnectionSubmit = () => {
+  if (newConnectionName.value.trim()) {
+    isAdding.value = true
+    
+    // 模拟添加连接的过程
+    setTimeout(() => {
+      const newConnection = {
+        id: (connections.value.length + 1).toString(),
+        name: newConnectionName.value.trim(),
+        status: 'online',
+        lastMessage: 'New connection added!',
+        unread: 0
+      }
+      
+      connections.value.unshift(newConnection)
+      showAddModal.value = false
+      newConnectionName.value = ''
+      isAdding.value = false
+    }, 1000)
+  }
+}
+
+const handleAddConnectionCancel = () => {
+  showAddModal.value = false
+  newConnectionName.value = ''
 }
 </script>
 
@@ -101,6 +132,40 @@ const handleAddConnection = () => {
       </svg>
       <p>No connections yet</p>
       <p class="empty-hint">Add friends to start chatting</p>
+    </div>
+
+    <!-- 添加连接弹窗 -->
+    <div v-if="showAddModal" class="modal-overlay">
+      <div class="add-modal">
+        <h3>Add New Connection</h3>
+        <div class="modal-content">
+          <label for="connection-name">Name</label>
+          <input
+            id="connection-name"
+            type="text"
+            v-model="newConnectionName"
+            placeholder="Enter connection name"
+            :disabled="isAdding"
+          />
+        </div>
+        <div class="modal-actions">
+          <button
+            class="btn-cancel"
+            @click="handleAddConnectionCancel"
+            :disabled="isAdding"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn-submit"
+            @click="handleAddConnectionSubmit"
+            :disabled="isAdding || !newConnectionName.trim()"
+          >
+            <span v-if="!isAdding">Add</span>
+            <span v-else>Adding...</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -250,5 +315,145 @@ const handleAddConnection = () => {
 .empty-hint {
   font-size: var(--md3-body-small) !important;
   color: var(--md3-on-surface-variant) !important;
+}
+
+/* 添加连接弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn var(--md3-transition-medium);
+}
+
+.add-modal {
+  background: var(--md3-surface);
+  border: 2px solid var(--md3-primary);
+  border-radius: var(--md3-radius-large);
+  padding: 24px;
+  min-width: 300px;
+  box-shadow: var(--md3-elevation-4);
+  animation: slideIn var(--md3-transition-medium);
+}
+
+.add-modal h3 {
+  margin: 0 0 20px 0;
+  font-size: var(--md3-title-medium);
+  font-weight: 700;
+  color: var(--md3-primary);
+  text-align: center;
+}
+
+.modal-content {
+  margin-bottom: 20px;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: var(--md3-label-medium);
+  font-weight: 600;
+  color: var(--md3-on-surface);
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 10px 16px;
+  border: 2px solid var(--md3-outline);
+  border-radius: var(--md3-radius-small);
+  font-size: var(--md3-body-medium);
+  background: var(--md3-surface-variant);
+  color: var(--md3-on-surface);
+  transition: all var(--md3-transition-medium);
+}
+
+.modal-content input:focus {
+  outline: none;
+  border-color: var(--md3-primary);
+  box-shadow: 0 0 0 3px rgba(0, 180, 171, 0.1);
+}
+
+.modal-content input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  border: 2px solid var(--md3-outline);
+  border-radius: var(--md3-radius-small);
+  background: var(--md3-surface);
+  color: var(--md3-on-surface);
+  font-size: var(--md3-body-medium);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--md3-transition-medium);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--md3-surface-variant);
+  border-color: var(--md3-primary);
+}
+
+.btn-cancel:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-submit {
+  padding: 10px 20px;
+  border: 2px solid var(--md3-primary);
+  border-radius: var(--md3-radius-small);
+  background: var(--md3-primary);
+  color: var(--md3-on-primary);
+  font-size: var(--md3-body-medium);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--md3-transition-medium);
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: var(--md3-primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--md3-elevation-2);
+}
+
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

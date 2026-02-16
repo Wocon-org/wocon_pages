@@ -198,7 +198,7 @@ const discoverPlace = async () => {
   font-weight: 500;
 }
 
-/* 发现消息提示 */
+/* 发现消息提示 - Swiss Style */
 .discover-message {
   position: fixed;
   top: 80px;
@@ -206,50 +206,60 @@ const discoverPlace = async () => {
   transform: translateX(-50%);
   background: var(--md3-surface);
   color: var(--md3-on-surface);
-  padding: var(--md3-space-3) var(--md3-space-4);
-  border-radius: var(--md3-radius-full);
-  box-shadow: var(--md3-elevation-4);
+  padding: 12px 24px;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--md3-primary);
   display: flex;
   align-items: center;
-  gap: var(--md3-space-3);
+  gap: 12px;
   z-index: 2000;
-  border: 1px solid var(--md3-surface-variant);
+  border: 2px solid var(--md3-primary);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .discover-message svg {
   color: var(--md3-primary);
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
 }
 
 .discover-message span {
-  font-size: var(--md3-body-medium);
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--md3-on-surface);
+  line-height: 1.4;
 }
 
-/* 消息动画 */
+/* 消息动画 - 平滑过渡 */
 .message-fade-enter-active,
 .message-fade-leave-active {
-  transition: all 0.3s ease;
+  transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .message-fade-enter-from {
   opacity: 0;
   transform: translateX(-50%) translateY(-20px);
+  box-shadow: 0 0 0 var(--md3-primary);
 }
 
 .message-fade-enter-to {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+  box-shadow: 4px 4px 0 var(--md3-primary);
 }
 
 .message-fade-leave-from {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+  box-shadow: 4px 4px 0 var(--md3-primary);
 }
 
 .message-fade-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(-20px);
+  transform: translateX(-50%) translateY(-10px);
+  box-shadow: 0 0 0 var(--md3-primary);
 }
 </style>

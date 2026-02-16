@@ -152,6 +152,59 @@
 - **Hover Effects**: Interactive feedback for menu items
 - **Accessibility**: Keyboard navigation and ARIA attributes
 
+## Sidebar Navigation
+
+### Core Functionality
+- **Tab-based Navigation**: Easy access to different app sections
+- **Toggle Behavior**: Click once to activate, click again to return to home state
+- **Visual Feedback**: Clear active state indicators
+- **Keyboard Accessibility**: Full keyboard navigation support
+
+### Navigation Options
+- **Home**: Return to the main map view
+- **Connections**: Access your travel connections and messaging
+- **Search**: Find destinations and points of interest
+- **Discover**: Explore random travel destinations
+- **Plugins**: Access additional app features
+- **More**: Additional options and settings
+
+## Connections Panel
+
+### Connection Management
+- **Add Connections**: Simple interface to add new travel companions
+- **Connection List**: Display of all your travel connections
+- **Status Indicators**: Online, away, and offline status for each connection
+- **Unread Messages**: Badge indicators for unread messages
+
+### User Experience
+- **Modal Interface**: Clean modal for adding new connections
+- **Real-time Updates**: Dynamic list updates when connections change
+- **Empty State**: Helpful message when no connections exist
+- **Smooth Animations**: Transition effects for panel interactions
+
+## Documentation Page
+
+### Core Features
+- **Multi-language Support**: Available in both Chinese and English
+- **Document Organization**: Structured list of all documentation files
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Smooth Navigation**: Easy switching between different documentation pages
+
+### User Experience
+- **Modern Typography**: Clean, readable text layout
+- **Visual Hierarchy**: Clear heading structure and spacing
+- **Language Switcher**: Convenient language toggle in header
+- **Loading States**: Elegant loading indicators during content fetching
+
+### Content Coverage
+- **Quickstart Guide**: Getting started with the application
+- **Features Documentation**: Detailed information about all app features
+- **FAQ**: Answers to common questions
+- **Deployment Guide**: Instructions for deploying the application
+- **Database Schema**: Information about the database structure
+- **Backend Logic**: Details about the backend implementation
+- **Startup Prompts**: Information about startup screen prompts
+
 ## Supabase Integration
 
 ### Backend Services
