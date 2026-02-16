@@ -123,6 +123,54 @@ async function handleTripSearch(request: Request, _env: Env): Promise<Response> 
   })
 }
 
+// Route handler type
+type RouteHandler = (request: Request, env: Env) => Promise<Response>
+
+// Route definition
+interface Route {
+  path: string
+  method: string
+  handler: RouteHandler
+}
+
+// Route registry
+const routes: Route[] = [
+  // Search routes
+  {
+    path: '/api/search/cities',
+    method: 'GET',
+    handler: handleCitySearch
+  },
+  {
+    path: '/api/search/trips',
+    method: 'GET',
+    handler: handleTripSearch
+  },
+  
+  // Health check
+  {
+    path: '/health',
+    method: 'GET',
+    handler: (_, __) => successResponse({ status: 'ok', timestamp: Date.now() })
+  }
+]
+
+// Router function
+function router(request: Request, env: Env): RouteHandler | null {
+  const url = new URL(request.url)
+  const path = url.pathname
+  const method = request.method
+
+  // Find matching route
+  for (const route of routes) {
+    if (path.startsWith(route.path) && method === route.method) {
+      return route.handler
+    }
+  }
+
+  return null
+}
+
 // Main fetch handler
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -130,21 +178,15 @@ export default {
     const corsResponse = handleCors(request)
     if (corsResponse) return corsResponse
 
-    const url = new URL(request.url)
-    const path = url.pathname
-
-    // Routes
-    if (path.startsWith('/api/search/cities') && request.method === 'GET') {
-      return handleCitySearch(request, env)
-    }
-
-    if (path.startsWith('/api/search/trips') && request.method === 'GET') {
-      return handleTripSearch(request, env)
-    }
-
-    // Health check
-    if (path === '/health' && request.method === 'GET') {
-      return successResponse({ status: 'ok', timestamp: Date.now() })
+    // Find and execute route handler
+    const handler = router(request, env)
+    if (handler) {
+      try {
+        return await handler(request, env)
+      } catch (error) {
+        console.error('Route handler error:', error)
+        return errorResponse('Internal Server Error', 500)
+      }
     }
 
     // 404
