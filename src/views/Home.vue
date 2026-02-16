@@ -13,6 +13,36 @@ import Panel from '@/components/common/Panel.vue'
 import Preloader from '@/components/Preloader.vue'
 import { supabase } from '@/lib/supabase'
 import { getTripById } from '@/modules/trip/api'
+import { useSeo } from '@/composables/useSeo'
+import { useStructuredData } from '@/composables/useStructuredData'
+
+// Set SEO options
+useSeo({
+  title: 'Wocon - Interactive World Map and Travel Discovery',
+  description: 'Explore the world with Wocon\'s interactive map, discover new destinations, and plan your next adventure.',
+  keywords: ['interactive map', 'world discovery', 'travel destinations', 'trip planning', 'explore the world'],
+  canonical: 'https://www.woconapp.com/'
+})
+
+// Set structured data
+useStructuredData({
+  webpage: {
+    name: 'Wocon - Interactive World Map and Travel Discovery',
+    url: 'https://www.woconapp.com/',
+    description: 'Explore the world with Wocon\'s interactive map, discover new destinations, and plan your next adventure.',
+    breadcrumb: {
+      type: 'BreadcrumbList',
+      itemListElement: [
+        {
+          type: 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://www.woconapp.com/'
+        }
+      ]
+    }
+  }
+})
 
 type TabType = 'home' | 'connections' | 'search' | 'discover' | 'plugins'
 

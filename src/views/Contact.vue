@@ -2,6 +2,42 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import TopBar from '@/components/TopBar.vue'
+import { useSeo } from '@/composables/useSeo'
+import { useStructuredData } from '@/composables/useStructuredData'
+
+// Set SEO options
+useSeo({
+  title: 'Contact Us - Wocon Travel Platform',
+  description: 'Get in touch with the Wocon team for questions, feedback, or support related to our travel planning and discovery platform.',
+  keywords: ['contact us', 'support', 'feedback', 'travel platform', 'Wocon team'],
+  canonical: 'https://www.woconapp.com/contact'
+})
+
+// Set structured data
+useStructuredData({
+  webpage: {
+    name: 'Contact Us - Wocon Travel Platform',
+    url: 'https://www.woconapp.com/contact',
+    description: 'Get in touch with the Wocon team for questions, feedback, or support related to our travel planning and discovery platform.',
+    breadcrumb: {
+      type: 'BreadcrumbList',
+      itemListElement: [
+        {
+          type: 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://www.woconapp.com/'
+        },
+        {
+          type: 'ListItem',
+          position: 2,
+          name: 'Contact Us',
+          item: 'https://www.woconapp.com/contact'
+        }
+      ]
+    }
+  }
+})
 
 const router = useRouter()
 const showToast = ref(false)
