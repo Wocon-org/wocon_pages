@@ -46,10 +46,13 @@ let suggestionTimeout: ReturnType<typeof setTimeout> | null = null
 // 从API搜索所有内容
 const performSearch = async (query: string): Promise<SearchResult[]> => {
   try {
+    // 从本地存储获取排序设置
+    const sortOrder = localStorage.getItem('searchSortOrder') || 'relevance'
+    
     // 使用综合搜索API
     const results = await searchEverything(query, {
       limit: 10,
-      sortBy: 'relevance'
+      sortBy: sortOrder as 'relevance' | 'population' | 'name'
     })
     return results as SearchResult[]
   } catch (error) {
