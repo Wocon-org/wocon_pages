@@ -87,11 +87,17 @@
 - **Global Coverage**: Search for cities, landmarks, and points of interest worldwide
 - **Autocomplete**: Real-time suggestions as you type
 - **Advanced Filtering**: Narrow results by type, region, or popularity
+- **Sort Options**: Sort results by relevance, population, or name
 
 ### Result Display
 - **Map Pins**: Visual indicators for search results
 - **Detail Cards**: Comprehensive information for each location
 - **Quick Actions**: One-click navigation to search results
+
+### Settings Integration
+- **Sort Preferences**: Customize default search sorting in settings page
+- **Persistent Settings**: User preferences saved across sessions
+- **Intuitive Controls**: Easy-to-use interface for adjusting search settings
 
 ## Modern Interface
 
