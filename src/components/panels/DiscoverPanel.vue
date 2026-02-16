@@ -84,14 +84,7 @@ const discoverPlace = async () => {
 
       // 触发事件，让父组件移动地图
       if (currentPlace.value) {
-        // 显示发现消息
-        discoverMessage.value = `Discovering ${currentPlace.value.name}, ${currentPlace.value.country_code}...`
-        showDiscoverMessage.value = true
 
-        // 1.5秒后隐藏消息
-        setTimeout(() => {
-          showDiscoverMessage.value = false
-        }, 1500)
 
         // 触发父组件事件
         emit('discover-place', currentPlace.value)
@@ -186,68 +179,5 @@ const discoverPlace = async () => {
   font-weight: 500;
 }
 
-/* 发现消息提示 - Swiss Style */
-.discover-message {
-  position: fixed;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--md3-surface);
-  color: var(--md3-on-surface);
-  padding: 12px 24px;
-  border-radius: 0;
-  box-shadow: 4px 4px 0 var(--md3-primary);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 2000;
-  border: 2px solid var(--md3-primary);
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
 
-.discover-message svg {
-  color: var(--md3-primary);
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-}
-
-.discover-message span {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--md3-on-surface);
-  line-height: 1.4;
-}
-
-/* 消息动画 - 平滑过渡 */
-.message-fade-enter-active,
-.message-fade-leave-active {
-  transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.message-fade-enter-from {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-20px);
-  box-shadow: 0 0 0 var(--md3-primary);
-}
-
-.message-fade-enter-to {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  box-shadow: 4px 4px 0 var(--md3-primary);
-}
-
-.message-fade-leave-from {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  box-shadow: 4px 4px 0 var(--md3-primary);
-}
-
-.message-fade-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-10px);
-  box-shadow: 0 0 0 var(--md3-primary);
-}
 </style>
