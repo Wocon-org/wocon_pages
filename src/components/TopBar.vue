@@ -13,23 +13,36 @@ const emit = defineEmits<{
 }>()
 
 const currentLayer = ref<'dark' | 'satellite'>('dark')
+const showMoreMenu = ref(false)
 
 const handleSwitchLayer = () => {
   const newLayer: 'dark' | 'satellite' = currentLayer.value === 'dark' ? 'satellite' : 'dark'
   currentLayer.value = newLayer
   emit('switchLayer', newLayer)
+  showMoreMenu.value = false
 }
 
 const handleSettings = () => {
   router.push('/settings')
+  showMoreMenu.value = false
 }
 
 const handleProfile = () => {
   router.push('/profile')
+  showMoreMenu.value = false
 }
 
 const handleCreateTrip = () => {
   router.push('/create-trip')
+  showMoreMenu.value = false
+}
+
+const toggleMoreMenu = () => {
+  showMoreMenu.value = !showMoreMenu.value
+}
+
+const closeMoreMenu = () => {
+  showMoreMenu.value = false
 }
 </script>
 
@@ -39,7 +52,8 @@ const handleCreateTrip = () => {
       <span class="logo-text">WOCON</span>
     </div>
 
-    <nav class="top-bar-actions" role="navigation" aria-label="Top bar actions">
+    <!-- 桌面端完整按钮 -->
+    <nav class="top-bar-actions desktop-actions" role="navigation" aria-label="Top bar actions">
       <!-- 地图图层切换按钮 -->
       <button
         class="action-btn"
@@ -144,6 +158,128 @@ const handleCreateTrip = () => {
         </svg>
       </button>
     </nav>
+
+    <!-- 移动端更多菜单按钮 -->
+    <nav class="top-bar-actions mobile-actions" role="navigation" aria-label="Top bar actions">
+      <!-- 创建行程按钮 -->
+      <button
+        class="action-btn"
+        @click="handleCreateTrip"
+        title="Create Trip"
+        aria-label="Create a new trip"
+        @keydown.enter="handleCreateTrip"
+        @keydown.space="handleCreateTrip"
+        tabindex="0"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
+
+      <!-- 更多选项按钮 -->
+      <div class="more-menu-container">
+        <button
+          class="action-btn"
+          @click="toggleMoreMenu"
+          :title="showMoreMenu ? 'Close Menu' : 'More Options'"
+          :aria-label="showMoreMenu ? 'Close menu' : 'More options'"
+          @keydown.enter="toggleMoreMenu"
+          @keydown.space="toggleMoreMenu"
+          tabindex="0"
+          :class="{ active: showMoreMenu }"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+        </button>
+
+        <!-- 更多选项菜单 -->
+        <div v-if="showMoreMenu" class="more-menu" @click.stop>
+          <div class="more-menu-content">
+            <!-- 地图图层切换 -->
+            <button
+              class="more-menu-item"
+              :class="{ active: currentLayer === 'satellite' }"
+              @click="handleSwitchLayer"
+              @keydown.enter="handleSwitchLayer"
+              @keydown.space="handleSwitchLayer"
+              tabindex="0"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span>{{ currentLayer === 'dark' ? 'Switch to Satellite Map' : 'Switch to Dark Map' }}</span>
+            </button>
+
+            <!-- GitHub 链接 -->
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noopener"
+              class="more-menu-item"
+              @click="closeMoreMenu"
+              tabindex="0"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+              </svg>
+              <span>GitHub Repository</span>
+            </a>
+
+            <!-- 下载按钮 -->
+            <a
+              href="https://wocon-org.github.io/"
+              target="_blank"
+              rel="noopener"
+              class="more-menu-item"
+              @click="closeMoreMenu"
+              tabindex="0"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>Download App</span>
+            </a>
+
+            <!-- 设置按钮 -->
+            <button
+              class="more-menu-item"
+              @click="handleSettings"
+              @keydown.enter="handleSettings"
+              @keydown.space="handleSettings"
+              tabindex="0"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              <span>Settings</span>
+            </button>
+
+            <!-- 个人资料按钮 -->
+            <button
+              class="more-menu-item"
+              @click="handleProfile"
+              @keydown.enter="handleProfile"
+              @keydown.space="handleProfile"
+              tabindex="0"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span>Profile</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
   </header>
 </template>
 
@@ -221,25 +357,120 @@ const handleCreateTrip = () => {
   color: var(--md3-on-primary);
 }
 
-@media (max-width: 640px) {
+/* More Menu Styles */
+.more-menu-container {
+  position: relative;
+}
+
+.more-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--md3-surface);
+  border: 2px solid var(--md3-primary);
+  border-radius: var(--md3-radius-small);
+  box-shadow: var(--md3-elevation-3);
+  min-width: 240px;
+  z-index: 2100;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  transition: all var(--md3-transition-medium);
+  pointer-events: none;
+}
+
+.more-menu.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.more-menu-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.more-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--md3-on-surface);
+  font-size: var(--md3-body-medium);
+  font-family: var(--md3-font-family);
+  cursor: pointer;
+  transition: all var(--md3-transition-short);
+  text-align: left;
+  outline: none;
+  text-decoration: none;
+}
+
+.more-menu-item:hover,
+.more-menu-item:focus-visible {
+  background: var(--md3-primary-container);
+  color: var(--md3-primary);
+  transform: translateX(4px);
+}
+
+.more-menu-item.active {
+  background: var(--md3-primary-container);
+  color: var(--md3-primary);
+}
+
+.more-menu-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Responsive Design */
+.mobile-actions {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-actions {
+    display: none;
+  }
+  
+  .mobile-actions {
+    display: flex;
+  }
+  
   .top-bar {
     padding: 0 16px;
     height: 56px;
   }
+  
   .logo-text {
     font-size: 1.25rem;
     letter-spacing: 1px;
   }
+  
   .top-bar-actions {
     gap: 12px;
   }
+  
   .action-btn {
     width: 36px;
     height: 36px;
   }
+  
   .action-btn svg {
     width: 16px;
     height: 16px;
+  }
+  
+  .more-menu {
+    min-width: 200px;
+    margin-top: 6px;
+  }
+  
+  .more-menu-item {
+    padding: 10px 14px;
+    font-size: var(--md3-body-small);
   }
 }
 
@@ -265,5 +496,32 @@ const handleCreateTrip = () => {
     background: var(--md3-primary);
     color: var(--md3-on-primary);
   }
+  
+  .more-menu {
+    background: var(--md3-surface);
+    border: 2px solid var(--md3-primary);
+  }
+  
+  .more-menu-item {
+    color: var(--md3-on-surface);
+  }
+  
+  .more-menu-item:hover,
+  .more-menu-item:focus-visible {
+    background: rgba(0, 180, 171, 0.1);
+    color: var(--md3-primary);
+  }
+  
+  .more-menu-item.active {
+    background: rgba(0, 180, 171, 0.1);
+    color: var(--md3-primary);
+  }
+}
+
+/* Show more menu when active */
+.more-menu {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
 }
 </style>
