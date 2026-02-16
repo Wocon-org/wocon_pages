@@ -116,6 +116,42 @@
 - **Hover Effects**: Interactive feedback for clickable elements
 - **Loading States**: Elegant indicators during data fetching
 
+## Contact Us Page
+
+### Communication Channels
+- **Email Support**: Direct email contact with the team
+- **GitHub Repository**: Access to source code and issue tracking
+- **Discord Community**: Join the community for discussions and support
+
+### Team Information
+- **Development Team**: Information about the core team members
+- **Founder & CEO**: Ceaser Zhao's profile and role
+
+### User Experience
+- **Modern Design**: Swiss Design style with MD3 integration
+- **Responsive Layout**: Optimized for all screen sizes
+- **Interactive Elements**: Smooth animations and hover effects
+
+## More Options Menu
+
+### Responsive Design
+- **Desktop View**: Full set of action buttons
+- **Mobile View**: Collapsed menu with hamburger icon
+- **Adaptive Behavior**: Automatically adjusts based on screen size
+
+### Menu Options
+- **Map Layer Switching**: Toggle between dark and satellite map layers
+- **GitHub Link**: Direct access to the project repository
+- **App Download**: Link to download the Wocon app
+- **Settings Access**: Quick access to user settings
+- **Profile Access**: Navigate to user profile page
+- **Documentation Access**: View project documentation
+
+### User Experience
+- **Smooth Animations**: Menu open/close transitions
+- **Hover Effects**: Interactive feedback for menu items
+- **Accessibility**: Keyboard navigation and ARIA attributes
+
 ## Supabase Integration
 
 ### Backend Services

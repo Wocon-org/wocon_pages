@@ -144,6 +144,36 @@ const handleSearchResult = (result: any) => {
     worldMapRef.value?.flyTo(result.lat, result.lng, 10)
   }
 }
+
+// 处理侧边栏菜单选项点击
+const handleMoreOptionClick = (option: string) => {
+  console.log('More option clicked:', option)
+
+  switch (option) {
+    case 'docs':
+      // 导航到新的文档页面
+      router.push('/docs')
+      break
+    case 'settings':
+      // 处理设置选项
+      console.log('Opening settings')
+      break
+    case 'help':
+      // 处理帮助选项
+      console.log('Opening help')
+      break
+    case 'about':
+      // 处理关于选项
+      console.log('Opening about')
+      break
+    case 'logout':
+      // 处理登出选项
+      console.log('Logging out')
+      break
+    default:
+      break
+  }
+}
 </script>
 
 <template>
@@ -165,6 +195,7 @@ const handleSearchResult = (result: any) => {
     <Sidebar
       :activeTab="activeTab"
       @tabChange="handleTabChange"
+      @moreOptionClick="handleMoreOptionClick"
     />
 
     <!-- 面板容器 -->

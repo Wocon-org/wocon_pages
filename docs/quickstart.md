@@ -70,6 +70,75 @@ When you first open Wocon, you'll be greeted with an interactive world map. Here
 - **Discover**: Randomly explore new destinations
 - **Plugins**: Access additional features and integrations
 
+### Top Bar Navigation
+
+- **Wocon Logo**: Click to return to the home page
+- **Map Layer Switch**: Toggle between dark and satellite map layers
+- **GitHub Link**: Visit the project repository
+- **Download App**: Get the Wocon mobile app
+- **Settings**: Access user settings
+- **Create Trip**: Start a new trip planning
+- **Profile**: View your user profile
+- **More Options**: Access additional features (on mobile devices)
+
+## Contact Support
+
+### Accessing Contact Us Page
+
+1. **From More Menu**
+   - Click the "More" button (hamburger icon) in the top bar
+   - Select "View Documentation" from the dropdown menu
+   - Navigate to the Contact section
+
+2. **Direct Access**
+   - Use the URL path `/contact` to directly access the Contact Us page
+
+### Contact Options
+
+1. **Email Support**
+   - Click the email option to open your default email client
+   - Send your questions or feedback to zhaoceaser@gmail.com
+
+2. **GitHub Repository**
+   - Click the GitHub option to visit the project repository
+   - View source code, report issues, or contribute to the project
+
+3. **Discord Community**
+   - Click the Discord option to join the Wocon community
+   - Discuss travel plans, get help, or connect with other users
+
+## Search Functionality
+
+### Using the Search Feature
+
+1. **Access Search**
+   - Click the "Search" icon in the sidebar
+   - The search panel will appear
+
+2. **Enter Search Query**
+   - Type the name of a city or landmark
+   - Real-time suggestions will appear as you type
+
+3. **Select Result**
+   - Click on a search result to select it
+   - The map will automatically zoom to the selected location
+
+### Customizing Search Settings
+
+1. **Access Search Settings**
+   - Navigate to the Settings page
+   - Find the "Search Settings" section
+
+2. **Change Sort Order**
+   - Select your preferred sort order from the dropdown menu:
+     - **Relevance**: Sort by how well results match your query
+     - **Population**: Sort by city population (largest first)
+     - **Name**: Sort alphabetically by city name
+
+3. **Save Settings**
+   - Your preferences will be saved automatically
+   - Settings will persist across sessions
+
 ## Tips for New Users
 
 1. **Start with Discover**: Get familiar with the map interface by using the Discover feature

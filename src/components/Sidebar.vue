@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { h, type FunctionalComponent } from 'vue'
+import { h, ref, type FunctionalComponent, onMounted, onUnmounted } from 'vue'
 
 type TabType = 'home' | 'connections' | 'search' | 'discover' | 'plugins'
+
+type MoreOptionType = 'settings' | 'help' | 'about' | 'logout' | 'docs'
 
 interface Props {
   activeTab: TabType
@@ -9,14 +11,41 @@ interface Props {
 
 interface Emits {
   (e: 'tabChange', tab: TabType): void
+  (e: 'moreOptionClick', option: MoreOptionType): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+const isMoreMenuOpen = ref(false)
+
 const handleTabClick = (tab: TabType) => {
   emit('tabChange', tab)
 }
+
+const toggleMoreMenu = () => {
+  isMoreMenuOpen.value = !isMoreMenuOpen.value
+}
+
+const handleMoreOptionClick = (option: MoreOptionType) => {
+  emit('moreOptionClick', option)
+  isMoreMenuOpen.value = false
+}
+
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.sidebar-more-container')) {
+    isMoreMenuOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 // 图标组件：统一用 currentColor，方便通过 CSS 控制
 const HomeIcon: FunctionalComponent = () => h('svg', {
@@ -108,12 +137,92 @@ const MoreIcon: FunctionalComponent = () => h('svg', {
   h('line', { x1: '4', y1: '18', x2: '20', y2: '18' })
 ])
 
+const SettingsIcon: FunctionalComponent = () => h('svg', {
+  width: '20',
+  height: '20',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('circle', { cx: '12', cy: '12', r: '3' }),
+  h('path', { d: 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z' })
+])
+
+const HelpIcon: FunctionalComponent = () => h('svg', {
+  width: '20',
+  height: '20',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('circle', { cx: '12', cy: '12', r: '10' }),
+  h('path', { d: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3' }),
+  h('path', { d: 'M12 17h.01' })
+])
+
+const AboutIcon: FunctionalComponent = () => h('svg', {
+  width: '20',
+  height: '20',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('circle', { cx: '12', cy: '12', r: '10' }),
+  h('path', { d: 'M12 16v-4' }),
+  h('path', { d: 'M12 8h.01' })
+])
+
+const LogoutIcon: FunctionalComponent = () => h('svg', {
+  width: '20',
+  height: '20',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('path', { d: 'm9 21 12-12-12-12' }),
+  h('path', { d: 'M21 12H9' })
+])
+
+const DocsIcon: FunctionalComponent = () => h('svg', {
+  width: '20',
+  height: '20',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  'stroke-width': '2',
+  'stroke-linecap': 'round',
+  'stroke-linejoin': 'round'
+}, [
+  h('path', { d: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z' }),
+  h('path', { d: 'M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z' })
+])
+
 const sidebarItems = [
   { id: 'home' as TabType, label: 'HOME', icon: HomeIcon },
   { id: 'connections' as TabType, label: 'CONNECTIONS', icon: ConnectionsIcon },
   { id: 'search' as TabType, label: 'SEARCH', icon: SearchIcon },
   { id: 'discover' as TabType, label: 'DISCOVER', icon: DiscoverIcon },
   { id: 'plugins' as TabType, label: 'PLUGINS', icon: PluginsIcon }
+]
+
+const moreOptions = [
+  { id: 'settings' as MoreOptionType, label: 'Settings', icon: SettingsIcon },
+  { id: 'help' as MoreOptionType, label: 'Help', icon: HelpIcon },
+  { id: 'docs' as MoreOptionType, label: 'Docs', icon: DocsIcon },
+  { id: 'about' as MoreOptionType, label: 'About', icon: AboutIcon },
+  { id: 'logout' as MoreOptionType, label: 'Logout', icon: LogoutIcon }
 ]
 </script>
 
@@ -137,16 +246,42 @@ const sidebarItems = [
       </button>
     </nav>
 
-    <button
-      class="sidebar-more"
-      title="More"
-      aria-label="More options"
-      tabindex="0"
-      @keydown.enter=""
-      @keydown.space=""
-    >
-      <MoreIcon />
-    </button>
+    <div class="sidebar-more-container">
+      <button
+        class="sidebar-more"
+        title="More"
+        aria-label="More options"
+        tabindex="0"
+        @click="toggleMoreMenu"
+        @keydown.enter="toggleMoreMenu"
+        @keydown.space="toggleMoreMenu"
+        :aria-expanded="isMoreMenuOpen"
+      >
+        <MoreIcon />
+      </button>
+
+      <div
+        v-if="isMoreMenuOpen"
+        class="sidebar-more-menu"
+        role="menu"
+        aria-label="More options"
+      >
+        <button
+          v-for="option in moreOptions"
+          :key="option.id"
+          class="sidebar-more-item"
+          @click="handleMoreOptionClick(option.id)"
+          @keydown.enter="handleMoreOptionClick(option.id)"
+          @keydown.space="handleMoreOptionClick(option.id)"
+          :aria-label="option.label"
+          role="menuitem"
+          tabindex="0"
+        >
+          <component :is="option.icon" />
+          <span>{{ option.label }}</span>
+        </button>
+      </div>
+    </div>
   </aside>
 </template>
 
@@ -248,6 +383,66 @@ const sidebarItems = [
 .sidebar-more:focus-visible svg {
   transform: scale(1.1);
   transition: transform var(--md3-transition-medium);
+}
+
+/* More Menu */
+.sidebar-more-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: 24px;
+}
+
+.sidebar-more-menu {
+  position: absolute;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--md3-surface);
+  border: 2px solid var(--md3-primary);
+  border-radius: var(--md3-radius-small);
+  box-shadow: var(--md3-elevation-3);
+  padding: var(--md3-space-1);
+  min-width: 160px;
+  z-index: 4000;
+  animation: menuFadeIn var(--md3-transition-short);
+}
+
+.sidebar-more-item {
+  display: flex;
+  align-items: center;
+  gap: var(--md3-space-3);
+  width: 100%;
+  padding: var(--md3-space-2) var(--md3-space-3);
+  border: none;
+  background: transparent;
+  color: var(--md3-primary);
+  border-radius: var(--md3-radius-small);
+  cursor: pointer;
+  transition: all var(--md3-transition-medium);
+  text-align: left;
+  font-size: var(--md3-label-medium);
+  font-weight: 600;
+}
+
+.sidebar-more-item:hover,
+.sidebar-more-item:focus-visible {
+  background: var(--md3-primary);
+  color: var(--md3-on-primary);
+  transform: translateX(4px);
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* Tooltip */
@@ -380,6 +575,21 @@ const sidebarItems = [
   .sidebar-more:hover svg,
   .sidebar-more:focus-visible svg {
     transform: scale(1.1);
+  }
+  .sidebar-more-container {
+    margin-bottom: 16px;
+  }
+  .sidebar-more-menu {
+    bottom: 64px;
+    min-width: 140px;
+  }
+  .sidebar-more-item {
+    padding: var(--md3-space-1) var(--md3-space-2);
+    font-size: var(--md3-label-small);
+  }
+  .sidebar-more-item svg {
+    width: 18px;
+    height: 18px;
   }
 }
 </style>
