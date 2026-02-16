@@ -423,36 +423,36 @@ const changeLanguage = (newLang: Language) => {
   .settings-container {
     padding: 80px 24px;
   }
-  
+
   .settings-item {
     padding: var(--md3-space-3) var(--md3-space-4);
     min-height: 56px;
   }
-  
+
   .item-label {
     font-size: var(--md3-body-small);
   }
-  
+
   .item-sublabel {
     font-size: var(--md3-label-small);
   }
-  
+
   .toggle-switch {
     width: 48px;
     height: 28px;
   }
-  
+
   .toggle-slider:before {
     height: 16px;
     width: 16px;
     left: 3px;
     bottom: 3px;
   }
-  
+
   .toggle-switch input:checked + .toggle-slider:before {
     transform: translateX(20px);
   }
-  
+
   .language-selector {
     padding: var(--md3-space-1) 32px var(--md3-space-1) var(--md3-space-2);
     font-size: var(--md3-body-small);
@@ -464,20 +464,20 @@ const changeLanguage = (newLang: Language) => {
   .settings-item:hover {
     background: rgba(0, 180, 171, 0.1);
   }
-  
+
   .toggle-slider {
     background-color: var(--md3-surface-variant);
   }
-  
+
   .toggle-switch input:checked + .toggle-slider {
     background-color: rgba(0, 180, 171, 0.2);
   }
-  
+
   .language-selector {
     background-color: var(--md3-surface);
     color: var(--md3-on-surface);
   }
-  
+
   .language-selector:hover {
     background-color: var(--md3-surface-variant);
   }
