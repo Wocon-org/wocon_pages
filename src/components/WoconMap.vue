@@ -5,22 +5,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 interface Props {
   readonly?: boolean
+  mode?: string
+  markers?: Array<{ lat: number; lng: number }>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  readonly: false
+  readonly: false,
+  mode: 'default',
+  markers: () => []
 })
 
 const emit = defineEmits<{
   'location-found': [lat: number, lng: number]
   'location-error': [error: string]
+  'marker-add': [lat: number, lng: number]
 }>()
+
+const mapMarkers = ref<L.Marker[]>([])
 
 const mapContainer = ref<HTMLDivElement>()
 let map: L.Map | null = null
@@ -161,11 +168,139 @@ onBeforeUnmount(() => {
   }
 })
 
+// 添加标记点
+const addMarker = (lat: number, lng: number) => {
+  if (!map) return
+
+  // 创建自定义标记点图标
+  const markerIcon = L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <div class="marker-container">
+        <div class="marker-dot"></div>
+      </div>
+    `,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
+  })
+
+  // 创建标记点
+  const marker = L.marker([lat, lng], {
+    icon: markerIcon,
+    draggable: !props.readonly
+  })
+
+  marker.addTo(map)
+  mapMarkers.value.push(marker)
+
+  // 触发marker-add事件
+  emit('marker-add', lat, lng)
+}
+
+// 清除所有标记点
+const clearMarkers = () => {
+  mapMarkers.value.forEach(marker => {
+    if (map) map.removeLayer(marker)
+  })
+  mapMarkers.value = []
+}
+
+// 监听markers prop变化
+watch(() => props.markers, (newMarkers) => {
+  if (!map) return
+
+  // 清除现有标记点
+  clearMarkers()
+
+  // 添加新标记点
+  newMarkers?.forEach(marker => {
+    addMarker(marker.lat, marker.lng)
+  })
+}, { deep: true })
+
+onMounted(() => {
+  if (mapContainer.value) {
+    map = L.map(mapContainer.value, {
+      zoomControl: false,
+      inertiaDeceleration: 2000,
+      inertiaMaxSpeed: 2500,
+      easeLinearity: 0.25,
+      wheelDebounceTime: 20,
+      wheelPxPerZoomLevel: 45,
+      tapTolerance: 10,
+      bounceAtZoomLimits: true,
+      minZoom: 2,
+      maxZoom: 18,
+      maxBounds: [[-90, -180], [90, 180]],
+      maxBoundsViscosity: 1.0
+    }).setView([20, 0], 2)
+
+    const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19
+    })
+
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
+      maxZoom: 19
+    })
+
+    const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19
+    })
+
+    lightLayer.addTo(map)
+
+    // 移除默认图层控制，使用TopBar中的切换功能
+    // const baseMaps = {
+    //   'Standard': lightLayer,
+    //   'Satellite': satelliteLayer,
+    //   'Dark': darkLayer
+    // }
+
+    // layers = L.control.layers(baseMaps, undefined, {
+    //   position: 'topright',
+    //   collapsed: false
+    // }).addTo(map)
+
+    // 添加缩放控件
+    L.control.zoom({
+      position: 'bottomright'
+    }).addTo(map)
+
+    // 添加地图点击事件来添加标记点
+    if (!props.readonly && props.mode === 'trip') {
+      map.on('click', (e) => {
+        addMarker(e.latlng.lat, e.latlng.lng)
+      })
+    }
+
+    // 初始添加markers
+    props.markers?.forEach(marker => {
+      addMarker(marker.lat, marker.lng)
+    })
+  }
+})
+
+onBeforeUnmount(() => {
+  if (map) {
+    map.remove()
+    map = null
+  }
+  if (layers) {
+    layers = null
+  }
+  mapMarkers.value = []
+})
+
 // 暴露方法给父组件
 defineExpose({
   flyTo,
   getUserLocation,
-  switchLayer
+  switchLayer,
+  addMarker,
+  clearMarkers
 })
 </script>
 
@@ -189,6 +324,44 @@ defineExpose({
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;
   background: var(--md3-background);
+}
+
+/* 自定义标记点样式 */
+.custom-marker {
+  pointer-events: none;
+}
+
+.marker-container {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--md3-primary);
+  border: 3px solid var(--md3-surface);
+  border-radius: 50%;
+  box-shadow: var(--md3-elevation-2);
+  transition: all var(--md3-transition-medium);
+}
+
+.marker-dot:hover {
+  transform: scale(1.2);
+  box-shadow: var(--md3-elevation-3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .marker-dot {
+    width: 10px;
+    height: 10px;
+    border-width: 2px;
+  }
 }
 
 /* 自定义控件样式 */

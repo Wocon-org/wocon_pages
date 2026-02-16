@@ -35,10 +35,23 @@ When you first open Wocon, you'll be greeted with an interactive world map. Here
 
 ### 5. Manage Trips
 
-1. Click the "Home" icon in the sidebar
-2. View your existing trips or create a new one
-3. Add destinations to your trip by clicking on the map
-4. Share your trip with friends or find travel companions
+1. **Create a New Trip**
+   - Click the "+" button in the top bar
+   - Or click the "Home" icon in the sidebar and select "Create Trip"
+
+2. **Add Destinations**
+   - In the Create Trip page, locate the map preview panel on the right
+   - Click anywhere on the map to add a blue-green marker
+   - Add multiple markers for different destinations in your trip
+
+3. **Complete Trip Details**
+   - Enter trip name, type, and description
+   - Set maximum participants and privacy settings
+   - Invite friends via email
+
+4. **Save and Share**
+   - Click "Create trip" to save your trip
+   - Share your trip with friends or find travel companions
 
 ## Basic Navigation
 

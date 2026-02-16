@@ -65,7 +65,9 @@
 ## Trip Management
 
 ### Itinerary Creation
-- **Map-based Planning**: Add destinations by clicking on the map
+- **Map-based Planning**: Add destinations by clicking on the map in Create Trip page
+- **Interactive Markers**: Custom blue-green markers with hover effects and animations
+- **Multiple Destinations**: Support for adding multiple locations to a single trip
 - **Timeline View**: Visual timeline of trip activities
 - **Collaborative Editing**: Multiple users can contribute to trip plans
 
