@@ -30,9 +30,25 @@ const toast = (msg: string) => {
   setTimeout(() => showToast.value = false, 2200)
 }
 
+const updateThemeClass = (themeValue: 'dark' | 'light') => {
+  document.documentElement.classList.remove('dark', 'light')
+  document.documentElement.classList.add(themeValue)
+}
+
 onMounted(() => {
   const saved = localStorage.getItem('wocon_theme') as 'dark' | 'light' | null
-  if (saved) theme.value = saved
+  if (saved) {
+    theme.value = saved
+  } else {
+    // Use system preference if no theme is saved
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    theme.value = systemTheme
+  }
+  updateThemeClass(theme.value)
+})
+
+watch(theme, (newTheme) => {
+  updateThemeClass(newTheme)
 })
 
 const toggleTheme = () => {
@@ -663,7 +679,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 }
 
 /* Dark Theme */
-@media (prefers-color-scheme: dark) {
+.dark {
   .signup-container {
     background: var(--md3-background);
   }
@@ -697,6 +713,45 @@ supabase.auth.onAuthStateChange((event, session) => {
 
   .toast {
     background: var(--md3-surface);
+    color: var(--md3-on-surface);
+  }
+}
+
+/* Light Theme */
+.light {
+  .signup-container {
+    background: var(--md3-background-light);
+  }
+
+  .signup-card {
+    background: var(--md3-surface-light);
+    border-color: var(--md3-primary);
+  }
+
+  .card-header {
+    background: var(--md3-primary-container);
+  }
+
+  .input-wrapper input {
+    background: var(--md3-surface-light);
+    color: var(--md3-on-surface);
+  }
+
+  .oauth-button {
+    background: var(--md3-surface-light);
+    color: var(--md3-primary);
+  }
+
+  .oauth-button:hover {
+    background: var(--md3-primary-container);
+  }
+
+  .card-footer {
+    background: var(--md3-primary-container);
+  }
+
+  .toast {
+    background: var(--md3-surface-light);
     color: var(--md3-on-surface);
   }
 }
