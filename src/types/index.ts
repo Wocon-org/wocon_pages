@@ -23,6 +23,11 @@ export interface Trip {
   is_public: boolean
   cover_image_url: string | null
   owner_id: string
+  start_date: string | null
+  end_date: string | null
+  destination: string | null
+  budget: number | null
+  tags: string[] | null
   created_at: string
   updated_at: string
   participant_count?: number
@@ -73,6 +78,11 @@ export interface CreateTripInput {
   type: 'private' | 'recruiting'
   max_participants: number
   is_public: boolean
+  start_date?: string
+  end_date?: string
+  destination?: string
+  budget?: number
+  tags?: string[]
 }
 
 export interface CreateMarkerInput {
@@ -97,4 +107,24 @@ export interface UpdateProfileInput {
   nickname?: string
   bio?: string
   avatar_url?: string
+}
+
+export interface Notification {
+  id: string
+  user_id: string
+  type: 'trip_invitation' | 'trip_update' | 'friend_request' | 'friend_accepted' | 'system'
+  title: string
+  content: string
+  is_read: boolean
+  related_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateNotificationInput {
+  user_id: string
+  type: Notification['type']
+  title: string
+  content: string
+  related_id?: string
 }
